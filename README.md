@@ -7,8 +7,15 @@ An implementation of the Euclidean rhythms idea in the form of plugins.
 In 2004 [Godfried Toussaint](https://en.wikipedia.org/wiki/Godfried_Toussaint) published [a seminal paper](http://cgm.cs.mcgill.ca/~godfried/publications/banff.pdf) in which he showed that the Euclidean algorithm for computing the greatest common divisor of two numbers can be used to generate many of the most important traditional rhythms of the world. He dubbed them _Euclidean rhythms_ in his paper.
 
 The core idea is to distribute, as evenly as possible, a number of onsets (attacks, or notes) unto a number of beats. Examples:
-- How can four onsets be distributed in a pattern of sixteen beats? That one is trivial: an onset every four beats: `[x . . . x . . . x . . . x . . . ]`.
-- More iterestingly: how to distribute, say three onbeats over a pattern of eight beats? One way to do it would be: `[x . . x . . x .]`, and the other ways would simply be rotations of this one.
+- How can four onsets be distributed in a pattern of sixteen beats? That one is trivial: an onset every four beats:
+  ```
+  E(4, 16) = [x . . . x . . . x . . . x . . . ]
+  ```
+- More iterestingly: how to distribute, say three onbeats over a pattern of eight beats? One way to do it would be:
+  ```
+  E(3, 8) = [x . . x . . x .]
+  ```
+  and the other ways would simply be rotations of this one.
 
 The objective of this project is to produce a FOSS plugin that can be introduced in the processing chain of a [digital audio workstation](https://en.wikipedia.org/wiki/Digital_audio_workstation) to produce MIDI events using the Euclidean algorithm.
 
