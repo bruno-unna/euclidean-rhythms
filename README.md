@@ -23,6 +23,22 @@ The objective of this project is to produce a FOSS plugin that can be introduced
 
 Toussaint cited [E. Bjorklund as the author](https://www.semanticscholar.org/paper/The-Theory-of-Rep-Rate-Pattern-Generation-in-the-Bjorklund/c652d0a32895afc5d50b6527447824c31a553659) of the algorithm that he applied to music. In Toussaint's paper the algorithm is not explicitly stated, but it is exemplified. And he asserts that the algorithm has a strong resemblance to Euclid's method for finding the GCD of two integers, hence the name he chose for his idea.
 
+### Notation
+
+There are several ways to represent the result of calculating the Euclidean rhythm `E(k, n)` for a given number of onsets (parameter `k`) and number of beats (parameter `n`).
+
+#### Fully extended
+
+In the examples above a fully expanded notation was used, where each beat can be represented as an `x` (if it's an onseet), or as `.` if it's a silence: `E(4, 16) = [x . . . x . . . x . . . x . . . ]` and `E(3, 8) = [x . . x . . x .]`.
+
+#### Binary
+
+Those can be easily replaced with `1` and `0`, respectively, to make it more compact (and potentially more machine friendly). That would yield `E(4, 16) = [1000100010001000]` and `E(3, 8) = [10010010]`.
+
+#### Adjacent-inter-onset-interval vector
+
+There is, however, an even more compact notation. It consists of a vector with the size of the intervals between the onsets. For the same examples above, they would be `E(4, 16) = (4444)` and `E(3, 8) = (332)`.
+
 ## Plugin(s)
 
 The idea for this project came to me when I read [someone asking for help](https://discourse.ardour.org/t/euclidean-rhythms/107461) to produce Euclidean rhythms in Ardour. After realising how fascinating the idea is, and also that most implementations are commercial, and closed source, I decided to tackle this very need,the best possible way: by provided a FOSS implementation.
