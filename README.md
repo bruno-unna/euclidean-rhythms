@@ -29,7 +29,11 @@ There are several ways to represent the result of calculating the Euclidean rhyt
 
 #### Fully extended
 
-In the examples above a fully expanded notation was used, where each beat can be represented as an `x` (if it's an onseet), or as `.` if it's a silence: `E(4, 16) = [x . . . x . . . x . . . x . . . ]` and `E(3, 8) = [x . . x . . x .]`.
+In the examples above a fully expanded notation was used, where each beat can be represented as an `x` (if it's an onseet), or as `.` if it's a silence:
+```
+E(4, 16) = [x . . . x . . . x . . . x . . . ]
+E(3, 8) = [x . . x . . x .]
+```
 
 #### Binary
 
@@ -43,7 +47,7 @@ There is, however, an even more compact notation. It consists of a vector with t
 
 #### E(1, 4)
 
-A very simple case, in extended notation. In this case, `k=1`, `n=4`. That means that there are silent `p=3` beats.
+A very simple case, in binary notation. In this case, `k=1`, `n=4`. That means that there are silent `p=3` beats.
 
 Let's call `g` the groups of onset-interval vectors that are produced by the algorithm. Let's call `r` the remaining groups. Let's initialise `g` as a sequence of `k` `1`'s, and `r` as a sequence of `p` `0`'s.
 
