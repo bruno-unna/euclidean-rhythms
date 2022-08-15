@@ -41,23 +41,35 @@ There is, however, an even more compact notation. It consists of a vector with t
 
 ### Desktop runs
 
-A very simple case, in extended notation.
+#### E(1, 4)
 
-`E(1, 4)`. In this case, `k=1`, `n=4`. That means that there are silent `p=3` beats.
+A very simple case, in extended notation. In this case, `k=1`, `n=4`. That means that there are silent `p=3` beats.
 
 Let's call `g` the groups of onset-interval vectors that are produced by the algorithm. Let's call `r` the remaining groups. Let's initialise `g` as a sequence of `k` `1`'s, and `r` as a sequence of `p` `0`'s.
 
-```
-1.    g = {1}, r = {0, 0, 0}   (|g| <= |r|)
-2.    g = {10}, r = {0, 0}   (|g| <= |r|)
-3.    g = {100}, r = {0}   (|g| <= |r|, |r| <= 1 is exit condition)
-```
+1. `g = {1}, r = {0, 0, 0}`
+2. `g = {10}, r = {0, 0}`
+3. `g = {100}, r = {0}`
 
 In step 1, `|g| <= |r|`  means that we can append one element of `r` to each element of `g`, to obtain a new `g` (with the same number of elements, but each of them longer) and a new `r` (with less elements).
 
 In step 2, the process is repeated, because once again `|g| <= |r|`.
 
 In step 3, although it is still the case that `|g| <= |r|`, it is also the case that `|r| <= 1`, which is our exit condition. All that is left to do is concanate all elements of `g` (just a single `100` in our case) with the remaining element in `r` (`0` in our case). And we say that `e(1, 4) = 1000`.
+
+#### E(3, 8)
+
+In this example `n=8` and `k=3`, so `p=5`.
+
+1. `g = {1, 1, 1}, r = {0, 0, 0, 0, 0}`
+2. `g = {10, 10, 10}, r = {0, 0}`
+3. `g = {100, 100}, r = {10}`
+
+In step 1, `|g| <= |r|` means that each `g` must receive an instance of the elements in `r`.
+
+Step 2 is more interesting, because now there are not enough elements in `r` for all elements in `g`! What we do in this case is split `g` in two: the elements that received a suffix from the previous `r`, and the elements that didn't. The former become the new `g`, and the latter become the new `r`.
+
+In step 3, `|r| <= 1`, which is our exit condition. So we can conclude that `e(3, 8) = 10010010`.
 
 ## Plugin(s)
 
