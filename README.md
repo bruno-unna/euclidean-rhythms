@@ -88,7 +88,7 @@ e(3, 8) = g(2, 100) + r(1, 10) = 10010010
 
 ## Plugin(s)
 
-The idea for this project came to me when I read [someone asking for help](https://discourse.ardour.org/t/euclidean-rhythms/107461) to produce Euclidean rhythms in Ardour. After realising how fascinating the idea is, and also that most implementations are commercial, and closed source, I decided to tackle this very need,the best possible way: by provided a FOSS implementation.
+The idea for this project came to me when I read [someone asking for help](https://discourse.ardour.org/t/euclidean-rhythms/107461) to produce Euclidean rhythms in Ardour. After realising how fascinating the idea is, and also that most implementations are commercial, and closed source, I decided to tackle this very need, in what I believe is the best possible way: by providing a FOSS implementation.
 
 I have taken inspiration from Wouter Hisschemöller's [music pattern generator](https://github.com/hisschemoller/music-pattern-generator), but his approach and objective is different to what this project intends to do. I'd say that the audience for that project is different to this one. Also, that project unfortunately seems to be receiving less attention these days (as of August 2022 their latest release is from 2020).
 
