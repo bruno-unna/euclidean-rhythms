@@ -75,6 +75,17 @@ Step 2 is more interesting, because now there are not enough elements in `r` for
 
 In step 3, `|r| <= 1`, which is our exit condition. So we can conclude that `e(3, 8) = 10010010`.
 
+At each step, all elements in both `g` and `r` are uniform. Hence, a more compact notation is possible. Let's define the ordered pair `(n, s)` as a sequence of `n` elements, all of them equal to `s`. Using that device, we can re-examine the previous example:
+
+1. `g=(3, 1), r=(5, 0)`
+2. `g=(3, 10), r=(2, 0)`
+3. `g=(2, 100), r=(1, 10)`
+
+The last row gives directly our result:
+```
+e(3, 8) = g(2, 100) + r(1, 10) = 10010010
+```
+
 ## Plugin(s)
 
 The idea for this project came to me when I read [someone asking for help](https://discourse.ardour.org/t/euclidean-rhythms/107461) to produce Euclidean rhythms in Ardour. After realising how fascinating the idea is, and also that most implementations are commercial, and closed source, I decided to tackle this very need,the best possible way: by provided a FOSS implementation.
