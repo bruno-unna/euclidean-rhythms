@@ -44,6 +44,10 @@ library('eurhythms',
     install_dir: install_folder
 )
 
+# Unit tests
+test_euclidean_algorithm = executable('prog', 'src/test/test_euclidean_algorithm.c', 'src/euclidean_algorithms.c')
+test('test the euclidean algorithm implementation', test_euclidean_algorithm)
+
 # Getting version from project configuration or from git tags
 version_array = meson.project_version().split('.')
 
