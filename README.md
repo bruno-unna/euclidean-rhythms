@@ -29,7 +29,7 @@ There are several ways to represent the result of calculating the Euclidean rhyt
 
 #### Fully extended
 
-In the examples above a fully expanded notation was used, where each beat can be represented as an *x* (if it's an onseet), or as *.* if it's a silence:
+In the examples above a fully expanded notation was used, where each beat can be represented as an *x* (if it's an onset), or as *.* if it's a silence:
 
 *E(4, 16) = [x . . . x . . . x . . . x . . . ]*
 
