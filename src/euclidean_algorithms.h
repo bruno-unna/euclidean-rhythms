@@ -1,0 +1,1 @@
+unsigned long e(unsigned short onsets, unsigned short beats);
