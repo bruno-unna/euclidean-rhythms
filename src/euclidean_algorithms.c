@@ -6,6 +6,19 @@ typedef struct {
   unsigned short s; // how long is the sequence?
 } repeats;
 
+void er(repeats *g, repeats *r) {
+  if (r->n <= 1)
+    return;
+  if (g->n <= r->n) { // distribute some elements of `r` amongst the elements of `g`
+    r->n -= g->n;
+    g->s += r->s;
+    g->v <<= r->s;
+    g->v |= r->v;
+  } else {  // forget `r` and split old `g` unto new `g` and new `r`
+    
+  }
+}
+
 unsigned long e(unsigned short onsets, unsigned short beats) {
   if (onsets > beats) {
     fprintf(stderr,
