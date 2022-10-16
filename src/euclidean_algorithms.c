@@ -9,13 +9,22 @@ typedef struct {
 void er(repeats *g, repeats *r) {
   if (r->n <= 1)
     return;
-  if (g->n <= r->n) { // distribute some elements of `r` amongst the elements of `g`
+  if (g->n <= r->n) {
+    // distribute some elements of `r` amongst the elements of `g`
     r->n -= g->n;
     g->s += r->s;
     g->v <<= r->s;
     g->v |= r->v;
-  } else {  // forget `r` and split old `g` unto new `g` and new `r`
-    
+  } else {
+    // forget `r` and split old `g` unto new `g` and new `r`
+    repeats rt = *r;
+    r->v = g->v;
+    r->n = g->n - r->n;
+    r->s = g->s;
+    g->v <<= rt.s;
+    g->v |= rt.v;
+    g->s += rt.s;
+    g->n -= rt.n;
   }
 }
 
@@ -28,8 +37,19 @@ unsigned long e(unsigned short onsets, unsigned short beats) {
   }
   repeats g = {onsets, 0b1, 1};
   repeats r = {beats - onsets, 0b0, 1};
-  // er(g, r)
-  return 0b10010110;
+  er(&g, &r);
+
+  unsigned long result = g.v;
+  for (unsigned short i = 1; i < g.n; ++i) {
+    result <<= g.s;
+    result |= g.v;
+  }
+  if (r.n > 0) {
+    result <<= r.s;
+    result |= r.v;
+  }
+
+  return result;
 }
 
 /*
