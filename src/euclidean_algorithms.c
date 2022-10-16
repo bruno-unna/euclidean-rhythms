@@ -1,12 +1,20 @@
 #include <stdio.h>
 
+typedef struct {
+  unsigned short n; // how many repetitions?
+  unsigned long v;  // of what sequence?
+  unsigned short s; // how long is the sequence?
+} repeats;
+
 unsigned long e(unsigned short onsets, unsigned short beats) {
   if (onsets > beats) {
     fprintf(stderr,
             "number of onsets (%d) can't be larger than number of beats (%d)",
             onsets, beats);
-            return -1;
+    return -1;
   }
+  repeats g = {onsets, 0b1, 1};
+  repeats r = {beats - onsets, 0b0, 1};
   // er(g, r)
   return 0b10010110;
 }
