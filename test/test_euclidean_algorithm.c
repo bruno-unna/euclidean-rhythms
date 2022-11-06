@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../euclidean_algorithms.h"
+#include "../include/euclidean.h"
 
 int main() {
    unsigned long r;
