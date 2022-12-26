@@ -1,5 +1,5 @@
 euclidean_sources = ['euclidean.c']
-euclideanlib = shared_library('euclidean',
+euclideanlib = shared_module('euclidean',
                         euclidean_sources,
                         include_directories : inc,
                         dependencies : lv2_dep,
@@ -20,12 +20,9 @@ all_dep = [lv2_dep,m_dep]
 current_os = host_machine.system()
 current_arch = build_machine.cpu_family()
 
-# Shared c_args for libraries
-lib_c_args = ['-fvisibility=hidden']
-
 # Add default x86 and x86_64 optimizations
 if current_arch == 'x86' or current_arch == 'x86_64' and current_os != 'darwin'
-    lib_c_args += ['-msse','-msse2','-mfpmath=sse','-ffast-math','-fomit-frame-pointer','-fno-finite-math-only']
+    lib_c_args = ['-msse','-msse2','-mfpmath=sse','-ffast-math','-fomit-frame-pointer','-fno-finite-math-only']
 endif
 
 # Configure extension for shared object
