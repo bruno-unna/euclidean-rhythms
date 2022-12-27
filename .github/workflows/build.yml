@@ -7,7 +7,7 @@ on:
       - 'releases/**'
       - 'improve-project-structure-and-setup'
 jobs:
-  build the plug-in:
+  build_the_plug-in:
     runs-on: ubuntu-latest
     steps:
       - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
