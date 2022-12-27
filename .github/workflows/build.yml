@@ -13,10 +13,18 @@ jobs:
       - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: meson dist
+      - name: test
         uses: BSFishy/meson-build@v1.0.3
         with:
-          action: dist
+          action: test
+          directory: build
+          options: --verbose
+          meson-version: 1.0.0
+          ninja-version: 1.11.1
+      - name: install
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: install
           directory: build
           options: --verbose
           meson-version: 1.0.0
