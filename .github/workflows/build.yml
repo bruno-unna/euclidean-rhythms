@@ -19,4 +19,6 @@ jobs:
           action: dist
           directory: build
           options: --verbose
+          meson-version: 1.0.0
+          ninja-version: 1.11.1
       - run: echo "The job's status is ${{ job.status }}."
