@@ -13,6 +13,8 @@ jobs:
       - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
       - name: Check out repository code
         uses: actions/checkout@v3
+      - name: Install lv2
+        run: sudo apt-get install -y lv2-dev
       - name: test
         uses: BSFishy/meson-build@v1.0.3
         with:
