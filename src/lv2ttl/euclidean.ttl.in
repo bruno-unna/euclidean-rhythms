@@ -31,9 +31,17 @@
   lv2:microVersion @MICRO_VERSION@ ;
 
   lv2:port [
+    a lv2:InputPort ,
+      atom:AtomPort ;
+    atom:bufferType atom:Sequence ;
+    atom:supports time:Position ;
+    lv2:index 0 ;
+    lv2:symbol "control" ;
+    lv2:name "Control" ;
+  ], [
     a lv2:ControlPort,
       lv2:InputPort ;
-    lv2:index 0 ;
+    lv2:index 1 ;
     lv2:symbol "beats" ;
     lv2:name "Number of beats" ;
     lv2:minimum 1 ;
@@ -43,7 +51,7 @@
   ], [
     a lv2:ControlPort,
       lv2:InputPort ;
-    lv2:index 1 ;
+    lv2:index 2 ;
     lv2:symbol "onsets" ;
     lv2:name "Number of onsets" ;
     lv2:minimum 0 ;
@@ -53,7 +61,7 @@
   ], [
     a lv2:ControlPort,
       lv2:InputPort ;
-    lv2:index 2 ;
+    lv2:index 3 ;
     lv2:symbol "rotation" ;
     lv2:name "Number of places the pattern is rotated" ;
     lv2:minimum 0 ;
@@ -63,7 +71,7 @@
   ], [
     a lv2:ControlPort,
       lv2:InputPort ;
-    lv2:index 3 ;
+    lv2:index 4 ;
     lv2:symbol "bpm" ;
     lv2:name "Beats per minute" ;
     lv2:minimum 1 ;
@@ -73,7 +81,7 @@
   ], [
     a lv2:ControlPort,
       lv2:InputPort ;
-    lv2:index 4 ;
+    lv2:index 5 ;
     lv2:symbol "channel" ;
     lv2:name "Channel to use" ;
     lv2:minimum 1 ;
@@ -83,7 +91,7 @@
   ], [    
     a lv2:ControlPort,
       lv2:InputPort ;
-    lv2:index 5 ;
+    lv2:index 6 ;
     lv2:symbol "note" ;
     lv2:name "Note to play" ;
     lv2:minimum 0 ;
@@ -93,7 +101,7 @@
   ], [
     a lv2:ControlPort,
       lv2:InputPort ;
-    lv2:index 6 ;
+    lv2:index 7 ;
     lv2:symbol "velocity" ;
     lv2:name "Velocity of the notes" ;
     lv2:minimum 0 ;
@@ -105,7 +113,7 @@
       atom: AtomPort ;
     atom:bufferType atom:Sequence ;
     atom:supports midi:MidiEvent ;
-    lv2:index 7 ;
+    lv2:index 8 ;
     lv2:symbol "output" ;
     lv2:name "Output" ;
   ];
