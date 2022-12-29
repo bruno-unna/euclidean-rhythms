@@ -16,7 +16,7 @@
   foaf:homepage <https://github.com/bruno-unna> ;
   foaf:mbox <mailto:bruno.unna@gmail.com> .
 
-<https://github.com/bruno-unna/euclidean-rhythms#new>
+<https://github.com/bruno-unna/euclidean-rhythms>
   a lv2:Plugin, lv2:InstrumentPlugin, doap:Project ;
   doap:maintainer <https://github.com/bruno-unna#me> ;
   doap:license <https://opensource.org/licenses/GPL-3.0> ;
