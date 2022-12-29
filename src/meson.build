@@ -32,6 +32,7 @@ euclideanlib = shared_module('euclidean',
                         c_args: lib_c_args,
                         name_prefix: '',
                         dependencies: all_dep,
+                        gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
 
