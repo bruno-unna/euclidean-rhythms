@@ -10,6 +10,7 @@
 #include "lv2/time/time.h"
 #include "lv2/urid/urid.h"
 
+#define __USE_XOPEN
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
