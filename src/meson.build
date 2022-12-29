@@ -26,7 +26,7 @@ all_dep = [lv2_dep, m_dep]
 euclidean_sources = ['euclidean.c', 'plugins/plugin.c']
 
 # Definition of the actual module
-euclideanlib = shared_module('euclidean',
+euclideanmodule = shared_module('euclidean',
                         euclidean_sources,
                         include_directories: inc,
                         c_args: lib_c_args,

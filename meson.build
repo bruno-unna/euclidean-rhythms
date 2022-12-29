@@ -14,7 +14,7 @@ subdir('src')
 subdir('test')
 
 pkg_mod = import('pkgconfig')
-pkg_mod.generate(libraries : euclideanlib,
+pkg_mod.generate(libraries : euclideanmodule,
                  version : '0.1',
                  name : 'euclidean',
                  filebase : 'euclidean',
