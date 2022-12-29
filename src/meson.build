@@ -36,7 +36,7 @@ euclideanlib = shared_module('euclidean',
                         install_dir: install_folder)
 
 # Getting version from project configuration or from git tags
-version_array = meson.project_version().split('.')
+version_array = meson.project_version().split('-').get(0).split('.')
 
 git = find_program('git', native: true, required: false)
 if version_array.length() == 0 and git.found()
