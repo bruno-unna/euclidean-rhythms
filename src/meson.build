@@ -1,21 +1,3 @@
-euclidean_sources = ['euclidean.c']
-euclideanlib = shared_module('euclidean',
-                        euclidean_sources,
-                        include_directories : inc,
-                        dependencies : lv2_dep,
-                        install : true)
-
-# Install folder
-lv2_directory = join_paths(get_option('libdir'), 'lv2')
-install_folder = join_paths(lv2_directory, meson.project_name())
-
-# Sources to compile
-euclidean_src = ['plugins/plugin.c', 'euclidean.c']
-
-# Dependencies for euclidean rhythms
-m_dep = meson.get_compiler('c').find_library('m', required: true)
-all_dep = [lv2_dep,m_dep]
-
 # Get the host operating system and cpu architecture
 current_os = host_machine.system()
 current_arch = build_machine.cpu_family()
@@ -35,6 +17,24 @@ if current_os == 'windows' #windows
     extension = '.dll'
 endif
 
+# Dependencies for euclidean rhythms
+lv2_dep = dependency('lv2', required: true)
+m_dep = meson.get_compiler('c').find_library('m', required: true)
+all_dep = [lv2_dep, m_dep]
+
+# Sources to compile
+euclidean_sources = ['euclidean.c', 'plugins/plugin.c']
+
+# Definition of the actual module
+euclideanlib = shared_module('euclidean',
+                        euclidean_sources,
+                        include_directories: inc,
+                        c_args: lib_c_args,
+                        name_prefix: '',
+                        dependencies: all_dep,
+                        install: true,
+                        install_dir: install_folder)
+
 # Getting version from project configuration or from git tags
 version_array = meson.project_version().split('.')
 
@@ -46,7 +46,6 @@ endif
 # Configure manifest.ttl
 manifest_conf = configuration_data()
 manifest_conf.set('LIB_EXT', extension)
-
 manifest_ttl = configure_file(
     input: 'lv2ttl/manifest.ttl.in',
     output: 'manifest.ttl',
@@ -55,12 +54,11 @@ manifest_ttl = configure_file(
 	install_dir: install_folder
 )
 
+# Configure euclidean.ttl
 data_conf = configuration_data()
 data_conf.set('MAJOR_VERSION', version_array[0])
 data_conf.set('MINOR_VERSION', version_array[1])
 data_conf.set('MICRO_VERSION', version_array[2])
-
-# Configure euclidean.ttl
 euclidean_ttl = configure_file(
     input: join_paths('lv2ttl', 'euclidean.ttl.in'),
     output: 'euclidean.ttl',
