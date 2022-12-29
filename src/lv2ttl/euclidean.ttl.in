@@ -21,6 +21,7 @@
 
 <https://github.com/bruno-unna/euclidean-rhythms>
   a lv2:Plugin, lv2:InstrumentPlugin, doap:Project ;
+
   doap:maintainer <https://github.com/bruno-unna#me> ;
   doap:license <https://opensource.org/licenses/GPL-3.0> ;
   doap:name "Ritmos euclidianos"@es ,
@@ -32,8 +33,10 @@
   lv2:optionalFeature lv2:isLive, lv2:hardRTCapable ;
   lv2:extensionData state:interface ;
   lv2:requiredFeature urid:map ;
+
   lv2:minorVersion @MINOR_VERSION@ ;
   lv2:microVersion @MICRO_VERSION@ ;
+
   lv2:port [
     a lv2:InputPort, atom:AtomPort ;
     atom:bufferType atom:Sequence ;
@@ -111,6 +114,6 @@
     lv2:index 8 ;
     lv2:symbol "midiout" ;
     lv2:name "MIDI Out" ;
-  ];
+  ] ;
   rdfs:comment "An instrument plugin to produce MIDI events using euclidean algorithms" ;
 .
