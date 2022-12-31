@@ -33,17 +33,16 @@ typedef struct {
   LV2_URID time_speed;
 } MetroURIs;
 
-static const double attack_s = 0.005;
-static const double decay_s  = 0.075;
-
-enum { METRO_CONTROL = 0, METRO_OUT = 1 };
-
-/** During execution this plugin can be in one of 3 states: */
 typedef enum {
-  STATE_ATTACK, // Envelope rising
-  STATE_DECAY,  // Envelope lowering
-  STATE_OFF     // Silent
-} State;
+  EUCLIDEAN_CONTROL = 0,
+  EUCLIDEAN_BEATS = 1,
+  EUCLIDEAN_ONSETS = 2,
+  EUCLIDEAN_ROTATION = 3,
+  EUCLIDEAN_CHANNEL = 4,
+  EUCLIDEAN_NOTE = 5,
+  EUCLIDEAN_VELOCITY = 6,
+  EUCLIDEAN_MIDI_OUT = 7
+} PortIndex;
 
 /**
    This plugin must keep track of more state than previous examples to be able
@@ -63,7 +62,13 @@ typedef struct {
 
   struct {
     LV2_Atom_Sequence* control;
-    float*             output;
+    uint8_t*          beats;
+    uint8_t*          onsets;
+    uint8_t*          rotation;
+    uint8_t*          channel;
+    uint8_t*          note;
+    uint8_t*          velocity;
+    LV2_Atom_Sequence* midiout;
   } ports;
 
   // Variables to keep track of the tempo information sent by the host
@@ -90,11 +95,29 @@ connect_port(LV2_Handle instance, uint32_t port, void* data)
   Metro* self = (Metro*)instance;
 
   switch (port) {
-  case METRO_CONTROL:
+  case EUCLIDEAN_CONTROL:
     self->ports.control = (LV2_Atom_Sequence*)data;
     break;
-  case METRO_OUT:
-    self->ports.output = (float*)data;
+  case EUCLIDEAN_BEATS:
+    self->ports.beats = (uint8_t*)data;
+    break;
+  case EUCLIDEAN_ONSETS:
+    self->ports.onsets = (uint8_t*)data;
+    break;
+  case EUCLIDEAN_ROTATION:
+    self->ports.rotation = (uint8_t*)data;
+    break;
+  case EUCLIDEAN_CHANNEL:
+    self->ports.channel = (uint8_t*)data;
+    break;
+  case EUCLIDEAN_NOTE:
+    self->ports.note = (uint8_t*)data;
+    break;
+  case EUCLIDEAN_VELOCITY:
+    self->ports.velocity = (uint8_t*)data;
+    break;
+  case EUCLIDEAN_MIDI_OUT:
+    self->ports.midiout = (LV2_Atom_Sequence*)data;
     break;
   default:
     break;
