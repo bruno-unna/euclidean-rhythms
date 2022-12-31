@@ -31,7 +31,6 @@
 
   lv2:project <https://github.com/bruno-unna/euclidean-rhythms>;
   lv2:optionalFeature lv2:isLive, lv2:hardRTCapable ;
-  lv2:extensionData state:interface ;
   lv2:requiredFeature urid:map ;
 
   lv2:minorVersion @MINOR_VERSION@ ;
