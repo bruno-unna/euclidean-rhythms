@@ -1,4 +1,4 @@
-#define EG_EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
+#define EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
 
 #define _GNU_SOURCE
 
@@ -225,7 +225,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
 }
 
 static const LV2_Descriptor descriptor = {
-    EG_EUCLIDEAN_URI,
+    EUCLIDEAN_URI,
     instantiate,
     connect_port,
     activate,
