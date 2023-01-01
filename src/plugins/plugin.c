@@ -100,11 +100,11 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
 }
 
 /**
-   The activate() method resets the state completely, so the wave offset is
-   zero and the envelope is off.
+   The activate() method resets the state completely.
 */
 static void activate(LV2_Handle instance) {
   Euclidean *self = (Euclidean *)instance;
+  // TODO reset the state variables
 }
 
 /**
@@ -121,9 +121,12 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
   }
 
   // Scan host features for URID map
-  const char *missing =
-      lv2_features_query(features, LV2_LOG__log, &self->logger.log, false,
-                         LV2_URID__map, &self->map, true, NULL);
+  // clang-format off
+  const char *missing = lv2_features_query(features,
+    LV2_LOG__log, &self->logger.log, false,
+    LV2_URID__map, &self->map, true,
+    NULL);
+  // clang-format on
 
   lv2_log_logger_set_map(&self->logger, self->map);
   if (missing) {
@@ -167,8 +170,13 @@ static void update_position(Euclidean *self, const LV2_Atom_Object *obj) {
   LV2_Atom *beat = NULL;
   LV2_Atom *bpm = NULL;
   LV2_Atom *speed = NULL;
-  lv2_atom_object_get(obj, uris->time_barBeat, &beat, uris->time_beatsPerMinute,
-                      &bpm, uris->time_speed, &speed, NULL);
+  // clang-format off
+  lv2_atom_object_get(obj, 
+    uris->time_barBeat, &beat,
+    uris->time_beatsPerMinute, &bpm,
+    uris->time_speed, &speed,
+    NULL);
+  // clang-format on
 
   if (bpm && bpm->type == uris->atom_Float) {
     // Tempo changed, update BPM
@@ -225,6 +233,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
   // TODO investigate if something like this is needed for MIDI events
 }
 
+// clang-format off
 static const LV2_Descriptor descriptor = {
     EUCLIDEAN_URI,
     instantiate,
@@ -235,6 +244,7 @@ static const LV2_Descriptor descriptor = {
     cleanup,
     NULL, // extension_data
 };
+// clang-format on
 
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor *lv2_descriptor(uint32_t index) {
