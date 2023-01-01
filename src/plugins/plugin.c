@@ -63,6 +63,7 @@ typedef struct {
   double rate; // Sample rate
   float bpm;   // Beats per minute (tempo)
   float speed; // Transport speed (usually 0=stop, 1=play)
+  int last_beat;
 } Euclidean;
 
 static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
@@ -148,6 +149,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
   // Initialise instance fields
   self->rate = rate;
   self->bpm = 120.0f;
+  self->last_beat = -1;
 
   return (LV2_Handle)self;
 }
@@ -181,12 +183,13 @@ static void update_position(Euclidean *self, const LV2_Atom_Object *obj) {
   if (beat && beat->type == uris->atom_Float) {
     // Received a beat position, synchronise
     // This hard sync may cause clicks, a real plugin would be more graceful
-    const float frames_per_beat = (float)(60.0 / self->bpm * self->rate);
-    const float bar_beats = ((LV2_Atom_Float *)beat)->body;
-    const float beat_beats = bar_beats - floorf(bar_beats);
-    lv2_log_note(&self->logger, "setting frames/beat to %f\n", frames_per_beat);
-    lv2_log_note(&self->logger, "setting bar beats to %f\n", bar_beats);
-    lv2_log_note(&self->logger, "setting beat beats to %f\n", beat_beats);
+    // const float frames_per_beat = (float)(60.0 / self->bpm * self->rate);
+    const int bar_beats = ((LV2_Atom_Float *)beat)->body;
+    // const float beat_beats = bar_beats - floorf(bar_beats);
+    if (bar_beats != self->last_beat) {
+      self->last_beat = bar_beats;
+      lv2_log_note(&self->logger, "beat: %d\n", self->last_beat);
+    }
   }
 }
 
