@@ -20,14 +20,14 @@
   foaf:mbox <mailto:bruno.unna@gmail.com> .
 
 <https://github.com/bruno-unna/euclidean-rhythms>
-  a lv2:Plugin, lv2:InstrumentPlugin, doap:Project ;
+  a lv2:Plugin, lv2:MIDIPlugin, doap:Project ;
 
   doap:maintainer <https://github.com/bruno-unna#me> ;
   doap:license <https://opensource.org/licenses/GPL-3.0> ;
   doap:name "Ritmos euclidianos"@es ,
     "Euclidean rhythms" ;
-  doap:shortdesc "Un plugin/instrumento para producir eventos MIDI usando algorithmos euclidianos"@es ,
-    "An instrument plugin to produce MIDI events using euclidean algorithms" ;
+  doap:shortdesc "Un plugin para producir eventos MIDI usando algorithmos euclidianos"@es ,
+    "A plugin to produce MIDI events using euclidean algorithms" ;
 
   lv2:project <https://github.com/bruno-unna/euclidean-rhythms>;
   lv2:optionalFeature lv2:isLive, lv2:hardRTCapable ;
