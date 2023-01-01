@@ -173,12 +173,10 @@ static void update_position(Euclidean *self, const LV2_Atom_Object *obj) {
   if (bpm && bpm->type == uris->atom_Float) {
     // Tempo changed, update BPM
     self->bpm = ((LV2_Atom_Float *)bpm)->body;
-    lv2_log_note(&self->logger, "setting bpm to %f\n", self->bpm);
   }
   if (speed && speed->type == uris->atom_Float) {
     // Speed changed, e.g. 0 (stop) to 1 (play)
     self->speed = ((LV2_Atom_Float *)speed)->body;
-    lv2_log_note(&self->logger, "setting speed to %f\n", self->speed);
   }
   if (beat && beat->type == uris->atom_Float) {
     // Received a beat position, synchronise
