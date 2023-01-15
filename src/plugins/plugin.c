@@ -101,11 +101,6 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
     }
 }
 
-/**
-   This plugin does a bit more work in instantiate() than the previous
-   examples.  The tempo updates from the host contain several URIs, so those
-   are mapped.
-*/
 static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
                               const char *path,
                               const LV2_Feature *const *features) {
@@ -114,7 +109,6 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
         return NULL;
     }
 
-    // Scan host features for URID map
     // clang-format off
     const char *missing = lv2_features_query(features,
                                              LV2_LOG__log, &self->logger.log, false,
@@ -123,6 +117,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
     // clang-format on
 
     lv2_log_logger_set_map(&self->logger, self->map);
+
     if (missing) {
         lv2_log_error(&self->logger, "Missing feature <%s>\n", missing);
         free(self);
@@ -146,15 +141,18 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
     // Initialise instance fields
     self->state.rate = rate;
     self->state.bpm = 120.0f;
+    self->state.speed = 1.0f;
     self->state.last_beat = -1;
 
     return (LV2_Handle) self;
 }
 
-static void cleanup(LV2_Handle instance) { free(instance); }
+static void cleanup(LV2_Handle instance) {
+    free(instance);
+}
 
 /**
-   Update the current position based on a host message.  This is called by
+   Update the current position based on a host message. This is called by
    run() when a time:Position is received.
 */
 static void update_position(Euclidean *self, const LV2_Atom_Object *obj) {
@@ -232,7 +230,7 @@ static const LV2_Descriptor descriptor = {
         EUCLIDEAN_URI,
         instantiate,
         connect_port,
-        activate,
+        NULL,   // activate
         run,
         NULL, // deactivate,
         cleanup,
