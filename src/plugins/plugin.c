@@ -60,10 +60,12 @@ typedef struct {
     } ports;
 
     // Variables to keep track of the tempo information sent by the host
-    double rate; // Sample rate
-    float bpm;   // Beats per minute (tempo)
-    float speed; // Transport speed (usually 0=stop, 1=play)
-    int last_beat;
+    struct {
+        double rate; // Sample rate
+        float bpm;   // Beats per minute (tempo)
+        float speed; // Transport speed (usually 0=stop, 1=play)
+        int last_beat;
+    } state;
 } Euclidean;
 
 static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
@@ -150,9 +152,9 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
     uris->time_speed = map->map(map->handle, LV2_TIME__speed);
 
     // Initialise instance fields
-    self->rate = rate;
-    self->bpm = 120.0f;
-    self->last_beat = -1;
+    self->state.rate = rate;
+    self->state.bpm = 120.0f;
+    self->state.last_beat = -1;
 
     return (LV2_Handle) self;
 }
@@ -180,11 +182,11 @@ static void update_position(Euclidean *self, const LV2_Atom_Object *obj) {
 
     if (bpm && bpm->type == uris->atom_Float) {
         // Tempo changed, update BPM
-        self->bpm = ((LV2_Atom_Float *) bpm)->body;
+        self->state.bpm = ((LV2_Atom_Float *) bpm)->body;
     }
     if (speed && speed->type == uris->atom_Float) {
         // Speed changed, e.g. 0 (stop) to 1 (play)
-        self->speed = ((LV2_Atom_Float *) speed)->body;
+        self->state.speed = ((LV2_Atom_Float *) speed)->body;
     }
     if (beat && beat->type == uris->atom_Float) {
         // Received a beat position, synchronise
@@ -192,9 +194,9 @@ static void update_position(Euclidean *self, const LV2_Atom_Object *obj) {
         // const float frames_per_beat = (float)(60.0 / self->bpm * self->rate);
         const int bar_beats = ((LV2_Atom_Float *) beat)->body;
         // const float beat_beats = bar_beats - floorf(bar_beats);
-        if (bar_beats != self->last_beat) {
-            self->last_beat = bar_beats;
-            lv2_log_note(&self->logger, "beat: %d\n", self->last_beat);
+        if (bar_beats != self->state.last_beat) {
+            self->state.last_beat = bar_beats;
+            lv2_log_note(&self->logger, "beat: %d\n", self->state.last_beat);
         }
     }
 }
