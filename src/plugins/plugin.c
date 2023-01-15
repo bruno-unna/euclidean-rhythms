@@ -102,14 +102,6 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
 }
 
 /**
-   The activate() method resets the state completely.
-*/
-static void activate(LV2_Handle instance) {
-    Euclidean *self = (Euclidean *) instance;
-    // TODO reset the state variables
-}
-
-/**
    This plugin does a bit more work in instantiate() than the previous
    examples.  The tempo updates from the host contain several URIs, so those
    are mapped.
