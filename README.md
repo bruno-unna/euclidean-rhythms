@@ -98,3 +98,13 @@ Because I do my music-related work [in Ardour](https://ardour.org/), in Linux, t
 Not many, but very important. I would appreciate anyone contributing to the project to follow them:
 - Comment your commits [the right way](https://cbea.ms/git-commit/).
 - When reviewing pull requests, write [useful comments](https://conventionalcomments.org/).
+
+## Acknowledgements
+
+Kudos to [David Robillard](mailto:d@drobilla.net) for all the work he's put into divulging and documenting LV2. Much of the code of this plugin finds its embryo in David's examples.
+
+Thanks to [Robin Gareus](mailto:robin@gareus.org) for sharing generously the source code of his own plugins with the community. I've learnt a lot.
+
+Thanks as well to JetBrains, for demonstrating their [commitment to Open Source](https://jb.gg/OpenSourceSupport) by granting me a licence to use their IDEs for free for this project.
+
+My deepest gratitude to the FOSS community in general. I humbly hope that this project serves as a small retribution for all the good things that I've received.
