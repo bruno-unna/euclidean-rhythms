@@ -64,7 +64,7 @@ typedef struct {
         double rate; // Sample rate
         float bpm;   // Beats per minute (tempo)
         float speed; // Transport speed (usually 0=stop, 1=play)
-        int last_beat;
+        int last_bar_beat;
     } state;
 } Euclidean;
 
@@ -109,6 +109,8 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
         return NULL;
     }
 
+    self->logger.log = NULL;
+    self->map = NULL;
     // clang-format off
     const char *missing = lv2_features_query(features,
                                              LV2_LOG__log, &self->logger.log, false,
@@ -142,7 +144,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
     self->state.rate = rate;
     self->state.bpm = 120.0f;
     self->state.speed = 1.0f;
-    self->state.last_beat = -1;
+    self->state.last_bar_beat = -1;
 
     return (LV2_Handle) self;
 }
@@ -156,73 +158,61 @@ static void cleanup(LV2_Handle instance) {
    run() when a time:Position is received.
 */
 static void update_position(Euclidean *self, const LV2_Atom_Object *obj) {
-    const EuclideanURIs *uris = &self->uris;
+    lv2_log_trace(&self->logger, "entering update_position()\n");
 
-    // Received new transport position/speed
-    LV2_Atom *beat = NULL;
-    LV2_Atom *bpm = NULL;
-    LV2_Atom *speed = NULL;
+    EuclideanURIs *const uris = &self->uris;
+
+    // Received new transport position/speed_atom
+    LV2_Atom *beat_atom = NULL;
+    LV2_Atom *bpm_atom = NULL;
+    LV2_Atom *speed_atom = NULL;
     // clang-format off
     lv2_atom_object_get(obj,
-                        uris->time_barBeat, &beat,
-                        uris->time_beatsPerMinute, &bpm,
-                        uris->time_speed, &speed,
+                        uris->time_barBeat, &beat_atom,
+                        uris->time_beatsPerMinute, &bpm_atom,
+                        uris->time_speed, &speed_atom,
                         NULL);
     // clang-format on
 
-    if (bpm && bpm->type == uris->atom_Float) {
+    if (bpm_atom && bpm_atom->type == uris->atom_Float) {
         // Tempo changed, update BPM
-        self->state.bpm = ((LV2_Atom_Float *) bpm)->body;
+        self->state.bpm = ((LV2_Atom_Float *) bpm_atom)->body;
+        lv2_log_trace(&self->logger, "BPM set to %f\n", self->state.bpm);
     }
-    if (speed && speed->type == uris->atom_Float) {
+    if (speed_atom && speed_atom->type == uris->atom_Float) {
         // Speed changed, e.g. 0 (stop) to 1 (play)
-        self->state.speed = ((LV2_Atom_Float *) speed)->body;
+        self->state.speed = ((LV2_Atom_Float *) speed_atom)->body;
+        lv2_log_trace(&self->logger, "speed set to %f\n", self->state.speed);
     }
-    if (beat && beat->type == uris->atom_Float) {
-        // Received a beat position, synchronise
-        // This hard sync may cause clicks, a real plugin would be more graceful
-        // const float frames_per_beat = (float)(60.0 / self->bpm * self->rate);
-        const int bar_beats = ((LV2_Atom_Float *) beat)->body;
-        // const float beat_beats = bar_beats - floorf(bar_beats);
-        if (bar_beats != self->state.last_beat) {
-            self->state.last_beat = bar_beats;
-            lv2_log_note(&self->logger, "beat: %d\n", self->state.last_beat);
+    if (beat_atom && beat_atom->type == uris->atom_Float) {
+        // Received a beat_atom position, synchronise
+        // const float frames_per_beat = (float)(60.0 / self->bpm_atom * self->rate);
+        const int bar_beat = ((LV2_Atom_Float *) beat_atom)->body;
+        // const float beat_beats = bar_beat - floorf(bar_beat);
+        if (bar_beat != self->state.last_bar_beat) {
+            self->state.last_bar_beat = bar_beat;
+            lv2_log_trace(&self->logger, "beat set to %d\n", bar_beat);
         }
     }
 }
 
 static void run(LV2_Handle instance, uint32_t sample_count) {
     Euclidean *self = (Euclidean *) instance;
-    const EuclideanURIs *uris = &self->uris;
 
-    // Work forwards in time frame by frame, handling events as we go
+    const EuclideanURIs *uris = &self->uris;
     const LV2_Atom_Sequence *in = self->ports.control;
-    uint32_t last_t = 0;
+
     for (const LV2_Atom_Event *ev = lv2_atom_sequence_begin(&in->body);
          !lv2_atom_sequence_is_end(&in->body, in->atom.size, ev);
          ev = lv2_atom_sequence_next(ev)) {
-        // Play the click for the time slice from last_t until now
-        // play(self, last_t, (uint32_t)ev->time.frames);
-        // TODO instead of play(), perhaps generate a MIDI event
 
-        // Check if this event is an Object
-        // (or deprecated Blank to tolerate old hosts)
-        if (ev->body.type == uris->atom_Object ||
-            ev->body.type == uris->atom_Blank) {
+        if (ev->body.type == uris->atom_Object || ev->body.type == uris->atom_Blank) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
             if (obj->body.otype == uris->time_Position) {
-                // Received position information, update
                 update_position(self, obj);
             }
         }
-
-        // Update time for next iteration and move to next event
-        last_t = (uint32_t) ev->time.frames;
     }
-
-    // Play for remainder of cycle
-    // play(self, last_t, sample_count);
-    // TODO investigate if something like this is needed for MIDI events
 }
 
 // clang-format off
