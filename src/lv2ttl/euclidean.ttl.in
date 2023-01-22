@@ -105,5 +105,5 @@
     lv2:symbol "midiout" ;
     lv2:name "MIDI Out" ;
   ] ;
-  rdfs:comment "An instrument plugin to produce MIDI events using euclidean algorithms" ;
+  rdfs:comment "A utility plugin to produce MIDI events using euclidean algorithms" ;
 .
