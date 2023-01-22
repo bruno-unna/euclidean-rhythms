@@ -1,7 +1,5 @@
 #define EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
 
-#define _GNU_SOURCE
-
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -18,6 +16,10 @@
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
 #include <lv2/lv2plug.in/ns/lv2core/lv2.h>
 #include <lv2/lv2plug.in/ns/lv2core/lv2_util.h>
+#include "lv2/atom/atom.h"
+#include "lv2/midi/midi.h"
+#include "lv2/patch/patch.h"
+#include "lv2/urid/urid.h"
 
 typedef struct {
     LV2_URID atom_Blank;
@@ -26,6 +28,13 @@ typedef struct {
     LV2_URID atom_Path;
     LV2_URID atom_Resource;
     LV2_URID atom_Sequence;
+    LV2_URID atom_URID;
+    LV2_URID midi_MidiEvent;
+    LV2_URID midi_NoteOff;
+    LV2_URID midi_NoteOn;
+    LV2_URID patch_Set;
+    LV2_URID patch_property;
+    LV2_URID patch_value;
     LV2_URID time_Position;
     LV2_URID time_barBeat;
     LV2_URID time_beatsPerMinute;
@@ -48,8 +57,12 @@ typedef struct {
     LV2_Log_Logger logger; // Logger API
     EuclideanURIs uris;    // Cache of mapped URIDs
 
+    // Atom forge
+    LV2_Atom_Forge forge;
+    LV2_Atom_Forge_Frame frame;
+
     struct {
-        LV2_Atom_Sequence *control;
+        const LV2_Atom_Sequence *control;
         uint8_t *beats;
         uint8_t *onsets;
         uint8_t *rotation;
@@ -73,7 +86,7 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
 
     switch (port) {
         case EUCLIDEAN_CONTROL:
-            self->ports.control = (LV2_Atom_Sequence *) data;
+            self->ports.control = (const LV2_Atom_Sequence *) data;
             break;
         case EUCLIDEAN_BEATS:
             self->ports.beats = (uint8_t *) data;
@@ -101,6 +114,26 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
     }
 }
 
+static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
+    uris->atom_Blank = map->map(map->handle, LV2_ATOM__Blank);
+    uris->atom_Float = map->map(map->handle, LV2_ATOM__Float);
+    uris->atom_Object = map->map(map->handle, LV2_ATOM__Object);
+    uris->atom_Path = map->map(map->handle, LV2_ATOM__Path);
+    uris->atom_Resource = map->map(map->handle, LV2_ATOM__Resource);
+    uris->atom_Sequence = map->map(map->handle, LV2_ATOM__Sequence);
+    uris->atom_Sequence = map->map(map->handle, LV2_ATOM__URID);
+    uris->midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
+    uris->midi_NoteOff = map->map(map->handle, LV2_MIDI__NoteOff);
+    uris->midi_NoteOn = map->map(map->handle, LV2_MIDI__NoteOn);
+    uris->patch_Set = map->map(map->handle, LV2_PATCH__Set);
+    uris->patch_property = map->map(map->handle, LV2_PATCH__property);
+    uris->patch_value = map->map(map->handle, LV2_PATCH__value);
+    uris->time_Position = map->map(map->handle, LV2_TIME__Position);
+    uris->time_barBeat = map->map(map->handle, LV2_TIME__barBeat);
+    uris->time_beatsPerMinute = map->map(map->handle, LV2_TIME__beatsPerMinute);
+    uris->time_speed = map->map(map->handle, LV2_TIME__speed);
+}
+
 static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
                               const char *path,
                               const LV2_Feature *const *features) {
@@ -126,19 +159,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
         return NULL;
     }
 
-    // Map URIS
-    EuclideanURIs *const uris = &self->uris;
-    LV2_URID_Map *const map = self->map;
-    uris->atom_Blank = map->map(map->handle, LV2_ATOM__Blank);
-    uris->atom_Float = map->map(map->handle, LV2_ATOM__Float);
-    uris->atom_Object = map->map(map->handle, LV2_ATOM__Object);
-    uris->atom_Path = map->map(map->handle, LV2_ATOM__Path);
-    uris->atom_Resource = map->map(map->handle, LV2_ATOM__Resource);
-    uris->atom_Sequence = map->map(map->handle, LV2_ATOM__Sequence);
-    uris->time_Position = map->map(map->handle, LV2_TIME__Position);
-    uris->time_barBeat = map->map(map->handle, LV2_TIME__barBeat);
-    uris->time_beatsPerMinute = map->map(map->handle, LV2_TIME__beatsPerMinute);
-    uris->time_speed = map->map(map->handle, LV2_TIME__speed);
+    map_uris(self->map, &self->uris);
 
     // Initialise instance fields
     self->state.rate = rate;
@@ -153,63 +174,83 @@ static void cleanup(LV2_Handle instance) {
     free(instance);
 }
 
-/**
-   Update the current position based on a host message. This is called by
-   run() when a time:Position is received.
-*/
-static void update_position(Euclidean *self, const LV2_Atom_Object *obj) {
-    lv2_log_trace(&self->logger, "entering update_position()\n");
-
-    EuclideanURIs *const uris = &self->uris;
-
-    // Received new transport position/speed_atom
-    LV2_Atom *beat_atom = NULL;
-    LV2_Atom *bpm_atom = NULL;
-    LV2_Atom *speed_atom = NULL;
-    // clang-format off
-    lv2_atom_object_get(obj,
-                        uris->time_barBeat, &beat_atom,
-                        uris->time_beatsPerMinute, &bpm_atom,
-                        uris->time_speed, &speed_atom,
-                        NULL);
-    // clang-format on
-
-    if (bpm_atom && bpm_atom->type == uris->atom_Float) {
-        // Tempo changed, update BPM
-        self->state.bpm = ((LV2_Atom_Float *) bpm_atom)->body;
-        lv2_log_trace(&self->logger, "BPM set to %f\n", self->state.bpm);
-    }
-    if (speed_atom && speed_atom->type == uris->atom_Float) {
-        // Speed changed, e.g. 0 (stop) to 1 (play)
-        self->state.speed = ((LV2_Atom_Float *) speed_atom)->body;
-        lv2_log_trace(&self->logger, "speed set to %f\n", self->state.speed);
-    }
-    if (beat_atom && beat_atom->type == uris->atom_Float) {
-        // Received a beat_atom position, synchronise
-        // const float frames_per_beat = (float)(60.0 / self->bpm_atom * self->rate);
-        const int bar_beat = ((LV2_Atom_Float *) beat_atom)->body;
-        // const float beat_beats = bar_beat - floorf(bar_beat);
-        if (bar_beat != self->state.last_bar_beat) {
-            self->state.last_bar_beat = bar_beat;
-            lv2_log_trace(&self->logger, "beat set to %d\n", bar_beat);
-        }
-    }
-}
-
 static void run(LV2_Handle instance, uint32_t sample_count) {
     Euclidean *self = (Euclidean *) instance;
+    EuclideanURIs *uris = &self->uris;
 
-    const EuclideanURIs *uris = &self->uris;
     const LV2_Atom_Sequence *in = self->ports.control;
+    LV2_Atom_Sequence *out = self->ports.midiout;
 
-    for (const LV2_Atom_Event *ev = lv2_atom_sequence_begin(&in->body);
-         !lv2_atom_sequence_is_end(&in->body, in->atom.size, ev);
-         ev = lv2_atom_sequence_next(ev)) {
+    if (!out) {
+        lv2_log_error(&self->logger, "MIDI out port is not connected\n");
+        return;
+    }
 
+    typedef struct {
+        LV2_Atom_Event event;
+        uint8_t msg[3];
+    } MIDINoteEvent;
+
+    const uint32_t out_capacity = out->atom.size;
+
+    // Write an empty Sequence header to the output
+    lv2_atom_sequence_clear(out);
+    out->atom.type = uris->midi_MidiEvent;   // TODO validate this
+
+    LV2_ATOM_SEQUENCE_FOREACH(in, ev) {
         if (ev->body.type == uris->atom_Object || ev->body.type == uris->atom_Blank) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
             if (obj->body.otype == uris->time_Position) {
-                update_position(self, obj);
+                // Received new transport position/speed_atom
+                LV2_Atom *beatAtom, *bpmAtom, *speedAtom = NULL;
+                // clang-format off
+                lv2_atom_object_get(obj,
+                                    uris->time_barBeat, &beatAtom,
+                                    uris->time_beatsPerMinute, &bpmAtom,
+                                    uris->time_speed, &speedAtom,
+                                    NULL);
+                // clang-format on
+
+                if (bpmAtom && bpmAtom->type == uris->atom_Float) {
+                    // Tempo changed, update BPM
+                    self->state.bpm = ((LV2_Atom_Float *) bpmAtom)->body;
+                    lv2_log_trace(&self->logger, "BPM set to %f\n", self->state.bpm);
+                }
+                if (speedAtom && speedAtom->type == uris->atom_Float) {
+                    // Speed changed, e.g. 0 (stop) to 1 (play)
+                    self->state.speed = ((LV2_Atom_Float *) speedAtom)->body;
+                    lv2_log_trace(&self->logger, "speed set to %f\n", self->state.speed);
+                }
+                if (beatAtom && beatAtom->type == uris->atom_Float) {
+                    // Received a beat_atom position, synchronise
+                    // const float frames_per_beat = (float)(60.0 / self->bpm_atom * self->rate);
+                    const int barBeat = (int) ((LV2_Atom_Float *) beatAtom)->body;
+                    // const float beat_beats = bar_beat - floorf(bar_beat);
+                    if (barBeat != self->state.last_bar_beat) {
+                        self->state.last_bar_beat = barBeat;
+                        lv2_log_trace(&self->logger, "beat set to %d\n", barBeat);
+
+                        if (barBeat == 0) {
+                            MIDINoteEvent note;
+                            note.event.time.frames = ev->time.frames;
+                            note.event.body.type = uris->midi_MidiEvent;
+                            note.event.body.size = 3;
+                            note.msg[0] = uris->midi_NoteOn;
+                            note.msg[1] = 60;
+                            note.msg[2] = 0x7f;
+                            lv2_atom_sequence_append_event(out, out_capacity, &note.event);
+                        } else if (barBeat == 1) {
+                            MIDINoteEvent note;
+                            note.event.time.frames = ev->time.frames;
+                            note.event.body.type = uris->midi_MidiEvent;
+                            note.event.body.size = 3;
+                            note.msg[0] = uris->midi_NoteOff;
+                            note.msg[1] = 60;
+                            note.msg[2] = 0x00;
+                            lv2_atom_sequence_append_event(out, out_capacity, &note.event);
+                        }
+                    }
+                }
             }
         }
     }
