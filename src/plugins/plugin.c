@@ -172,10 +172,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     Euclidean *self = (Euclidean *) instance;
     EuclideanURIs *uris = &self->uris;
 
-    const LV2_Atom_Sequence *in = self->ports.control;
-    LV2_Atom_Sequence *out = self->ports.midiout;
-
-    if (!out) {
+    if (!self->ports.midiout) {
         lv2_log_error(&self->logger, "MIDI out port is not connected\n");
         return;
     }
@@ -185,13 +182,13 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
         uint8_t msg[3];
     } MIDINoteEvent;
 
-    const uint32_t out_capacity = out->atom.size;
+    const uint32_t out_capacity = self->ports.midiout->atom.size;
 
     // Write an empty Sequence header to the output
-    lv2_atom_sequence_clear(out);
-    out->atom.type = uris->midi_MidiEvent;   // TODO validate this
+    lv2_atom_sequence_clear(self->ports.midiout);
+    self->ports.midiout->atom.type = uris->midi_Event;
 
-    LV2_ATOM_SEQUENCE_FOREACH(in, ev) {
+    LV2_ATOM_SEQUENCE_FOREACH(self->ports.control, ev) {
         if (ev->body.type == uris->atom_Object || ev->body.type == uris->atom_Blank) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
             if (obj->body.otype == uris->time_Position) {
@@ -244,7 +241,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                             note.msg[0] = uris->midi_NoteOff;
                             note.msg[1] = 60;
                             note.msg[2] = 0x00;
-                            lv2_atom_sequence_append_event(out, out_capacity, &note.event);
+                            lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
                         }
                     }
                 }
