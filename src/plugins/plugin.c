@@ -196,7 +196,10 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
             if (obj->body.otype == uris->time_Position) {
                 // Received new transport position/speed_atom
-                LV2_Atom *beatAtom, *bpmAtom, *speedAtom = NULL;
+                LV2_Atom const *beatAtom = NULL;
+                LV2_Atom const *bpmAtom = NULL;
+                LV2_Atom const *speedAtom = NULL;
+                LV2_Atom const *frame = NULL;
                 // clang-format off
                 lv2_atom_object_get(obj,
                                     uris->time_barBeat, &beatAtom,
