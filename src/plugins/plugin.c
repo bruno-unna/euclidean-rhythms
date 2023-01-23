@@ -23,9 +23,8 @@ typedef struct {
     LV2_URID atom_Resource;
     LV2_URID atom_Sequence;
     LV2_URID atom_URID;
-    LV2_URID midi_MidiEvent;
-    LV2_URID midi_NoteOff;
-    LV2_URID midi_NoteOn;
+    LV2_URID atom_eventTransfer;
+    LV2_URID midi_Event;
     LV2_URID patch_Set;
     LV2_URID patch_property;
     LV2_URID patch_value;
@@ -33,6 +32,7 @@ typedef struct {
     LV2_URID time_barBeat;
     LV2_URID time_beatsPerMinute;
     LV2_URID time_speed;
+    LV2_URID time_frame;
 } EuclideanURIs;
 
 typedef enum {
@@ -115,10 +115,9 @@ static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
     uris->atom_Path = map->map(map->handle, LV2_ATOM__Path);
     uris->atom_Resource = map->map(map->handle, LV2_ATOM__Resource);
     uris->atom_Sequence = map->map(map->handle, LV2_ATOM__Sequence);
-    uris->atom_Sequence = map->map(map->handle, LV2_ATOM__URID);
-    uris->midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
-    uris->midi_NoteOff = map->map(map->handle, LV2_MIDI__NoteOff);
-    uris->midi_NoteOn = map->map(map->handle, LV2_MIDI__NoteOn);
+    uris->atom_URID = map->map(map->handle, LV2_ATOM__URID);
+    uris->atom_eventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
+    uris->midi_Event = map->map(map->handle, LV2_MIDI__MidiEvent);
     uris->patch_Set = map->map(map->handle, LV2_PATCH__Set);
     uris->patch_property = map->map(map->handle, LV2_PATCH__property);
     uris->patch_value = map->map(map->handle, LV2_PATCH__value);
@@ -126,6 +125,7 @@ static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
     uris->time_barBeat = map->map(map->handle, LV2_TIME__barBeat);
     uris->time_beatsPerMinute = map->map(map->handle, LV2_TIME__beatsPerMinute);
     uris->time_speed = map->map(map->handle, LV2_TIME__speed);
+    uris->time_frame = map->map(map->handle, LV2_TIME__frame);
 }
 
 static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
@@ -161,6 +161,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
     self->state.speed = 1.0f;
     self->state.last_bar_beat = -1;
 
+    lv2_log_note(&self->logger, "instantiation finished\n");
     return (LV2_Handle) self;
 }
 
@@ -202,6 +203,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                                     uris->time_barBeat, &beatAtom,
                                     uris->time_beatsPerMinute, &bpmAtom,
                                     uris->time_speed, &speedAtom,
+                                    uris->time_frame, &frame,
                                     NULL);
                 // clang-format on
 
@@ -222,21 +224,24 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     // const float beat_beats = bar_beat - floorf(bar_beat);
                     if (barBeat != self->state.last_bar_beat) {
                         self->state.last_bar_beat = barBeat;
-                        lv2_log_trace(&self->logger, "beat set to %d\n", barBeat);
+                        lv2_log_note(&self->logger, "beat set to %d\n", barBeat);
 
+                        const long frameAsLong = (long) ((LV2_Atom_Long *) frame)->body;
                         if (barBeat == 0) {
+                            lv2_log_note(&self->logger, "trying to produce a note\n");
                             MIDINoteEvent note;
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_MidiEvent;
+                            note.event.time.frames = frameAsLong;
+                            note.event.body.type = uris->midi_Event;
                             note.event.body.size = 3;
                             note.msg[0] = LV2_MIDI_MSG_NOTE_ON;
                             note.msg[1] = 60;
                             note.msg[2] = 0x7f;
-                            lv2_atom_sequence_append_event(out, out_capacity, &note.event);
+                            lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
                         } else if (barBeat == 1) {
+                            lv2_log_note(&self->logger, "trying to stop a note\n");
                             MIDINoteEvent note;
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_MidiEvent;
+                            note.event.time.frames = frameAsLong;
+                            note.event.body.type = uris->midi_Event;
                             note.event.body.size = 3;
                             note.msg[0] = LV2_MIDI_MSG_NOTE_OFF;
                             note.msg[1] = 60;
