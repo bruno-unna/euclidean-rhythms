@@ -205,17 +205,17 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                                     NULL);
                 // clang-format on
 
-                if (bpmAtom && bpmAtom->type == uris->atom_Float) {
+                if (bpmAtom != 0 && bpmAtom->type == uris->atom_Float) {
                     // Tempo changed, update BPM
                     self->state.bpm = ((LV2_Atom_Float *) bpmAtom)->body;
                     lv2_log_trace(&self->logger, "BPM set to %f\n", self->state.bpm);
                 }
-                if (speedAtom && speedAtom->type == uris->atom_Float) {
+                if (speedAtom != 0 && speedAtom->type == uris->atom_Float) {
                     // Speed changed, e.g. 0 (stop) to 1 (play)
                     self->state.speed = ((LV2_Atom_Float *) speedAtom)->body;
                     lv2_log_trace(&self->logger, "speed set to %f\n", self->state.speed);
                 }
-                if (beatAtom && beatAtom->type == uris->atom_Float) {
+                if (beatAtom != 0 && beatAtom->type == uris->atom_Float) {
                     // Received a beat_atom position, synchronise
                     // const float frames_per_beat = (float)(60.0 / self->bpm_atom * self->rate);
                     const int barBeat = (int) ((LV2_Atom_Float *) beatAtom)->body;
