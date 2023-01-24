@@ -50,8 +50,8 @@ typedef struct {
     EuclideanURIs uris;    // Cache of mapped URIDs
 
     // Atom forge
-    LV2_Atom_Forge forge;
-    LV2_Atom_Forge_Frame frame;
+//    LV2_Atom_Forge forge;
+//    LV2_Atom_Forge_Frame frame;
 
     struct {
         const LV2_Atom_Sequence *control;
