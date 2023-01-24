@@ -30,7 +30,7 @@ typedef struct {
     LV2_URID time_barBeat;
     LV2_URID time_beatsPerMinute;
     LV2_URID time_speed;
-    LV2_URID time_frame;
+    LV2_URID time_beat;
 } EuclideanURIs;
 
 typedef enum {
@@ -69,6 +69,7 @@ typedef struct {
         double rate; // Sample rate
         float bpm;   // Beats per minute (tempo)
         float speed; // Transport speed (usually 0=stop, 1=play)
+        double beat;    // Global running beat number
         int last_bar_beat;
     } state;
 } Euclidean;
@@ -121,10 +122,11 @@ static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
     uris->time_barBeat = map->map(map->handle, LV2_TIME__barBeat);
     uris->time_beatsPerMinute = map->map(map->handle, LV2_TIME__beatsPerMinute);
     uris->time_speed = map->map(map->handle, LV2_TIME__speed);
-    uris->time_frame = map->map(map->handle, LV2_TIME__frame);
+    uris->time_beat = map->map(map->handle, LV2_TIME__beat);
 }
 
-static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
+static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
+                              double rate,
                               const char *path,
                               const LV2_Feature *const *features) {
     Euclidean *self = (Euclidean *) calloc(1, sizeof(Euclidean));
@@ -155,9 +157,9 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor, double rate,
     self->state.rate = rate;
     self->state.bpm = 120.0f;
     self->state.speed = 1.0f;
+    self->state.beat = 0;
     self->state.last_bar_beat = -1;
 
-    lv2_log_note(&self->logger, "instantiation finished\n");
     return (LV2_Handle) self;
 }
 
@@ -190,43 +192,46 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
             if (obj->body.otype == uris->time_Position) {
                 // Received new transport position/speed_atom
-                LV2_Atom const *beatAtom = NULL;
+                LV2_Atom const *barBeatAtom = NULL;
                 LV2_Atom const *bpmAtom = NULL;
                 LV2_Atom const *speedAtom = NULL;
-                LV2_Atom const *frame = NULL;
+                LV2_Atom const *beatAtom = NULL;
                 // clang-format off
                 lv2_atom_object_get(obj,
-                                    uris->time_barBeat, &beatAtom,
+                                    uris->time_barBeat, &barBeatAtom,
                                     uris->time_beatsPerMinute, &bpmAtom,
                                     uris->time_speed, &speedAtom,
-                                    uris->time_frame, &frame,
+                                    uris->time_beat, &beatAtom,
                                     NULL);
                 // clang-format on
 
-                if (bpmAtom != 0 && bpmAtom->type == uris->atom_Float) {
+                if (bpmAtom != 0) {
                     // Tempo changed, update BPM
                     self->state.bpm = ((LV2_Atom_Float *) bpmAtom)->body;
                     lv2_log_trace(&self->logger, "BPM set to %f\n", self->state.bpm);
                 }
-                if (speedAtom != 0 && speedAtom->type == uris->atom_Float) {
+                if (speedAtom != 0) {
                     // Speed changed, e.g. 0 (stop) to 1 (play)
                     self->state.speed = ((LV2_Atom_Float *) speedAtom)->body;
                     lv2_log_trace(&self->logger, "speed set to %f\n", self->state.speed);
                 }
-                if (beatAtom != 0 && beatAtom->type == uris->atom_Float) {
+                if (beatAtom != 0) {
+                    self->state.beat = ((LV2_Atom_Double *) beatAtom)->body;
+                    lv2_log_trace(&self->logger, "beat set to %f\n", self->state.beat);
+                }
+                if (barBeatAtom != 0) {
                     // Received a beat_atom position, synchronise
                     // const float frames_per_beat = (float)(60.0 / self->bpm_atom * self->rate);
-                    const int barBeat = (int) ((LV2_Atom_Float *) beatAtom)->body;
+                    const int barBeat = (int) ((LV2_Atom_Float *) barBeatAtom)->body;
                     // const float beat_beats = bar_beat - floorf(bar_beat);
                     if (barBeat != self->state.last_bar_beat) {
                         self->state.last_bar_beat = barBeat;
-                        lv2_log_note(&self->logger, "beat set to %d\n", barBeat);
+                        lv2_log_note(&self->logger, "barBeatAtom set to %d\n", barBeat);
 
-                        const long frameAsLong = (long) ((LV2_Atom_Long *) frame)->body;
                         if (barBeat == 0) {
                             lv2_log_note(&self->logger, "trying to produce a note\n");
                             MIDINoteEvent note;
-                            note.event.time.frames = frameAsLong;
+                            note.event.time.beats = ev->time.beats;
                             note.event.body.type = uris->midi_Event;
                             note.event.body.size = 3;
                             note.msg[0] = LV2_MIDI_MSG_NOTE_ON;
@@ -236,7 +241,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         } else if (barBeat == 1) {
                             lv2_log_note(&self->logger, "trying to stop a note\n");
                             MIDINoteEvent note;
-                            note.event.time.frames = frameAsLong;
+                            note.event.time.beats = ev->time.beats;
                             note.event.body.type = uris->midi_Event;
                             note.event.body.size = 3;
                             note.msg[0] = LV2_MIDI_MSG_NOTE_OFF;
