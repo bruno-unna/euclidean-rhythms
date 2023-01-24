@@ -20,7 +20,9 @@
   foaf:mbox <mailto:bruno.unna@gmail.com> .
 
 <https://github.com/bruno-unna/euclidean-rhythms>
-  a lv2:Plugin, lv2:MIDIPlugin, doap:Project ;
+  a lv2:Plugin;
+
+  rdfs:comment "A utility plugin to produce MIDI events using euclidean algorithms" ;
 
   doap:maintainer <https://github.com/bruno-unna#me> ;
   doap:license <https://opensource.org/licenses/GPL-3.0> ;
@@ -30,7 +32,7 @@
     "A plugin to produce MIDI events using euclidean algorithms" ;
 
   lv2:project <https://github.com/bruno-unna/euclidean-rhythms>;
-  lv2:optionalFeature lv2:isLive, lv2:hardRTCapable ;
+  lv2:optionalFeature lv2:hardRTCapable ;
   lv2:requiredFeature urid:map ;
 
   lv2:minorVersion @MINOR_VERSION@ ;
@@ -105,5 +107,4 @@
     lv2:symbol "midiout" ;
     lv2:name "MIDI Out" ;
   ] ;
-  rdfs:comment "A utility plugin to produce MIDI events using euclidean algorithms" ;
 .
