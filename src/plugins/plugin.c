@@ -171,11 +171,6 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     Euclidean *self = (Euclidean *) instance;
     EuclideanURIs *uris = &self->uris;
 
-    if (!self->ports.midiout) {
-        lv2_log_error(&self->logger, "MIDI out port is not connected\n");
-        return;
-    }
-
     typedef struct {
         LV2_Atom_Event event;
         uint8_t msg[3];
@@ -185,7 +180,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
 
     // Write an empty Sequence header to the output
     lv2_atom_sequence_clear(self->ports.midiout);
-    self->ports.midiout->atom.type = uris->midi_Event;
+    self->ports.midiout->atom.type = uris->midi_Event;  // TODO validate this assumption
 
     LV2_ATOM_SEQUENCE_FOREACH(self->ports.control, ev) {
         if (ev->body.type == uris->atom_Object) {
