@@ -16,11 +16,9 @@
 #include "lv2/urid/urid.h"
 
 typedef struct {
-    LV2_URID atom_Blank;
     LV2_URID atom_Float;
     LV2_URID atom_Object;
     LV2_URID atom_Path;
-    LV2_URID atom_Resource;
     LV2_URID atom_Sequence;
     LV2_URID atom_URID;
     LV2_URID atom_eventTransfer;
@@ -109,11 +107,9 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
 }
 
 static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
-    uris->atom_Blank = map->map(map->handle, LV2_ATOM__Blank);
     uris->atom_Float = map->map(map->handle, LV2_ATOM__Float);
     uris->atom_Object = map->map(map->handle, LV2_ATOM__Object);
     uris->atom_Path = map->map(map->handle, LV2_ATOM__Path);
-    uris->atom_Resource = map->map(map->handle, LV2_ATOM__Resource);
     uris->atom_Sequence = map->map(map->handle, LV2_ATOM__Sequence);
     uris->atom_URID = map->map(map->handle, LV2_ATOM__URID);
     uris->atom_eventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
@@ -190,7 +186,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     self->ports.midiout->atom.type = uris->midi_Event;
 
     LV2_ATOM_SEQUENCE_FOREACH(self->ports.control, ev) {
-        if (ev->body.type == uris->atom_Object || ev->body.type == uris->atom_Blank) {
+        if (ev->body.type == uris->atom_Object) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
             if (obj->body.otype == uris->time_Position) {
                 // Received new transport position/speed_atom
