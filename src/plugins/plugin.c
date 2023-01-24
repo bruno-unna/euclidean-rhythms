@@ -226,7 +226,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         if (barBeat == 0) {
                             lv2_log_note(&self->logger, "trying to produce a note\n");
                             MIDINoteEvent note;
-                            note.event.time.beats = ev->time.beats;
+                            note.event.time.frames = ev->time.frames;
                             note.event.body.type = uris->midi_Event;
                             note.event.body.size = 3;
                             note.msg[0] = LV2_MIDI_MSG_NOTE_ON;
@@ -236,7 +236,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         } else if (barBeat == 1) {
                             lv2_log_note(&self->logger, "trying to stop a note\n");
                             MIDINoteEvent note;
-                            note.event.time.beats = ev->time.beats;
+                            note.event.time.frames = ev->time.frames;
                             note.event.body.type = uris->midi_Event;
                             note.event.body.size = 3;
                             note.msg[0] = LV2_MIDI_MSG_NOTE_OFF;
