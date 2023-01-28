@@ -215,10 +215,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     lv2_log_trace(&self->logger, "beat set to %f\n", self->state.beat);
                 }
                 if (barBeatAtom != 0) {
-                    // Received a beat_atom position, synchronise
-                    // const float frames_per_beat = (float)(60.0 / self->bpm_atom * self->rate);
                     const int barBeat = (int) ((LV2_Atom_Float *) barBeatAtom)->body;
-                    // const float beat_beats = bar_beat - floorf(bar_beat);
                     if (barBeat != self->state.last_bar_beat) {
                         self->state.last_bar_beat = barBeat;
                         lv2_log_note(&self->logger, "barBeatAtom set to %d\n", barBeat);
