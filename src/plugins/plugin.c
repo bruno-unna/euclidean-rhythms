@@ -28,7 +28,6 @@ typedef struct {
     LV2_URID patch_value;
     LV2_URID time_Position;
     LV2_URID time_barBeat;
-    LV2_URID time_beatsPerMinute;
     LV2_URID time_speed;
     LV2_URID time_beat;
 } EuclideanURIs;
@@ -67,7 +66,6 @@ typedef struct {
     // Variables to keep track of the tempo information sent by the host
     struct {
         double rate; // Sample rate
-        float bpm;   // Beats per minute (tempo)
         float speed; // Transport speed (usually 0=stop, 1=play)
         double beat;    // Global running beat number
         int last_bar_beat;
@@ -120,7 +118,6 @@ static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
     uris->patch_value = map->map(map->handle, LV2_PATCH__value);
     uris->time_Position = map->map(map->handle, LV2_TIME__Position);
     uris->time_barBeat = map->map(map->handle, LV2_TIME__barBeat);
-    uris->time_beatsPerMinute = map->map(map->handle, LV2_TIME__beatsPerMinute);
     uris->time_speed = map->map(map->handle, LV2_TIME__speed);
     uris->time_beat = map->map(map->handle, LV2_TIME__beat);
 }
@@ -155,7 +152,6 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
 
     // Initialise instance fields
     self->state.rate = rate;
-    self->state.bpm = 120.0f;
     self->state.speed = 1.0f;
     self->state.beat = 0;
     self->state.last_bar_beat = -1;
@@ -188,23 +184,16 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
             if (obj->body.otype == uris->time_Position) {
                 // Received new transport position/speed_atom
                 LV2_Atom const *barBeatAtom = NULL;
-                LV2_Atom const *bpmAtom = NULL;
                 LV2_Atom const *speedAtom = NULL;
                 LV2_Atom const *beatAtom = NULL;
                 // clang-format off
                 lv2_atom_object_get(obj,
                                     uris->time_barBeat, &barBeatAtom,
-                                    uris->time_beatsPerMinute, &bpmAtom,
                                     uris->time_speed, &speedAtom,
                                     uris->time_beat, &beatAtom,
                                     NULL);
                 // clang-format on
 
-                if (bpmAtom != 0) {
-                    // Tempo changed, update BPM
-                    self->state.bpm = ((LV2_Atom_Float *) bpmAtom)->body;
-                    lv2_log_trace(&self->logger, "BPM set to %f\n", self->state.bpm);
-                }
                 if (speedAtom != 0) {
                     // Speed changed, e.g. 0 (stop) to 1 (play)
                     self->state.speed = ((LV2_Atom_Float *) speedAtom)->body;
