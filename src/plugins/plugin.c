@@ -180,7 +180,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
 
     // Write an empty Sequence header to the output
     lv2_atom_sequence_clear(self->ports.midiout);
-    self->ports.midiout->atom.type = uris->midi_Event;  // TODO validate this assumption
+    self->ports.midiout->atom.type = uris->atom_Sequence;
 
     LV2_ATOM_SEQUENCE_FOREACH(self->ports.control, ev) {
         if (ev->body.type == uris->atom_Object) {
