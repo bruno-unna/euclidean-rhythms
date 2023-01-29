@@ -41,7 +41,7 @@ unsigned long e(unsigned short onsets, unsigned short beats, short rotation) {
         fprintf(stderr,
                 "number of onsets (%d) can't be larger than number of beats (%d)\n",
                 onsets, beats);
-        for (short i = 0; i < beats; ++i) {
+        for (unsigned short i = 0; i < beats; ++i) {
             result <<= 1;
             result |= 1;
         }
@@ -59,6 +59,17 @@ unsigned long e(unsigned short onsets, unsigned short beats, short rotation) {
             result <<= r.s;
             result |= r.v;
         }
+    }
+    for (int i = 0; i < rotation; ++i) {
+        unsigned short lowBit = (result & 1 << (beats - 1)) >> (beats - 1);
+        result &= (long) -1 ^ 1 << (beats - 1);
+        result <<= 1;
+        result |= lowBit;
+    }
+    for (int i = 0; i > rotation; --i) {
+        unsigned long highBit = result & 1 << (beats - 1);
+        result >>= 1;
+        result |= highBit;
     }
     return result;
 }
