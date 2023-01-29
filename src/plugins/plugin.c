@@ -49,10 +49,6 @@ typedef struct {
     LV2_Log_Logger logger; // Logger API
     EuclideanURIs uris;    // Cache of mapped URIDs
 
-    // Atom forge
-//    LV2_Atom_Forge forge;
-//    LV2_Atom_Forge_Frame frame;
-
     struct {
         const LV2_Atom_Sequence *control;
         uint8_t *beats;
