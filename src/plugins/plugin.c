@@ -27,7 +27,6 @@ typedef struct {
     LV2_URID patch_property;
     LV2_URID patch_value;
     LV2_URID time_Position;
-    LV2_URID time_barBeat;
     LV2_URID time_speed;
     LV2_URID time_beat;
 } EuclideanURIs;
@@ -65,10 +64,8 @@ typedef struct {
 
     // Variables to keep track of the tempo information sent by the host
     struct {
-        double rate; // Sample rate
         float speed; // Transport speed (usually 0=stop, 1=play)
-        double beat;    // Global running beat number
-        int last_bar_beat;
+        long beat;    // Global running beat number
     } state;
 } Euclidean;
 
@@ -117,7 +114,6 @@ static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
     uris->patch_property = map->map(map->handle, LV2_PATCH__property);
     uris->patch_value = map->map(map->handle, LV2_PATCH__value);
     uris->time_Position = map->map(map->handle, LV2_TIME__Position);
-    uris->time_barBeat = map->map(map->handle, LV2_TIME__barBeat);
     uris->time_speed = map->map(map->handle, LV2_TIME__speed);
     uris->time_beat = map->map(map->handle, LV2_TIME__beat);
 }
@@ -151,10 +147,8 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     map_uris(self->map, &self->uris);
 
     // Initialise instance fields
-    self->state.rate = rate;
     self->state.speed = 1.0f;
     self->state.beat = 0;
-    self->state.last_bar_beat = -1;
 
     return (LV2_Handle) self;
 }
@@ -183,12 +177,10 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
             if (obj->body.otype == uris->time_Position) {
                 // Received new transport position/speed_atom
-                LV2_Atom const *barBeatAtom = NULL;
                 LV2_Atom const *speedAtom = NULL;
                 LV2_Atom const *beatAtom = NULL;
                 // clang-format off
                 lv2_atom_object_get(obj,
-                                    uris->time_barBeat, &barBeatAtom,
                                     uris->time_speed, &speedAtom,
                                     uris->time_beat, &beatAtom,
                                     NULL);
@@ -199,18 +191,14 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     self->state.speed = ((LV2_Atom_Float *) speedAtom)->body;
                     lv2_log_trace(&self->logger, "speed set to %f\n", self->state.speed);
                 }
-                if (beatAtom != 0) {
-                    self->state.beat = ((LV2_Atom_Double *) beatAtom)->body;
-                    lv2_log_trace(&self->logger, "beat set to %f\n", self->state.beat);
-                }
-                if (barBeatAtom != 0) {
-                    const int barBeat = (int) ((LV2_Atom_Float *) barBeatAtom)->body;
-                    if (barBeat != self->state.last_bar_beat) {
-                        self->state.last_bar_beat = barBeat;
-                        lv2_log_note(&self->logger, "barBeatAtom set to %d\n", barBeat);
+                if (self->state.speed > 0 && beatAtom != 0) {
+                    const long beat = (long) ((LV2_Atom_Double *) beatAtom)->body;
+                    if (beat != self->state.beat) {
+                        self->state.beat = beat;
+                        lv2_log_trace(&self->logger, "beat set to %ld\n", beat);
 
-                        if (barBeat == 0) {
-                            lv2_log_note(&self->logger, "trying to produce a note\n");
+                        if (beat % *self->ports.beats == 0) {
+                            lv2_log_trace(&self->logger, "trying to produce a note\n");
                             MIDINoteEvent note;
                             note.event.time.frames = ev->time.frames;
                             note.event.body.type = uris->midi_Event;
@@ -219,8 +207,8 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                             note.msg[1] = 60;
                             note.msg[2] = 0x7f;
                             lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
-                        } else if (barBeat == 1) {
-                            lv2_log_note(&self->logger, "trying to stop a note\n");
+                        } else if (beat % *self->ports.beats == 1) {
+                            lv2_log_trace(&self->logger, "trying to stop a note\n");
                             MIDINoteEvent note;
                             note.event.time.frames = ev->time.frames;
                             note.event.body.type = uris->midi_Event;
