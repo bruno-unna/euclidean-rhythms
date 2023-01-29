@@ -2,6 +2,6 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 <https://github.com/bruno-unna/euclidean-rhythms>
-  a lv2:MIDIPlugin ;
+  a lv2:Plugin ;
   lv2:binary <euclidean@LIB_EXT@> ;
   rdfs:seeAlso <euclidean.ttl> .
