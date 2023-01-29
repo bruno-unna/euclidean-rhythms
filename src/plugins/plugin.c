@@ -176,6 +176,18 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     lv2_atom_sequence_clear(self->ports.midiout);
     self->ports.midiout->atom.type = uris->atom_Sequence;
 
+    // Analyse the parameters
+    int portBeats = (int) *self->ports.beats;
+    if (self->state.euclideanBeatsPerBar != portBeats) {
+        self->state.euclideanBeatsPerBar = portBeats;
+        if (self->state.euclideanPositionsVector != NULL) free(self->state.euclideanPositionsVector);
+        self->state.euclideanPositionsVector = calloc(self->state.euclideanBeatsPerBar, sizeof(float));
+        float delta = 1.0f / (float) self->state.euclideanBeatsPerBar;
+        for (int i = 0; i < self->state.euclideanBeatsPerBar; ++i) {
+            self->state.euclideanPositionsVector[i] = (float) i * delta;
+        }
+    }
+
     LV2_ATOM_SEQUENCE_FOREACH(self->ports.control, ev) {
         if (ev->body.type == uris->atom_Object) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
