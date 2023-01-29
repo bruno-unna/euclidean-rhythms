@@ -235,7 +235,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
 
                         if (beat != self->state.beat) {
                             self->state.beat = beat;
-                            lv2_log_note(&self->logger, "the beat is now %d\n", beat);
+                            lv2_log_trace(&self->logger, "the beat is now %d\n", beat);
 
                             if (beat == 0) {
                                 lv2_log_note(&self->logger, "trying to produce a note\n");
