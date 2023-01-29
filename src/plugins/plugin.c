@@ -190,36 +190,36 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
         if (ev->body.type == uris->atom_Object) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
             if (obj->body.otype == uris->time_Position) {
-                // Received new transport position/speed_atom
-                LV2_Atom const *speed_atom = NULL;
-                LV2_Atom const *bar_beat_atom = NULL;
-                LV2_Atom const *beats_per_bar_atom = NULL;
+                // Received new transport position/host_speed_atom
+                LV2_Atom const *host_speed_atom = NULL;
+                LV2_Atom const *host_bar_beat_atom = NULL;
+                LV2_Atom const *host_beats_per_bar_atom = NULL;
                 // clang-format off
                 lv2_atom_object_get(obj,
-                                    uris->time_speed, &speed_atom,
-                                    uris->time_bar_beat, &bar_beat_atom,
-                                    uris->time_beats_per_bar, &beats_per_bar_atom,
+                                    uris->time_speed, &host_speed_atom,
+                                    uris->time_bar_beat, &host_bar_beat_atom,
+                                    uris->time_beats_per_bar, &host_beats_per_bar_atom,
                                     NULL);
                 // clang-format on
 
-                if (speed_atom != 0) {
-                    const float speed = (float) ((LV2_Atom_Float *) speed_atom)->body;
+                if (host_speed_atom != 0) {
+                    const float speed = (float) ((LV2_Atom_Float *) host_speed_atom)->body;
                     if (speed != self->state.speed) {
                         // Speed changed, e.g. 0 (stop) to 1 (play)
                         self->state.speed = speed;
                         lv2_log_note(&self->logger, "speed set to %f\n", self->state.speed);
                     }
                 }
-                if (beats_per_bar_atom != 0) {
-                    const float beats_per_bar = (float) ((LV2_Atom_Float *) beats_per_bar_atom)->body;
+                if (host_beats_per_bar_atom != 0) {
+                    const float beats_per_bar = (float) ((LV2_Atom_Float *) host_beats_per_bar_atom)->body;
                     if (beats_per_bar != self->state.host_beats_per_bar) {
                         // host_beats_per_bar changed
                         self->state.host_beats_per_bar = beats_per_bar;
                         lv2_log_note(&self->logger, "host_beats_per_bar set to %f\n", self->state.host_beats_per_bar);
                     }
                 }
-                if (bar_beat_atom != 0) {
-                    const float barBeat = (float) ((LV2_Atom_Float *) bar_beat_atom)->body;
+                if (host_bar_beat_atom != 0) {
+                    const float barBeat = (float) ((LV2_Atom_Float *) host_bar_beat_atom)->body;
                     if (self->state.speed > 0) {
                         const float bar_progress = barBeat / self->state.host_beats_per_bar;
 
