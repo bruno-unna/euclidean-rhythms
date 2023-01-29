@@ -14,6 +14,7 @@
 #include <lv2/lv2plug.in/ns/lv2core/lv2_util.h>
 #include "lv2/patch/patch.h"
 #include "lv2/urid/urid.h"
+#include "euclidean.h"
 
 typedef struct {
     LV2_URID atom_Float;
@@ -62,9 +63,12 @@ typedef struct {
     struct {
         float speed; // Transport speed (usually 0=stop, 1=play)
         float host_beats_per_bar;
-        int beats_per_bar;
+        unsigned short beats_per_bar;
+        unsigned short onsets;
+        short rotation;
         float *positions_vector;
         int beat;
+        unsigned long euclidean;
     } state;
 } Euclidean;
 
@@ -150,7 +154,10 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     self->state.host_beats_per_bar = 0;
     self->state.positions_vector = NULL;
     self->state.beats_per_bar = 0;  // to force initialisation of position vector
+    self->state.onsets = 0;
+    self->state.rotation = 0;
     self->state.beat = 0;
+    self->state.euclidean = 0;
 
     return (LV2_Handle) self;
 }
@@ -177,17 +184,39 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     self->ports.midi_out->atom.type = uris->atom_Sequence;
 
     // Analyse the parameters
-    int portBeats = (int) *self->ports.beats;
-    if (portBeats != self->state.beats_per_bar) {
-        lv2_log_note(&self->logger, "plugin beats per bar set to %d\n", portBeats);
-        self->state.beats_per_bar = portBeats;
+    bool calculateEuclidean = false;
+
+    unsigned short port_beats = (unsigned short) *self->ports.beats;
+    if (port_beats != self->state.beats_per_bar) {
+        lv2_log_note(&self->logger, "plugin beats per bar set to %d\n", port_beats);
+        self->state.beats_per_bar = port_beats;
         if (self->state.positions_vector != NULL) free(self->state.positions_vector);
-        self->state.positions_vector = calloc(portBeats, sizeof(float));
-        float delta = 1.0f / (float) portBeats;
-        for (int i = 0; i < portBeats; ++i) {
+        self->state.positions_vector = calloc(port_beats, sizeof(float));
+        const float delta = 1.0f / (float) port_beats;
+        for (int i = 0; i < port_beats; ++i) {
             self->state.positions_vector[i] = (float) i * delta;
         }
+        calculateEuclidean = true;
     }
+
+    unsigned short port_onsets = (unsigned short) *self->ports.onsets;
+    if (port_onsets != self->state.onsets) {
+        lv2_log_note(&self->logger, "plugin onsets set to %d\n", port_onsets);
+        self->state.onsets = port_onsets;
+        calculateEuclidean = true;
+    }
+
+    short port_rotation = (short) *self->ports.rotation;
+    if (port_rotation != self->state.rotation) {
+        lv2_log_note(&self->logger, "plugin rotation set to %d\n", port_rotation);
+        self->state.rotation = port_rotation;
+        calculateEuclidean = true;
+    }
+
+    if (calculateEuclidean)
+        self->state.euclidean = e((unsigned short) *self->ports.onsets,
+                                  (unsigned short) *self->ports.beats,
+                                  (short) *self->ports.rotation);
 
     LV2_ATOM_SEQUENCE_FOREACH(self->ports.control, ev) {
         if (ev->body.type == uris->atom_Object) {
