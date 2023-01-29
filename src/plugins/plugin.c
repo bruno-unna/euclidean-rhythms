@@ -29,7 +29,6 @@ typedef struct {
     LV2_URID patch_value;
     LV2_URID time_Position;
     LV2_URID time_speed;
-    LV2_URID time_bar;
     LV2_URID time_barBeat;
     LV2_URID time_beatsPerBar;
 } EuclideanURIs;
@@ -115,7 +114,6 @@ static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
     uris->patch_value = map->map(map->handle, LV2_PATCH__value);
     uris->time_Position = map->map(map->handle, LV2_TIME__Position);
     uris->time_speed = map->map(map->handle, LV2_TIME__speed);
-    uris->time_bar = map->map(map->handle, LV2_TIME__bar);
     uris->time_barBeat = map->map(map->handle, LV2_TIME__barBeat);
     uris->time_beatsPerBar = map->map(map->handle, LV2_TIME__beatsPerBar);
 }
@@ -180,13 +178,11 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
             if (obj->body.otype == uris->time_Position) {
                 // Received new transport position/speed_atom
                 LV2_Atom const *speedAtom = NULL;
-                LV2_Atom const *barAtom = NULL;
                 LV2_Atom const *barBeatAtom = NULL;
                 LV2_Atom const *beatsPerBarAtom = NULL;
                 // clang-format off
                 lv2_atom_object_get(obj,
                                     uris->time_speed, &speedAtom,
-                                    uris->time_bar, &barAtom,
                                     uris->time_barBeat, &barBeatAtom,
                                     uris->time_beatsPerBar, &beatsPerBarAtom,
                                     NULL);
@@ -198,14 +194,6 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         // Speed changed, e.g. 0 (stop) to 1 (play)
                         self->state.speed = speed;
                         lv2_log_note(&self->logger, "speed set to %f\n", self->state.speed);
-                    }
-                }
-                if (barAtom != 0) {
-                    const long bar = (long) ((LV2_Atom_Long *) barAtom)->body;
-                    if (bar != self->state.bar) {
-                        // bar changed
-                        self->state.bar = bar;
-                        lv2_log_note(&self->logger, "bar set to %ld\n", self->state.bar);
                     }
                 }
                 if (beatsPerBarAtom != 0) {
