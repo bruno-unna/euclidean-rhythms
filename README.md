@@ -101,10 +101,29 @@ Not many, but very important. I would appreciate anyone contributing to the proj
 
 ## Acknowledgements
 
-Kudos to [David Robillard](mailto:d@drobilla.net) for all the work he's put into divulging and documenting LV2. Much of the code of this plugin finds its embryo in David's examples.
+Kudos to [David Robillard](mailto:d@drobilla.net) for all the work he's put into divulging and documenting LV2. Much of
+the code of this plugin finds its embryo in David's examples.
 
-Thanks to [Robin Gareus](mailto:robin@gareus.org) for sharing generously the source code of his own plugins with the community. I've learnt a lot.
+Thanks to [Robin Gareus](mailto:robin@gareus.org) for sharing generously the source code of his own plugins with the
+community. I've learnt a lot.
 
-Thanks as well to JetBrains, for demonstrating their [commitment to Open Source](https://jb.gg/OpenSourceSupport) by granting me a licence to use their IDEs for free for this project.
+Thanks as well to JetBrains, for demonstrating their [commitment to Open Source](https://jb.gg/OpenSourceSupport) by
+granting me a licence to use their IDEs for free for this project.
 
-My deepest gratitude to the FOSS community in general. I humbly hope that this project serves as a small retribution for all the good things that I've received.
+My deepest gratitude to the FOSS community in general. I humbly hope that this project serves as a small retribution for
+all the good things that I've received.
+
+## Licence & copyright
+
+Copyright 2023 by Bruno Unna.
+
+Euclidean Rhythms is free software: you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
+or (at your option) any later version.
+
+Euclidean Rhythms is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Euclidean Rhythms.
+If not, see <https://www.gnu.org/licenses/>.
