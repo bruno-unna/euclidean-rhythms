@@ -20,9 +20,9 @@
   foaf:mbox <mailto:bruno.unna@gmail.com> .
 
 <https://github.com/bruno-unna/euclidean-rhythms>
-  a lv2:Plugin;
+  a lv2:MIDIPlugin;
 
-  rdfs:comment "A utility plugin to produce MIDI events using euclidean algorithms" ;
+  rdfs:comment "A plugin to produce MIDI events using euclidean algorithms" ;
 
   doap:maintainer <https://github.com/bruno-unna#me> ;
   doap:license <https://opensource.org/licenses/GPL-3.0> ;
