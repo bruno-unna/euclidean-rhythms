@@ -247,9 +247,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                                 note.msg[1] = (int) *self->ports.note;
                                 note.msg[2] = (int) *self->ports.velocity;
                                 lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
-                            } else if (beat == 1) {
-                                lv2_log_note(&self->logger, "trying to stop a note\n");
-                                MIDI_note_event note;
+
                                 note.event.time.frames = ev->time.frames;
                                 note.event.body.type = uris->midi_Event;
                                 note.event.body.size = 3;
