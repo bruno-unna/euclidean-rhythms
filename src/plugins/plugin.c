@@ -62,8 +62,9 @@ typedef struct {
 
     struct {
         float speed; // Transport speed (usually 0=stop, 1=play)
-        long bar;    // Global running bar number
-        float beatsPerBar;
+        float hostBeatsPerBar;
+        int euclideanBeatsPerBar;
+        float *euclideanPositionsVector;
     } state;
 } Euclidean;
 
@@ -146,12 +147,17 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     map_uris(self->map, &self->uris);
 
     // Initialise instance fields
-    self->state.speed = 1.0f;
+    self->state.speed = 0;
+    self->state.hostBeatsPerBar = 0;
+    self->state.euclideanPositionsVector = NULL;
+    self->state.euclideanBeatsPerBar = 0;  // to force initialisation of position vector
 
     return (LV2_Handle) self;
 }
 
 static void cleanup(LV2_Handle instance) {
+    Euclidean *self = (Euclidean *) instance;
+    if (self->state.euclideanPositionsVector != NULL) free(self->state.euclideanPositionsVector);
     free(instance);
 }
 
@@ -196,17 +202,18 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                 }
                 if (beatsPerBarAtom != 0) {
                     const float beatsPerBar = (float) ((LV2_Atom_Float *) beatsPerBarAtom)->body;
-                    if (beatsPerBar != self->state.beatsPerBar) {
-                        // beatsPerBar changed
-                        self->state.beatsPerBar = beatsPerBar;
-                        lv2_log_note(&self->logger, "beatsPerBar set to %f\n", self->state.beatsPerBar);
+                    if (beatsPerBar != self->state.hostBeatsPerBar) {
+                        // hostBeatsPerBar changed
+                        self->state.hostBeatsPerBar = beatsPerBar;
+                        lv2_log_note(&self->logger, "hostBeatsPerBar set to %f\n", self->state.hostBeatsPerBar);
                     }
                 }
                 if (barBeatAtom != 0) {
-                    const float beat = (float) ((LV2_Atom_Float *) barBeatAtom)->body;
+                    const float barBeat = (float) ((LV2_Atom_Float *) barBeatAtom)->body;
                     if (self->state.speed > 0) {
-                        lv2_log_note(&self->logger, "bar beat is now %f\n", beat);
-                        if (beat == 0) {
+                        const float barProgress = barBeat / self->state.hostBeatsPerBar;
+
+                        if (barBeat == 0) {
                             lv2_log_trace(&self->logger, "trying to produce a note\n");
                             MIDINoteEvent note;
                             note.event.time.frames = ev->time.frames;
@@ -216,7 +223,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                             note.msg[1] = *self->ports.note;
                             note.msg[2] = *self->ports.velocity;
                             lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
-                        } else if (beat == 1) {
+                        } else if (barBeat == 1) {
                             lv2_log_trace(&self->logger, "trying to stop a note\n");
                             MIDINoteEvent note;
                             note.event.time.frames = ev->time.frames;
