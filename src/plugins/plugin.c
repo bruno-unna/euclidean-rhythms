@@ -206,6 +206,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                 if (barBeatAtom != 0) {
                     const float beat = (float) ((LV2_Atom_Float *) barBeatAtom)->body;
                     if (self->state.speed > 0) {
+                        lv2_log_note(&self->logger, "bar beat is now %f\n", beat);
                         if (beat == 0) {
                             lv2_log_trace(&self->logger, "trying to produce a note\n");
                             MIDINoteEvent note;
