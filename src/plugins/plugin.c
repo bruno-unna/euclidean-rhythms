@@ -243,7 +243,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                                 note.event.time.frames = ev->time.frames;
                                 note.event.body.type = uris->midi_Event;
                                 note.event.body.size = 3;
-                                note.msg[0] = LV2_MIDI_MSG_NOTE_ON + (int) *self->ports.channel;
+                                note.msg[0] = LV2_MIDI_MSG_NOTE_ON + (int) *self->ports.channel - 1;
                                 note.msg[1] = (int) *self->ports.note;
                                 note.msg[2] = (int) *self->ports.velocity;
                                 lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
@@ -253,7 +253,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                                 note.event.time.frames = ev->time.frames;
                                 note.event.body.type = uris->midi_Event;
                                 note.event.body.size = 3;
-                                note.msg[0] = LV2_MIDI_MSG_NOTE_OFF + (int) *self->ports.channel;
+                                note.msg[0] = LV2_MIDI_MSG_NOTE_OFF + (int) *self->ports.channel - 1;
                                 note.msg[1] = (int) *self->ports.note;
                                 note.msg[2] = 0x00;
                                 lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
