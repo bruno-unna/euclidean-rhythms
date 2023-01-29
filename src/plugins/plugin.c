@@ -230,8 +230,8 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                             note.event.body.type = uris->midi_Event;
                             note.event.body.size = 3;
                             note.msg[0] = LV2_MIDI_MSG_NOTE_ON;
-                            note.msg[1] = *self->ports.note;
-                            note.msg[2] = *self->ports.velocity;
+                            note.msg[1] = (int) *self->ports.note;
+                            note.msg[2] = (int) *self->ports.velocity;
                             lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
                         } else if (barBeat == 1) {
                             lv2_log_trace(&self->logger, "trying to stop a note\n");
@@ -240,7 +240,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                             note.event.body.type = uris->midi_Event;
                             note.event.body.size = 3;
                             note.msg[0] = LV2_MIDI_MSG_NOTE_OFF;
-                            note.msg[1] = *self->ports.note;
+                            note.msg[1] = (int) *self->ports.note;
                             note.msg[2] = 0x00;
                             lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
                         }
