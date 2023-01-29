@@ -17,6 +17,7 @@
 
 typedef struct {
     LV2_URID atom_Float;
+    LV2_URID atom_Double;
     LV2_URID atom_Object;
     LV2_URID atom_Path;
     LV2_URID atom_Sequence;
@@ -103,6 +104,7 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
 
 static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
     uris->atom_Float = map->map(map->handle, LV2_ATOM__Float);
+    uris->atom_Double = map->map(map->handle, LV2_ATOM__Double);
     uris->atom_Object = map->map(map->handle, LV2_ATOM__Object);
     uris->atom_Path = map->map(map->handle, LV2_ATOM__Path);
     uris->atom_Sequence = map->map(map->handle, LV2_ATOM__Sequence);
