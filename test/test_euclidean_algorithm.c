@@ -3,8 +3,8 @@
 
 int main() {
    unsigned long r;
-   
-   r = e(0, 4);
+
+    r = e(0, 4, 0);
    if (r == 0b0000) {
       printf("Received the expected result (....)\n");
    } else {
@@ -12,7 +12,7 @@ int main() {
       return 1;
    }
 
-   r = e(3, 8);
+    r = e(3, 8, 0);
    if (r == 0b10010010) {
       printf("Received the expected result (x..x..x.)\n");
    } else {
@@ -20,7 +20,7 @@ int main() {
       return 1;
    }
 
-   r = e(4, 6);
+    r = e(4, 6, 0);
    if (r == 0b101101) {
       printf("Received the expected result (x.xx.x)\n");
    } else {
@@ -28,7 +28,7 @@ int main() {
       return 1;
    }
 
-   r = e(7, 8);
+    r = e(7, 8, 0);
    if (r == 0b11111110) {
       printf("Received the expected result (xxxxxxx.)\n");
    } else {
@@ -36,7 +36,7 @@ int main() {
       return 1;
    }
 
-   r = e(4, 16);
+    r = e(4, 16, 0);
    if (r == 0b1000100010001000) {
       printf("Received the expected result (x...x...x...x...)\n");
    } else {
@@ -44,7 +44,7 @@ int main() {
       return 1;
    }
 
-   r = e(1, 4);
+    r = e(1, 4, 0);
    if (r == 0b1000) {
       printf("Received the expected result (x...)\n");
    } else {
@@ -52,7 +52,7 @@ int main() {
       return 1;
    }
 
-   r = e(10, 8);
+    r = e(10, 8, 0);
    if (r == 0b11111111) {
       printf("Received the expected result (xxxxxxxx)\n");
    } else {
@@ -60,7 +60,7 @@ int main() {
       return 1;
    }
 
-   r = e(4, 7);
+    r = e(4, 7, 0);
    if (r == 0b1010101) {
       printf("Received the expected result (x.x.x.x)\n");
    } else {

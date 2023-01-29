@@ -29,17 +29,17 @@ void er(repeats *g, repeats *r) {
   er(g, r);
 }
 
-unsigned long e(unsigned short onsets, unsigned short beats) {
-  unsigned long result = 0L;
+unsigned long e(unsigned short onsets, unsigned short beats, short rotation) {
+    unsigned long result = 0L;
 
-  if (beats == 0) {
-    fprintf(stderr, "number of beats can't be zero\n");
-    result = 0;
-  } else if (onsets == 0) {
-    result = 0;
-  } else if (onsets > beats) {
-    fprintf(stderr,
-            "number of onsets (%d) can't be larger than number of beats (%d)\n",
+    if (beats == 0) {
+        fprintf(stderr, "number of beats can't be zero\n");
+        result = 0;
+    } else if (onsets == 0) {
+        result = 0;
+    } else if (onsets > beats) {
+        fprintf(stderr,
+                "number of onsets (%d) can't be larger than number of beats (%d)\n",
             onsets, beats);
     for (short i = 0; i < beats; ++i) {
       result <<= 1;
