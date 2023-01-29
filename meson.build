@@ -1,5 +1,5 @@
 project('euclidean.lv2','c',
-    version: '0.1.0-SNAPSHOT',
+    version: '0.1.0',
     default_options: ['default_library=shared','c_std=c99'])
 
 # Where to install?
@@ -15,7 +15,7 @@ subdir('test')
 
 pkg_mod = import('pkgconfig')
 pkg_mod.generate(libraries : euclideanmodule,
-                 version : '0.1',
+                 version : '0.1.0',
                  name : 'euclidean',
                  filebase : 'euclidean',
                  description : 'A plugin to produce euclidean rhythms.')
