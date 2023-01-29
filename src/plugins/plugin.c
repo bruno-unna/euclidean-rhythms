@@ -189,13 +189,13 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                 if (speedAtom != 0) {
                     // Speed changed, e.g. 0 (stop) to 1 (play)
                     self->state.speed = ((LV2_Atom_Float *) speedAtom)->body;
-                    lv2_log_trace(&self->logger, "speed set to %f\n", self->state.speed);
+                    lv2_log_note(&self->logger, "speed set to %f\n", self->state.speed);
                 }
                 if (self->state.speed > 0 && beatAtom != 0) {
                     const long beat = (long) ((LV2_Atom_Double *) beatAtom)->body;
                     if (beat != self->state.beat) {
                         self->state.beat = beat;
-                        lv2_log_trace(&self->logger, "beat set to %ld\n", beat);
+                        lv2_log_note(&self->logger, "beat set to %ld\n", beat);
 
                         if (beat % *self->ports.beats == 0) {
                             lv2_log_trace(&self->logger, "trying to produce a note\n");
