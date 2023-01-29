@@ -67,7 +67,7 @@ unsigned long e(unsigned short onsets, unsigned short beats, short rotation) {
         result |= lowBit;
     }
     for (int i = 0; i > rotation; --i) {
-        unsigned long highBit = result & 1 << (beats - 1);
+        unsigned long highBit = (result & 1) << (beats - 1);
         result >>= 1;
         result |= highBit;
     }
