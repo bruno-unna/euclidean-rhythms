@@ -181,9 +181,9 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     if (self->state.euclideanBeatsPerBar != portBeats) {
         self->state.euclideanBeatsPerBar = portBeats;
         if (self->state.euclideanPositionsVector != NULL) free(self->state.euclideanPositionsVector);
-        self->state.euclideanPositionsVector = calloc(self->state.euclideanBeatsPerBar, sizeof(float));
-        float delta = 1.0f / (float) self->state.euclideanBeatsPerBar;
-        for (int i = 0; i < self->state.euclideanBeatsPerBar; ++i) {
+        self->state.euclideanPositionsVector = calloc(portBeats, sizeof(float));
+        float delta = 1.0f / (float) portBeats;
+        for (int i = 0; i < portBeats; ++i) {
             self->state.euclideanPositionsVector[i] = (float) i * delta;
         }
     }
