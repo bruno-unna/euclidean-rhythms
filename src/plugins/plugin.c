@@ -187,36 +187,41 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                 // clang-format on
 
                 if (speedAtom != 0) {
-                    // Speed changed, e.g. 0 (stop) to 1 (play)
-                    self->state.speed = ((LV2_Atom_Float *) speedAtom)->body;
-                    lv2_log_note(&self->logger, "speed set to %f\n", self->state.speed);
+                    const float speed = (float) ((LV2_Atom_Float *) speedAtom)->body;
+                    if (speed != self->state.speed) {
+                        // Speed changed, e.g. 0 (stop) to 1 (play)
+                        self->state.speed = speed;
+                        lv2_log_note(&self->logger, "speed set to %f\n", self->state.speed);
+                    }
                 }
-                if (self->state.speed > 0 && beatAtom != 0) {
+                if (beatAtom != 0) {
                     const long beat = (long) ((LV2_Atom_Double *) beatAtom)->body;
                     if (beat != self->state.beat) {
                         self->state.beat = beat;
                         lv2_log_note(&self->logger, "beat set to %ld\n", beat);
 
-                        if (beat % *self->ports.beats == 0) {
-                            lv2_log_trace(&self->logger, "trying to produce a note\n");
-                            MIDINoteEvent note;
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_Event;
-                            note.event.body.size = 3;
-                            note.msg[0] = LV2_MIDI_MSG_NOTE_ON;
-                            note.msg[1] = *self->ports.note;
-                            note.msg[2] = *self->ports.velocity;
-                            lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
-                        } else if (beat % *self->ports.beats == 1) {
-                            lv2_log_trace(&self->logger, "trying to stop a note\n");
-                            MIDINoteEvent note;
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_Event;
-                            note.event.body.size = 3;
-                            note.msg[0] = LV2_MIDI_MSG_NOTE_OFF;
-                            note.msg[1] = *self->ports.note;
-                            note.msg[2] = 0x00;
-                            lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
+                        if (self->state.speed > 0) {
+                            if (beat % *self->ports.beats == 0) {
+                                lv2_log_trace(&self->logger, "trying to produce a note\n");
+                                MIDINoteEvent note;
+                                note.event.time.frames = ev->time.frames;
+                                note.event.body.type = uris->midi_Event;
+                                note.event.body.size = 3;
+                                note.msg[0] = LV2_MIDI_MSG_NOTE_ON;
+                                note.msg[1] = *self->ports.note;
+                                note.msg[2] = *self->ports.velocity;
+                                lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
+                            } else if (beat % *self->ports.beats == 1) {
+                                lv2_log_trace(&self->logger, "trying to stop a note\n");
+                                MIDINoteEvent note;
+                                note.event.time.frames = ev->time.frames;
+                                note.event.body.type = uris->midi_Event;
+                                note.event.body.size = 3;
+                                note.msg[0] = LV2_MIDI_MSG_NOTE_OFF;
+                                note.msg[1] = *self->ports.note;
+                                note.msg[2] = 0x00;
+                                lv2_atom_sequence_append_event(self->ports.midiout, out_capacity, &note.event);
+                            }
                         }
                     }
                 }
