@@ -20,6 +20,22 @@ int main() {
         return 1;
     }
 
+    r = e(3, 8, 1);
+    if (r == 0b00100101) {
+        printf("Received the expected result (..x..x.x)\n");
+    } else {
+        printf("Received a wrong result (0x%lx), expecting 0x%lx\n", r, 0b00100101L);
+        return 1;
+    }
+
+    r = e(3, 8, -2);
+    if (r == 0b10100100) {
+        printf("Received the expected result (x.x..x..)\n");
+    } else {
+        printf("Received a wrong result (0x%lx), expecting 0x%lx\n", r, 0b10100100L);
+        return 1;
+    }
+
     r = e(4, 6, 0);
     if (r == 0b101101) {
         printf("Received the expected result (x.xx.x)\n");
