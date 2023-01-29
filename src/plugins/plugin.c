@@ -64,6 +64,7 @@ typedef struct {
         float host_beats_per_bar;
         int beats_per_bar;
         float *positions_vector;
+        int beat;
     } state;
 } Euclidean;
 
@@ -149,6 +150,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     self->state.host_beats_per_bar = 0;
     self->state.positions_vector = NULL;
     self->state.beats_per_bar = 0;  // to force initialisation of position vector
+    self->state.beat = 0;
 
     return (LV2_Handle) self;
 }
@@ -177,6 +179,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     // Analyse the parameters
     int portBeats = (int) *self->ports.beats;
     if (portBeats != self->state.beats_per_bar) {
+        lv2_log_note(&self->logger, "plugin beats per bar set to %d\n", portBeats);
         self->state.beats_per_bar = portBeats;
         if (self->state.positions_vector != NULL) free(self->state.positions_vector);
         self->state.positions_vector = calloc(portBeats, sizeof(float));
@@ -211,38 +214,50 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     }
                 }
                 if (host_beats_per_bar_atom != 0) {
-                    const float beats_per_bar = (float) ((LV2_Atom_Float *) host_beats_per_bar_atom)->body;
-                    if (beats_per_bar != self->state.host_beats_per_bar) {
+                    const float host_beats_per_bar = (float) ((LV2_Atom_Float *) host_beats_per_bar_atom)->body;
+                    if (host_beats_per_bar != self->state.host_beats_per_bar) {
                         // host_beats_per_bar changed
-                        self->state.host_beats_per_bar = beats_per_bar;
-                        lv2_log_note(&self->logger, "host_beats_per_bar set to %f\n", self->state.host_beats_per_bar);
+                        self->state.host_beats_per_bar = host_beats_per_bar;
+                        lv2_log_note(&self->logger, "host beats/bar set to %f\n", self->state.host_beats_per_bar);
                     }
                 }
                 if (host_bar_beat_atom != 0) {
-                    const float barBeat = (float) ((LV2_Atom_Float *) host_bar_beat_atom)->body;
+                    const float host_bar_beat = (float) ((LV2_Atom_Float *) host_bar_beat_atom)->body;
                     if (self->state.speed > 0) {
-                        const float bar_progress = barBeat / self->state.host_beats_per_bar;
+                        const float bar_progress = host_bar_beat / self->state.host_beats_per_bar;
 
-                        if (barBeat == 0) {
-                            lv2_log_trace(&self->logger, "trying to produce a note\n");
-                            MIDI_note_event note;
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_Event;
-                            note.event.body.size = 3;
-                            note.msg[0] = LV2_MIDI_MSG_NOTE_ON;
-                            note.msg[1] = (int) *self->ports.note;
-                            note.msg[2] = (int) *self->ports.velocity;
-                            lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
-                        } else if (barBeat == 1) {
-                            lv2_log_trace(&self->logger, "trying to stop a note\n");
-                            MIDI_note_event note;
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_Event;
-                            note.event.body.size = 3;
-                            note.msg[0] = LV2_MIDI_MSG_NOTE_OFF;
-                            note.msg[1] = (int) *self->ports.note;
-                            note.msg[2] = 0x00;
-                            lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
+                        int beat;
+                        // TODO find a faster way to do this (recursive bisection search is a good candidate)
+                        for (beat = 0 + 1; beat < self->state.beats_per_bar; ++beat) {
+                            if (bar_progress < self->state.positions_vector[beat]) break;
+                        }
+                        beat--;
+
+                        if (beat != self->state.beat) {
+                            self->state.beat = beat;
+                            lv2_log_note(&self->logger, "the beat is now %d\n", beat);
+
+                            if (beat == 0) {
+                                lv2_log_note(&self->logger, "trying to produce a note\n");
+                                MIDI_note_event note;
+                                note.event.time.frames = ev->time.frames;
+                                note.event.body.type = uris->midi_Event;
+                                note.event.body.size = 3;
+                                note.msg[0] = LV2_MIDI_MSG_NOTE_ON;
+                                note.msg[1] = (int) *self->ports.note;
+                                note.msg[2] = (int) *self->ports.velocity;
+                                lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
+                            } else if (beat == 1) {
+                                lv2_log_note(&self->logger, "trying to stop a note\n");
+                                MIDI_note_event note;
+                                note.event.time.frames = ev->time.frames;
+                                note.event.body.type = uris->midi_Event;
+                                note.event.body.size = 3;
+                                note.msg[0] = LV2_MIDI_MSG_NOTE_OFF;
+                                note.msg[1] = (int) *self->ports.note;
+                                note.msg[2] = 0x00;
+                                lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
+                            }
                         }
                     }
                 }
