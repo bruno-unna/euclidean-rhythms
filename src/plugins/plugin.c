@@ -21,7 +21,6 @@ typedef struct {
     LV2_URID atom_Path;
     LV2_URID atom_Sequence;
     LV2_URID atom_URID;
-    LV2_URID atom_eventTransfer;
     LV2_URID midi_Event;
     LV2_URID patch_Set;
     LV2_URID patch_property;
@@ -108,7 +107,6 @@ static inline void map_uris(LV2_URID_Map *map, EuclideanURIs *uris) {
     uris->atom_Path = map->map(map->handle, LV2_ATOM__Path);
     uris->atom_Sequence = map->map(map->handle, LV2_ATOM__Sequence);
     uris->atom_URID = map->map(map->handle, LV2_ATOM__URID);
-    uris->atom_eventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
     uris->midi_Event = map->map(map->handle, LV2_MIDI__MidiEvent);
     uris->patch_Set = map->map(map->handle, LV2_PATCH__Set);
     uris->patch_property = map->map(map->handle, LV2_PATCH__property);
@@ -191,10 +189,11 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     if (speed != self->state.speed) {
                         // Speed changed, e.g. 0 (stop) to 1 (play)
                         self->state.speed = speed;
-                        lv2_log_note(&self->logger, "speed set to %f\n", self->state.speed);
+                        lv2_log_note(&self->logger, "speed now set to %f\n", self->state.speed);
                     }
                 }
                 if (beatAtom != 0) {
+                    lv2_log_note(&self->logger, "got a beat atom!\n");
                     const long beat = (long) ((LV2_Atom_Double *) beatAtom)->body;
                     if (beat != self->state.beat) {
                         self->state.beat = beat;
