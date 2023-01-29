@@ -266,7 +266,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                             self->state.beat = beat;
                             lv2_log_trace(&self->logger, "the beat is now %d\n", beat);
 
-                            if (beat == 0) {
+                            if (self->state.euclidean & 1 << (self->state.beats_per_bar - beat - 1)) {
                                 MIDI_note_event note;
                                 note.event.time.frames = ev->time.frames;
                                 note.event.body.type = uris->midi_Event;
