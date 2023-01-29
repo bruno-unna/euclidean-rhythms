@@ -26,8 +26,8 @@
 
   doap:maintainer <https://github.com/bruno-unna#me> ;
   doap:license <https://opensource.org/licenses/GPL-3.0> ;
-  doap:name "Ritmos euclidianos"@es ,
-    "Euclidean rhythms" ;
+  doap:name "Ritmos Euclidianos"@es ,
+    "Euclidean Rhythms" ;
   doap:shortdesc "Un plugin para producir eventos MIDI usando algorithmos euclidianos"@es ,
     "A plugin to produce MIDI events using euclidean algorithms" ;
 
