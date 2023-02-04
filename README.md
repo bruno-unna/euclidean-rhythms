@@ -2,6 +2,35 @@
 
 An implementation of the Euclidean rhythms idea in the form of plugins.
 
+## Table of contents
+
+1. [Introduction](#introduction)
+2. [Background](#background)
+3. [Algorithm](#algorithm)
+    1. [Notation](#notation)
+    2. [Desktop runs](#desktop-runs)
+4. [Plugins](#plugins)
+    1. [LV2](#lv2)
+        1. [Description](#description)
+        2. [How to build](#how-to-build)
+5. [Conventions](#conventions)
+6. [Acknowledgements](#acknowledgements)
+7. [Licence & copyright](#licence--copyright)
+
+## Introduction
+
+The idea for this project came to me when I
+read [someone asking for help](https://discourse.ardour.org/t/euclidean-rhythms/107461) to produce Euclidean rhythms in
+Ardour. After realising how fascinating the idea is, and also that most implementations are commercial, and closed
+source, I decided to tackle this very need, in what I believe is the best possible way: by providing a FOSS
+implementation.
+
+I have taken inspiration from Wouter
+Hisschemöller's [music pattern generator](https://github.com/hisschemoller/music-pattern-generator), but his approach
+and objective is different to what this project intends to do. I'd say that the audience for that project is different
+to this one. Also, that project unfortunately seems to be receiving less attention these days (as of August 2022 their
+latest release is from 2020).
+
 ## Background
 
 In 2004 [Godfried Toussaint](https://en.wikipedia.org/wiki/Godfried_Toussaint)
@@ -120,19 +149,7 @@ The last row gives directly our result:
 e(3, 8) = g(2, 100) + r(1, 10) = 10010010
 ```
 
-## Plugin(s)
-
-The idea for this project came to me when I
-read [someone asking for help](https://discourse.ardour.org/t/euclidean-rhythms/107461) to produce Euclidean rhythms in
-Ardour. After realising how fascinating the idea is, and also that most implementations are commercial, and closed
-source, I decided to tackle this very need, in what I believe is the best possible way: by providing a FOSS
-implementation.
-
-I have taken inspiration from Wouter
-Hisschemöller's [music pattern generator](https://github.com/hisschemoller/music-pattern-generator), but his approach
-and objective is different to what this project intends to do. I'd say that the audience for that project is different
-to this one. Also, that project unfortunately seems to be receiving less attention these days (as of August 2022 their
-latest release is from 2020).
+## Plugins
 
 Because I do my music-related work [in Ardour](https://ardour.org/), in Linux, the first implementation that I have in
 mind uses the LV2 format. If the community finds it interesting to have the plugin in other formats (e.g. VST), that
