@@ -172,16 +172,15 @@ meson setup --native-file=environments/linux64.ini builddir
 ```
 
 If that succeeds, installation is as simple as:
-The project uses meson to build. So you will need meson, ninja, and gcc. Also, the LV2 libraries. Starting with release
-0.1.1, there is an environment file `environments/linux64.ini` that should be used when setting up meson's build
-directory:
 
 ```
 cd builddir
 meson install
 ```
 
-This will install the plugin to directory `/usr/local/lib/lv2`, which is conventional.
+This will install the plugin to directory `/usr/local/lib/lv2`, which is conventional. You might need to have escalated
+privileges to do this. If you don't have them, you can change the installation directory by adding the
+option `--libdir=~/.lv2` to the first step.
 
 ## Conventions
 
