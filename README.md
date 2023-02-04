@@ -155,6 +155,34 @@ Because I do my music-related work [in Ardour](https://ardour.org/), in Linux, t
 mind uses the LV2 format. If the community finds it interesting to have the plugin in other formats (e.g. VST), that
 would be fantastic! But that's something I would appreciate some expert taking ownership of.
 
+### LV2
+
+#### Description
+
+Source code is under `src/plugins`, in file `plugin.c`. The _turtle_ files are under `src/lv2ttl`.
+
+#### How to build
+
+The project uses meson to build. So you will need meson, ninja, and gcc. Also, the LV2 libraries. Starting with release
+0.1.1, there is an environment file `environments/linux64.ini` that should be used when setting up meson's build
+directory:
+
+```
+meson setup --native-file=environments/linux64.ini builddir
+```
+
+If that succeeds, installation is as simple as:
+The project uses meson to build. So you will need meson, ninja, and gcc. Also, the LV2 libraries. Starting with release
+0.1.1, there is an environment file `environments/linux64.ini` that should be used when setting up meson's build
+directory:
+
+```
+cd builddir
+meson install
+```
+
+This will install the plugin to directory `/usr/local/lib/lv2`, which is conventional.
+
 ## Conventions
 
 Not many, but very important. I would appreciate anyone contributing to the project to follow them:
