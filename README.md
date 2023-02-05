@@ -1,3 +1,7 @@
+[![Build status](https://github.com/bruno-unna/euclidean-rhythms/actions/workflows/build.yml/badge.svg)](https://github.com/bruno-unna/euclidean-rhythms/actions)
+[![GitHub Release](https://img.shields.io/github/v/release/bruno-unna/euclidean-rhythms)](https://github.com/bruno-unna/euclidean-rhythms/releases/latest)
+[![GitHub contributors](https://img.shields.io/github/contributors/bruno-unna/euclidean-rhythms)](https://github.com/bruno-unna/euclidean-rhythms/graphs/contributors)
+
 # Euclidean rhythms
 
 An implementation of the Euclidean rhythms idea in the form of plugins.
