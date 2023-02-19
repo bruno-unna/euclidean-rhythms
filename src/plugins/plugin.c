@@ -46,6 +46,7 @@ typedef struct {
     LV2_URID patch_value;
     LV2_URID time_Position;
     LV2_URID time_bar;
+    LV2_URID time_frame;
     LV2_URID time_speed;
     LV2_URID time_bar_beat;
     LV2_URID time_beats_per_bar;
@@ -87,6 +88,7 @@ typedef struct {
         unsigned short onsets;
         short rotation;
         long bar;
+        long reference_frame;
         unsigned short size_in_bars;
         float *positions_vector;
         int beat;
@@ -142,6 +144,7 @@ static inline void map_uris(LV2_URID_Map *map, Euclidean_URIs *uris) {
     uris->patch_value = map->map(map->handle, LV2_PATCH__value);
     uris->time_Position = map->map(map->handle, LV2_TIME__Position);
     uris->time_bar = map->map(map->handle, LV2_TIME__bar);
+    uris->time_frame = map->map(map->handle, LV2_TIME__frame);
     uris->time_speed = map->map(map->handle, LV2_TIME__speed);
     uris->time_bar_beat = map->map(map->handle, LV2_TIME__barBeat);
     uris->time_beats_per_bar = map->map(map->handle, LV2_TIME__beatsPerBar);
@@ -183,6 +186,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     self->state.onsets = 0;
     self->state.rotation = 0;
     self->state.size_in_bars = 1;
+    self->state.reference_frame = 0;
     self->state.beat = 0;
     self->state.euclidean = 0;
 
@@ -258,24 +262,29 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
             if (obj->body.otype == uris->time_Position) {
                 // Received new transport position/host_speed_atom
                 LV2_Atom const *host_bar = NULL;
+                LV2_Atom const *host_frame = NULL;
                 LV2_Atom const *host_speed_atom = NULL;
                 LV2_Atom const *host_bar_beat_atom = NULL;
                 LV2_Atom const *host_beats_per_bar_atom = NULL;
                 // clang-format off
                 lv2_atom_object_get(obj,
                                     uris->time_bar, &host_bar,
+                                    uris->time_frame, &host_frame,
                                     uris->time_speed, &host_speed_atom,
                                     uris->time_bar_beat, &host_bar_beat_atom,
                                     uris->time_beats_per_bar, &host_beats_per_bar_atom,
                                     NULL);
                 // clang-format on
 
-                if (host_bar != 0) {
+                if (host_bar != 0 && host_frame != 0) {
                     const long bar = (long) ((LV2_Atom_Long *) host_bar)->body;
-                    if (bar != self->state.bar) {
-                        // The bar has changed
+                    const long frame = (long) ((LV2_Atom_Long *) host_frame)->body;
+                    if (bar != self->state.bar && bar % self->state.size_in_bars == 0) {
+                        // The bar has changed for a new pattern to begin
                         self->state.bar = bar;
+                        self->state.reference_frame = frame;
                         lv2_log_note(&self->logger, "the bar is now %ld\n", self->state.bar);
+                        lv2_log_note(&self->logger, "the reference frame is now %ld\n", frame);
                     }
                 }
                 if (host_speed_atom != 0) {
