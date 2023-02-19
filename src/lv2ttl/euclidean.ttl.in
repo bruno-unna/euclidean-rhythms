@@ -90,7 +90,7 @@
   ], [
     a lv2:InputPort, lv2:ControlPort ;
     lv2:index 4 ;
-    lv2:symbol "bars" ;
+    lv2:symbol "size_in_bars" ;
     lv2:name "Size of the pattern, in bars" ;
     lv2:minimum 1 ;
     lv2:maximum 8 ;

@@ -72,7 +72,7 @@ typedef struct {
         const float *beats;
         const float *onsets;
         const float *rotation;
-        const float *bars;
+        const float *size_in_bars;
         const float *channel;
         const float *note;
         const float *velocity;
@@ -85,7 +85,7 @@ typedef struct {
         unsigned short beats_per_bar;
         unsigned short onsets;
         short rotation;
-        unsigned short pattern_size_in_bars;
+        unsigned short size_in_bars;
         float *positions_vector;
         int beat;
         unsigned long euclidean;
@@ -109,7 +109,7 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
             self->ports.rotation = (float *) data;
             break;
         case EUCLIDEAN_BARS:
-            self->ports.bars = (float *) data;
+            self->ports.size_in_bars = (float *) data;
             break;
         case EUCLIDEAN_CHANNEL:
             self->ports.channel = (float *) data;
@@ -179,7 +179,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     self->state.beats_per_bar = 0;  // to force initialisation of position vector
     self->state.onsets = 0;
     self->state.rotation = 0;
-    self->state.pattern_size_in_bars = 1;
+    self->state.size_in_bars = 1;
     self->state.beat = 0;
     self->state.euclidean = 0;
 
@@ -237,10 +237,10 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
         calculateEuclidean = true;
     }
 
-    unsigned short pattern_size_in_bars = (unsigned short) *self->ports.bars;
-    if (pattern_size_in_bars != self->state.pattern_size_in_bars) {
-        lv2_log_note(&self->logger, "size of the pattern (in bars) set to %d\n", pattern_size_in_bars);
-        self->state.pattern_size_in_bars = pattern_size_in_bars;
+    unsigned short size_in_bars = (unsigned short) *self->ports.size_in_bars;
+    if (size_in_bars != self->state.size_in_bars) {
+        lv2_log_note(&self->logger, "size of the pattern (in bars) set to %d\n", size_in_bars);
+        self->state.size_in_bars = size_in_bars;
         calculateEuclidean = true;
     }
 
