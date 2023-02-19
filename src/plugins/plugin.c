@@ -275,13 +275,11 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                 float beats_per_minute;
                 if (host_beats_per_minute_atom != 0) {
                     beats_per_minute = (float) ((LV2_Atom_Float *) host_beats_per_minute_atom)->body;
-                    lv2_log_note(&self->logger, "beats per minute set to %f\n", beats_per_minute);
                 }
 
                 float beats_per_bar;
                 if (host_beats_per_bar_atom != 0) {
                     beats_per_bar = (float) ((LV2_Atom_Float *) host_beats_per_bar_atom)->body;
-                    lv2_log_note(&self->logger, "beats per bar set to %f\n", beats_per_bar);
                 }
 
                 long frame = 0;
@@ -300,29 +298,19 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         // The bar has changed for a new pattern to begin
                         self->state.current_bar = current_bar;
                         self->state.reference_frame = frame;
-                        lv2_log_note(&self->logger, "the bar is now %ld\n", self->state.current_bar);
 
                         // How many frames per bar?
                         const long frames_per_bar = (long) (60 * self->state.frames_per_second / beats_per_minute *
                                                             beats_per_bar);
-                        lv2_log_note(&self->logger, "frames per bar: %ld\n", frames_per_bar);
 
                         // How many frames per pattern?
                         const long frames_per_pattern = frames_per_bar * size_in_bars;
-                        lv2_log_note(&self->logger, "frames per pattern: %ld\n", frames_per_pattern);
 
                         const long delta = frames_per_pattern / port_beats;
-                        lv2_log_note(&self->logger, "delta: %ld\n", delta);
                         self->state.positions_vector[0] = frame;
                         for (int i = 1; i < port_beats; ++i) {
                             self->state.positions_vector[i] = self->state.positions_vector[i - 1] + delta;
                         }
-
-                        lv2_log_note(&self->logger, "positions vector (of size %d):\n", port_beats);
-                        for (int i = 0; i < port_beats; ++i) {
-                            lv2_log_note(&self->logger, "\t%ld, ", self->state.positions_vector[i]);
-                        }
-                        lv2_log_note(&self->logger, "\n");
                     }
                 }
 
@@ -332,20 +320,13 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     // This, in conjunction with the calculated e, will be used to determine
                     // whether to produce an event or not
                     unsigned short beat;
-                    lv2_log_note(&self->logger, "frame -  %ld\n", frame);
-                    for (beat = 1; beat < port_beats; ++beat) {
-                        lv2_log_note(&self->logger, "comparing %ld with %ld...\n", frame,
-                                     self->state.positions_vector[beat]);
-                        if (frame < self->state.positions_vector[beat]) {
-                            lv2_log_note(&self->logger, "found the beat as %ud\n", beat);
+                    for (beat = 1; beat < port_beats; ++beat)
+                        if (frame < self->state.positions_vector[beat])
                             break;
-                        }
-                    }
                     beat--;
 
                     if (beat != self->state.current_beat) {
                         self->state.current_beat = beat;
-                        lv2_log_trace(&self->logger, "the beat is now %d\n", beat);
 
                         if (self->state.euclidean & 1 << (self->state.beats - beat - 1)) {
                             MIDI_note_event note;
