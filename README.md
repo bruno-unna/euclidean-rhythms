@@ -31,7 +31,7 @@ implementation.
 
 I have taken inspiration from Wouter
 Hisschemöller's [music pattern generator](https://github.com/hisschemoller/music-pattern-generator), but his approach
-and objective is different to what this project intends to do. I'd say that the audience for that project is different
+and objective are different to what this project intends to do. I'd say that the audience for that project is different
 to this one. Also, that project unfortunately seems to be receiving less attention these days (as of August 2022 their
 latest release is from 2020).
 

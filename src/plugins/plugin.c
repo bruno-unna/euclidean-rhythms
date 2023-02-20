@@ -85,16 +85,21 @@ typedef struct {
 
     struct {
         unsigned short beats;
-        unsigned short current_beat;
         unsigned short onsets;
         short rotation;
         unsigned short size_in_bars;
 
+        unsigned long euclidean;
+
+        float speed;
+        float beats_per_minute;
+        float beats_per_bar;
         float frames_per_second;
+
         long current_bar;
         long reference_frame;
-        long *positions_vector;
-        unsigned long euclidean;
+        unsigned short next_onset_index;
+        long *onsets_vector;
     } state;
 } Euclidean;
 
@@ -152,6 +157,33 @@ static inline void map_uris(LV2_URID_Map *map, Euclidean_URIs *uris) {
     uris->time_speed = map->map(map->handle, LV2_TIME__speed);
 }
 
+static void recalculate_onsets(Euclidean *self) {
+    const float fps = self->state.frames_per_second;
+    const float bpm = self->state.beats_per_minute;
+    const float beats_per_bar = self->state.beats_per_bar;
+    const unsigned short size_in_bars = self->state.size_in_bars;
+    const unsigned short beats = self->state.beats;
+    const long reference_frame = self->state.reference_frame;
+    unsigned long et = self->state.euclidean;
+    long *vector = self->state.onsets_vector;
+
+    // How many frames per bar?
+    const long frames_per_bar = (long) (60 * fps / bpm * beats_per_bar);
+
+    // How many frames per pattern?
+    const long frames_per_pattern = frames_per_bar * size_in_bars;
+
+    const long delta = frames_per_pattern / beats;
+
+    long f = reference_frame;
+    const unsigned long mask = 1L << (beats - 1);
+    for (int i = 0, j = 0; i < beats; ++i) {
+        if ((et & mask) != 0L) vector[j++] = f;
+        et <<= 1;
+        f += delta;
+    }
+}
+
 static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
                               double rate,
                               const char *path,
@@ -181,7 +213,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     map_uris(self->map, &self->uris);
 
     // Initialise instance fields
-    self->state.positions_vector = NULL;
+    self->state.onsets_vector = NULL;
     self->state.onsets = 0;
     self->state.rotation = 0;
     self->state.size_in_bars = 1;
@@ -195,7 +227,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
 
 static void cleanup(LV2_Handle instance) {
     Euclidean *self = (Euclidean *) instance;
-    if (self->state.positions_vector != NULL) free(self->state.positions_vector);
+    if (self->state.onsets_vector != NULL) free(self->state.onsets_vector);
     free(instance);
 }
 
@@ -215,48 +247,52 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     self->ports.midi_out->atom.type = uris->atom_Sequence;
 
     // Analyse the parameters
-    bool calculateEuclidean = false;
+    bool calculate_euclidean = false;
 
     unsigned short port_beats = (unsigned short) *self->ports.beats;
     if (port_beats != self->state.beats) {
-        lv2_log_note(&self->logger, "plugin beats per bar set to %d\n", port_beats);
+        lv2_log_trace(&self->logger, "plugin beats per bar set to %d\n", port_beats);
         self->state.beats = port_beats;
-        if (self->state.positions_vector != NULL) free(self->state.positions_vector);
-        self->state.positions_vector = calloc(port_beats, sizeof(long));
-        calculateEuclidean = true;
+        calculate_euclidean = true;
     }
 
     unsigned short port_onsets = (unsigned short) *self->ports.onsets;
     if (port_onsets != self->state.onsets) {
-        lv2_log_note(&self->logger, "plugin onsets set to %d\n", port_onsets);
+        lv2_log_trace(&self->logger, "plugin onsets set to %d\n", port_onsets);
         self->state.onsets = port_onsets;
-        calculateEuclidean = true;
+        calculate_euclidean = true;
     }
 
     short port_rotation = (short) *self->ports.rotation;
     if (port_rotation != self->state.rotation) {
-        lv2_log_note(&self->logger, "plugin rotation set to %d\n", port_rotation);
+        lv2_log_trace(&self->logger, "plugin rotation set to %d\n", port_rotation);
         self->state.rotation = port_rotation;
-        calculateEuclidean = true;
+        calculate_euclidean = true;
     }
 
     unsigned short size_in_bars = (unsigned short) *self->ports.size_in_bars;
     if (size_in_bars != self->state.size_in_bars) {
-        lv2_log_note(&self->logger, "size of the pattern (in bars) set to %d\n", size_in_bars);
+        lv2_log_trace(&self->logger, "size of the pattern (in bars) set to %d\n", size_in_bars);
         self->state.size_in_bars = size_in_bars;
+        calculate_euclidean = true;
     }
 
-    if (calculateEuclidean)
+    if (calculate_euclidean) {
+        if (self->state.onsets_vector != NULL) free(self->state.onsets_vector);
+        self->state.onsets_vector = calloc(self->state.onsets + 1, sizeof(long));
+        self->state.onsets_vector[self->state.onsets] = INT64_MAX;
+
         self->state.euclidean = e((unsigned short) *self->ports.onsets,
                                   (unsigned short) *self->ports.beats,
                                   (short) *self->ports.rotation);
+    }
 
     LV2_ATOM_SEQUENCE_FOREACH(self->ports.control, ev) {
         if (ev->body.type == uris->atom_Object) {
             const LV2_Atom_Object *obj = (const LV2_Atom_Object *) &ev->body;
 
             if (obj->body.otype == uris->time_Position) {
-                // Received new transport position/host_speed_atom
+                // Position information from the host will be stored here
                 LV2_Atom const *host_beats_per_minute_atom = NULL;
                 LV2_Atom const *host_beats_per_bar_atom = NULL;
                 LV2_Atom const *host_bar_atom = NULL;
@@ -272,24 +308,38 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                                     NULL);
                 // clang-format on
 
-                float beats_per_minute;
-                if (host_beats_per_minute_atom != 0) {
-                    beats_per_minute = (float) ((LV2_Atom_Float *) host_beats_per_minute_atom)->body;
-                }
-
-                float beats_per_bar;
-                if (host_beats_per_bar_atom != 0) {
-                    beats_per_bar = (float) ((LV2_Atom_Float *) host_beats_per_bar_atom)->body;
-                }
-
-                long frame = 0;
+                long frame = -1;
                 if (host_frame_atom != 0) {
                     frame = (long) ((LV2_Atom_Long *) host_frame_atom)->body;
                 }
 
-                float speed;
                 if (host_speed_atom != 0) {
-                    speed = (float) ((LV2_Atom_Float *) host_speed_atom)->body;
+                    const float speed = (float) ((LV2_Atom_Float *) host_speed_atom)->body;
+                    self->state.speed = speed;
+                }
+
+                bool dirty_vector = false;
+
+                if (host_beats_per_minute_atom != 0) {
+                    const float beats_per_minute = (float) ((LV2_Atom_Float *) host_beats_per_minute_atom)->body;
+                    if (self->state.beats_per_minute != beats_per_minute) {
+                        self->state.beats_per_minute = beats_per_minute;
+
+                        lv2_log_trace(&self->logger, "dirtying the onsets vector because bpm changed to %f\n",
+                                      beats_per_minute);
+                        dirty_vector = true;
+                    }
+                }
+
+                if (host_beats_per_bar_atom != 0) {
+                    const float beats_per_bar = (float) ((LV2_Atom_Float *) host_beats_per_bar_atom)->body;
+                    if (self->state.beats_per_bar != beats_per_bar) {
+                        self->state.beats_per_bar = beats_per_bar;
+
+                        lv2_log_trace(&self->logger, "dirtying the onsets vector because beats per bar changed to %f\n",
+                                      beats_per_bar);
+                        dirty_vector = true;
+                    }
                 }
 
                 if (host_bar_atom != 0) {
@@ -299,54 +349,37 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         self->state.current_bar = current_bar;
                         self->state.reference_frame = frame;
 
-                        // How many frames per bar?
-                        const long frames_per_bar = (long) (60 * self->state.frames_per_second / beats_per_minute *
-                                                            beats_per_bar);
+                        self->state.next_onset_index = 0;
 
-                        // How many frames per pattern?
-                        const long frames_per_pattern = frames_per_bar * size_in_bars;
-
-                        const long delta = frames_per_pattern / port_beats;
-                        self->state.positions_vector[0] = frame;
-                        for (int i = 1; i < port_beats; ++i) {
-                            self->state.positions_vector[i] = self->state.positions_vector[i - 1] + delta;
-                        }
+                        lv2_log_trace(&self->logger, "dirtying the onsets vector because the bar has changed to %ld\n",
+                                      current_bar);
+                        dirty_vector = true;
                     }
                 }
 
+                if (dirty_vector == true)
+                    recalculate_onsets(self);
+
                 // Perhaps produce a MIDI event?
-                if (speed > 0) {
-                    // Find the beat!
-                    // This, in conjunction with the calculated e, will be used to determine
-                    // whether to produce an event or not
-                    unsigned short beat;
-                    for (beat = 1; beat < port_beats; ++beat)
-                        if (frame < self->state.positions_vector[beat])
-                            break;
-                    beat--;
+                if (self->state.speed > 0 && frame >= self->state.onsets_vector[self->state.next_onset_index]) {
+                    MIDI_note_event note;
+                    note.event.time.frames = ev->time.frames;
+                    note.event.body.type = uris->midi_Event;
+                    note.event.body.size = 3;
+                    note.msg[0] = LV2_MIDI_MSG_NOTE_ON + (int) *self->ports.channel - 1;
+                    note.msg[1] = (int) *self->ports.note;
+                    note.msg[2] = (int) *self->ports.velocity;
+                    lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
 
-                    if (beat != self->state.current_beat) {
-                        self->state.current_beat = beat;
+                    note.event.time.frames = ev->time.frames;
+                    note.event.body.type = uris->midi_Event;
+                    note.event.body.size = 3;
+                    note.msg[0] = LV2_MIDI_MSG_NOTE_OFF + (int) *self->ports.channel - 1;
+                    note.msg[1] = (int) *self->ports.note;
+                    note.msg[2] = 0x00;
+                    lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
 
-                        if (self->state.euclidean & 1 << (self->state.beats - beat - 1)) {
-                            MIDI_note_event note;
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_Event;
-                            note.event.body.size = 3;
-                            note.msg[0] = LV2_MIDI_MSG_NOTE_ON + (int) *self->ports.channel - 1;
-                            note.msg[1] = (int) *self->ports.note;
-                            note.msg[2] = (int) *self->ports.velocity;
-                            lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
-
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_Event;
-                            note.event.body.size = 3;
-                            note.msg[0] = LV2_MIDI_MSG_NOTE_OFF + (int) *self->ports.channel - 1;
-                            note.msg[1] = (int) *self->ports.note;
-                            note.msg[2] = 0x00;
-                            lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
-                        }
-                    }
+                    self->state.next_onset_index++;
                 }
             }
         }
