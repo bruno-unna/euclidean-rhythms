@@ -49,7 +49,7 @@ Examples:
   ```
   E(4, 16) = [x . . . x . . . x . . . x . . . ]
   ```
-- More iterestingly: how to distribute, say three onbeats over a pattern of eight beats? One way to do it would be:
+- More interestingly: how to distribute, say three onsets over a pattern of eight beats? One way to do it would be:
   ```
   E(3, 8) = [x . . x . . x .]
   ```
@@ -61,8 +61,8 @@ Euclidean algorithm.
 
 ## Algorithm
 
-Toussaint
-cited [E. Bjorklund as the author](https://www.semanticscholar.org/paper/The-Theory-of-Rep-Rate-Pattern-Generation-in-the-Bjorklund/c652d0a32895afc5d50b6527447824c31a553659)
+Toussaint cited
+[E. Bjorklund as the author](https://www.semanticscholar.org/paper/The-Theory-of-Rep-Rate-Pattern-Generation-in-the-Bjorklund/c652d0a32895afc5d50b6527447824c31a553659)
 of the algorithm that he applied to music. In Toussaint's paper the algorithm is not explicitly stated, but it is
 exemplified. And he asserts that the algorithm has a strong resemblance to Euclid's method for finding the GCD of two
 integers, hence the name he chose for his idea.
@@ -116,7 +116,8 @@ the same number of elements, but each of them longer) and a new *r* (with less e
 In step 2, the process is repeated, because once again *|g| <= |r|*.
 
 In step 3, although it is still the case that *|g| <= |r|*, it is also the case that *|r| <= 1*, which is our exit
-condition. All that is left to do is concanate all elements of *g* (just a single *100* in our case) with the remaining
+condition. All that is left to do is concatenate all elements of *g* (just a single *100* in our case) with the
+remaining
 element in *r* (*0* in our case). And we say that *e(1, 4) = 1000*.
 
 #### E(3, 8)
