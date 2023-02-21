@@ -117,8 +117,7 @@ In step 2, the process is repeated, because once again *|g| <= |r|*.
 
 In step 3, although it is still the case that *|g| <= |r|*, it is also the case that *|r| <= 1*, which is our exit
 condition. All that is left to do is concatenate all elements of *g* (just a single *100* in our case) with the
-remaining
-element in *r* (*0* in our case). And we say that *e(1, 4) = 1000*.
+remaining element in *r* (*0* in our case). And we say that *e(1, 4) = 1000*.
 
 #### E(3, 8)
 
