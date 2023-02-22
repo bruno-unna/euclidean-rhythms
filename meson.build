@@ -9,7 +9,6 @@ install_folder = join_paths(lv2_directory, meson.project_name())
 # Where are the includes?
 inc = include_directories('include')
 
-subdir('include')
 subdir('src')
 subdir('test')
 
