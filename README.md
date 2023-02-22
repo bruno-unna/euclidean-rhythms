@@ -184,7 +184,11 @@ meson install
 
 This will install the plugin to directory `/usr/local/lib/lv2`, which is conventional. You might need to have escalated
 privileges to do this. If you don't have them, you can change the installation directory by adding the
-option `--libdir=~/.lv2` to the first step.
+option `--libdir` to the first step. For example, if you home directory is `/home/bruno`, you could use
+`--libdir=/home/bruno/.lv2`. For the moment, there are two caveats:
+
+- The directory needs to end in `.lv2` for this to work.
+- The directory has to be explicitly stated, the special `~` can't be used.
 
 ## Conventions
 
