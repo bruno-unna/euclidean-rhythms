@@ -379,7 +379,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                 // Perhaps produce a MIDI event?
                 if (self->state.speed > 0 && frame >= self->state.note_on_vector[self->state.note_on_index]) {
                     MIDI_note_event note;
-                    note.event.time.frames = frame;
+                    note.event.time.frames = ev->time.frames;
                     note.event.body.type = uris->midi_Event;
                     note.event.body.size = 3;
                     note.msg[0] = LV2_MIDI_MSG_NOTE_ON + (int) *self->ports.channel - 1;
@@ -390,7 +390,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                 }
                 if (self->state.speed > 0 && frame >= self->state.note_off_vector[self->state.note_off_index]) {
                     MIDI_note_event note;
-                    note.event.time.frames = frame;
+                    note.event.time.frames = ev->time.frames;
                     note.event.body.type = uris->midi_Event;
                     note.event.body.size = 3;
                     note.msg[0] = LV2_MIDI_MSG_NOTE_OFF + (int) *self->ports.channel - 1;
