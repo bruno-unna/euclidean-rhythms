@@ -103,7 +103,7 @@ typedef struct {
         long *note_on_vector;
         long *note_off_vector;
 
-        bool playing;
+        unsigned short playing;
     } state;
 } Euclidean;
 
@@ -234,7 +234,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     self->state.reference_frame = 0;
     self->state.euclidean = 0;
     self->state.frames_per_second = (float) rate;
-    self->state.playing = false;
+    self->state.playing = 0;
 
     return (LV2_Handle) self;
 }
@@ -383,8 +383,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
 
                 // Perhaps produce a MIDI event?
                 if (self->state.speed > 0 && frame >= self->state.note_on_vector[self->state.note_on_index]) {
-                    if (!self->state.playing) {
-                        self->state.playing = true;
+                    if (self->state.playing == 0) {
                         MIDI_note_event note;
                         note.event.time.frames = ev->time.frames;
                         note.event.body.type = uris->midi_Event;
@@ -392,22 +391,21 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         note.msg[0] = LV2_MIDI_MSG_NOTE_ON + (int) *self->ports.channel - 1;
                         note.msg[1] = (int) *self->ports.note;
                         note.msg[2] = (int) *self->ports.velocity;
-                        lv2_log_note(&self->logger, "note on at frame %ld\n", frame);
+                        self->state.playing = (int) *self->ports.note;
                         lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
                     }
                     self->state.note_on_index++;
                 }
                 if (self->state.speed > 0 && frame >= self->state.note_off_vector[self->state.note_off_index]) {
-                    if (self->state.playing) {
-                        self->state.playing = false;
+                    if (self->state.playing > 0) {
                         MIDI_note_event note;
                         note.event.time.frames = ev->time.frames;
                         note.event.body.type = uris->midi_Event;
                         note.event.body.size = 3;
                         note.msg[0] = LV2_MIDI_MSG_NOTE_OFF + (int) *self->ports.channel - 1;
-                        note.msg[1] = (int) *self->ports.note;
+                        note.msg[1] = self->state.playing;
                         note.msg[2] = 0x00;
-                        lv2_log_note(&self->logger, "note off at frame %ld\n", frame);
+                        self->state.playing = 0;
                         lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
                     }
                     self->state.note_off_index++;
