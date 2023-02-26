@@ -303,6 +303,8 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
         self->state.euclidean = e((unsigned short) *self->ports.onsets,
                                   (unsigned short) *self->ports.beats,
                                   (short) *self->ports.rotation);
+
+        recalculate_onsets(self);
     }
 
     LV2_ATOM_SEQUENCE_FOREACH(self->ports.control, ev) {
@@ -390,6 +392,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         note.msg[0] = LV2_MIDI_MSG_NOTE_ON + (int) *self->ports.channel - 1;
                         note.msg[1] = (int) *self->ports.note;
                         note.msg[2] = (int) *self->ports.velocity;
+                        lv2_log_note(&self->logger, "note on at frame %ld\n", frame);
                         lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
                     }
                     self->state.note_on_index++;
@@ -404,6 +407,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         note.msg[0] = LV2_MIDI_MSG_NOTE_OFF + (int) *self->ports.channel - 1;
                         note.msg[1] = (int) *self->ports.note;
                         note.msg[2] = 0x00;
+                        lv2_log_note(&self->logger, "note off at frame %ld\n", frame);
                         lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
                     }
                     self->state.note_off_index++;
