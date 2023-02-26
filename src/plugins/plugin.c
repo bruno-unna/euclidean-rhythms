@@ -98,8 +98,10 @@ typedef struct {
 
         long current_bar;
         long reference_frame;
-        unsigned short next_onset_index;
-        long *onsets_vector;
+        unsigned short note_on_index;
+        unsigned short note_off_index;
+        long *note_on_vector;
+        long *note_off_vector;
     } state;
 } Euclidean;
 
@@ -165,7 +167,8 @@ static void recalculate_onsets(Euclidean *self) {
     const unsigned short beats = self->state.beats;
     const long reference_frame = self->state.reference_frame;
     unsigned long et = self->state.euclidean;
-    long *vector = self->state.onsets_vector;
+    long *note_on = self->state.note_on_vector;
+    long *note_off = self->state.note_off_vector;
 
     // How many frames per bar?
     const long frames_per_bar = (long) (60 * fps / bpm * beats_per_bar);
@@ -173,12 +176,19 @@ static void recalculate_onsets(Euclidean *self) {
     // How many frames per pattern?
     const long frames_per_pattern = frames_per_bar * size_in_bars;
 
+    // How many frames per MIDI tick?
+    const long frames_per_tick = (long) ((60 * fps) / (bpm * 24));
+
     const long delta = frames_per_pattern / beats;
 
     long f = reference_frame;
     const unsigned long mask = 1L << (beats - 1);
     for (int i = 0, j = 0; i < beats; ++i) {
-        if ((et & mask) != 0L) vector[j++] = f;
+        if ((et & mask) != 0L) {
+            note_on[j] = f;
+            note_off[j] = f + frames_per_tick;
+            ++j;
+        }
         et <<= 1;
         f += delta;
     }
@@ -213,11 +223,12 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     map_uris(self->map, &self->uris);
 
     // Initialise instance fields
-    self->state.onsets_vector = NULL;
+    self->state.note_on_vector = NULL;
+    self->state.note_off_vector = NULL;
     self->state.onsets = 0;
     self->state.rotation = 0;
     self->state.size_in_bars = 1;
-    self->state.current_bar = 0;
+    self->state.current_bar = -1;
     self->state.reference_frame = 0;
     self->state.euclidean = 0;
     self->state.frames_per_second = (float) rate;
@@ -227,7 +238,8 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
 
 static void cleanup(LV2_Handle instance) {
     Euclidean *self = (Euclidean *) instance;
-    if (self->state.onsets_vector != NULL) free(self->state.onsets_vector);
+    if (self->state.note_on_vector != NULL) free(self->state.note_on_vector);
+    if (self->state.note_off_vector != NULL) free(self->state.note_off_vector);
     free(instance);
 }
 
@@ -278,9 +290,12 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     }
 
     if (calculate_euclidean) {
-        if (self->state.onsets_vector != NULL) free(self->state.onsets_vector);
-        self->state.onsets_vector = calloc(self->state.onsets + 1, sizeof(long));
-        self->state.onsets_vector[self->state.onsets] = INT64_MAX;
+        if (self->state.note_on_vector != NULL) free(self->state.note_on_vector);
+        if (self->state.note_off_vector != NULL) free(self->state.note_off_vector);
+        self->state.note_on_vector = calloc(self->state.onsets + 1, sizeof(long));
+        self->state.note_off_vector = calloc(self->state.onsets + 1, sizeof(long));
+        self->state.note_on_vector[self->state.onsets] = INT64_MAX;
+        self->state.note_off_vector[self->state.onsets] = INT64_MAX;
 
         self->state.euclidean = e((unsigned short) *self->ports.onsets,
                                   (unsigned short) *self->ports.beats,
@@ -349,7 +364,8 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         self->state.current_bar = current_bar;
                         self->state.reference_frame = frame;
 
-                        self->state.next_onset_index = 0;
+                        self->state.note_on_index = 0;
+                        self->state.note_off_index = 0;
 
                         lv2_log_trace(&self->logger, "dirtying the onsets vector because the bar has changed to %ld\n",
                                       current_bar);
@@ -361,7 +377,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     recalculate_onsets(self);
 
                 // Perhaps produce a MIDI event?
-                if (self->state.speed > 0 && frame >= self->state.onsets_vector[self->state.next_onset_index]) {
+                if (self->state.speed > 0 && frame >= self->state.note_on_vector[self->state.note_on_index]) {
                     MIDI_note_event note;
                     note.event.time.frames = frame;
                     note.event.body.type = uris->midi_Event;
@@ -370,7 +386,10 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     note.msg[1] = (int) *self->ports.note;
                     note.msg[2] = (int) *self->ports.velocity;
                     lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
-
+                    self->state.note_on_index++;
+                }
+                if (self->state.speed > 0 && frame >= self->state.note_off_vector[self->state.note_off_index]) {
+                    MIDI_note_event note;
                     note.event.time.frames = frame;
                     note.event.body.type = uris->midi_Event;
                     note.event.body.size = 3;
@@ -378,8 +397,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     note.msg[1] = (int) *self->ports.note;
                     note.msg[2] = 0x00;
                     lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
-
-                    self->state.next_onset_index++;
+                    self->state.note_off_index++;
                 }
             }
         }
