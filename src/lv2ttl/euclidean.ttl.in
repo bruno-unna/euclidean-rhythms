@@ -76,7 +76,7 @@
     lv2:name "Number of onsets" ;
     lv2:minimum 0 ;
     lv2:maximum 64 ;
-    lv2:default 4 ;
+    lv2:default 5 ;
     lv2:portProperty lv2:integer ;
   ], [
     a lv2:InputPort, lv2:ControlPort ;
@@ -90,15 +90,24 @@
   ], [
     a lv2:InputPort, lv2:ControlPort ;
     lv2:index 4 ;
+    lv2:symbol "size_in_bars" ;
+  lv2:name "Pattern size (in bars)" ;
+    lv2:minimum 1 ;
+    lv2:maximum 8 ;
+    lv2:default 1 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 5 ;
     lv2:symbol "channel" ;
-    lv2:name "Channel to use" ;
+    lv2:name "MIDI channel to use" ;
     lv2:minimum 1 ;
     lv2:maximum 16 ;
     lv2:default 10 ;
     lv2:portProperty lv2:integer ;
   ], [
     a lv2:InputPort, lv2:ControlPort ;
-    lv2:index 5 ;
+    lv2:index 6 ;
     lv2:symbol "note" ;
     lv2:name "Note to play" ;
     lv2:minimum 0 ;
@@ -107,9 +116,9 @@
     lv2:portProperty lv2:integer ;
   ], [
     a lv2:InputPort, lv2:ControlPort ;
-    lv2:index 6 ;
+    lv2:index 7 ;
     lv2:symbol "velocity" ;
-    lv2:name "Velocity of the notes" ;
+    lv2:name "Note velocity" ;
     lv2:minimum 0 ;
     lv2:maximum 127 ;
     lv2:default 64 ;
@@ -118,7 +127,7 @@
     a lv2:OutputPort, atom:AtomPort ;
     atom:bufferType atom:Sequence ;
     atom:supports midi:MidiEvent ;
-    lv2:index 7 ;
+    lv2:index 8 ;
     lv2:symbol "midiout" ;
     lv2:name "MIDI Out" ;
   ] ;

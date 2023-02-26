@@ -31,7 +31,7 @@ implementation.
 
 I have taken inspiration from Wouter
 Hisschemöller's [music pattern generator](https://github.com/hisschemoller/music-pattern-generator), but his approach
-and objective is different to what this project intends to do. I'd say that the audience for that project is different
+and objective are different to what this project intends to do. I'd say that the audience for that project is different
 to this one. Also, that project unfortunately seems to be receiving less attention these days (as of August 2022 their
 latest release is from 2020).
 
@@ -49,7 +49,7 @@ Examples:
   ```
   E(4, 16) = [x . . . x . . . x . . . x . . . ]
   ```
-- More iterestingly: how to distribute, say three onbeats over a pattern of eight beats? One way to do it would be:
+- More interestingly: how to distribute, say three onsets over a pattern of eight beats? One way to do it would be:
   ```
   E(3, 8) = [x . . x . . x .]
   ```
@@ -61,8 +61,8 @@ Euclidean algorithm.
 
 ## Algorithm
 
-Toussaint
-cited [E. Bjorklund as the author](https://www.semanticscholar.org/paper/The-Theory-of-Rep-Rate-Pattern-Generation-in-the-Bjorklund/c652d0a32895afc5d50b6527447824c31a553659)
+Toussaint cited
+[E. Bjorklund as the author](https://www.semanticscholar.org/paper/The-Theory-of-Rep-Rate-Pattern-Generation-in-the-Bjorklund/c652d0a32895afc5d50b6527447824c31a553659)
 of the algorithm that he applied to music. In Toussaint's paper the algorithm is not explicitly stated, but it is
 exemplified. And he asserts that the algorithm has a strong resemblance to Euclid's method for finding the GCD of two
 integers, hence the name he chose for his idea.
@@ -116,8 +116,8 @@ the same number of elements, but each of them longer) and a new *r* (with less e
 In step 2, the process is repeated, because once again *|g| <= |r|*.
 
 In step 3, although it is still the case that *|g| <= |r|*, it is also the case that *|r| <= 1*, which is our exit
-condition. All that is left to do is concanate all elements of *g* (just a single *100* in our case) with the remaining
-element in *r* (*0* in our case). And we say that *e(1, 4) = 1000*.
+condition. All that is left to do is concatenate all elements of *g* (just a single *100* in our case) with the
+remaining element in *r* (*0* in our case). And we say that *e(1, 4) = 1000*.
 
 #### E(3, 8)
 
@@ -184,7 +184,11 @@ meson install
 
 This will install the plugin to directory `/usr/local/lib/lv2`, which is conventional. You might need to have escalated
 privileges to do this. If you don't have them, you can change the installation directory by adding the
-option `--libdir=~/.lv2` to the first step.
+option `--libdir` to the first step. For example, if you home directory is `/home/bruno`, you could use
+`--libdir=/home/bruno/.lv2`. For the moment, there are two caveats:
+
+- The directory needs to end in `.lv2` for this to work.
+- The directory has to be explicitly stated, the special `~` can't be used.
 
 ## Conventions
 
