@@ -392,7 +392,6 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         note.msg[1] = (int) *self->ports.note;
                         note.msg[2] = (int) *self->ports.velocity;
                         self->state.playing = (int) *self->ports.note;
-                        lv2_log_note(&self->logger, "note on at frame %ld\n", frame);
                         lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
                     }
                     self->state.note_on_index++;
@@ -407,7 +406,6 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         note.msg[1] = self->state.playing;
                         note.msg[2] = 0x00;
                         self->state.playing = 0;
-                        lv2_log_note(&self->logger, "note off at frame %ld\n", frame);
                         lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
                     }
                     self->state.note_off_index++;
