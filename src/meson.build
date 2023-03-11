@@ -22,10 +22,9 @@ endif
 # Dependencies for euclidean rhythms
 lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
-all_dep = [lv2_dep, m_dep]
 
 # Sources to compile
-euclidean_sources = ['euclidean.c', 'plugins/plugin.c']
+euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
 
 # Definition of the actual module
 euclideanmodule = shared_module('euclidean',
@@ -33,7 +32,7 @@ euclideanmodule = shared_module('euclidean',
                         include_directories: inc,
                         c_args: lib_c_args,
                         name_prefix: '',
-                        dependencies: all_dep,
+                        dependencies: [lv2_dep, m_dep],
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
