@@ -16,10 +16,3 @@ inc = include_directories('include')
 
 subdir('src')
 subdir('test')
-
-pkg_mod = import('pkgconfig')
-pkg_mod.generate(libraries : euclideanmodule,
-                 version : '0.2.0-SNAPSHOT',
-                 name : 'euclidean',
-                 filebase : 'euclidean',
-                 description : 'A plugin to produce euclidean rhythms.')
