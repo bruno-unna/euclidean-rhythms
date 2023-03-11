@@ -5,6 +5,8 @@ current_arch = build_machine.cpu_family()
 # Add default x86 and x86_64 optimizations
 if current_arch == 'x86' or current_arch == 'x86_64' and current_os != 'darwin'
     lib_c_args = ['-msse','-msse2','-mfpmath=sse','-ffast-math','-fomit-frame-pointer','-fno-finite-math-only']
+else
+    lib_c_args = []
 endif
 
 # Configure extension for shared object
