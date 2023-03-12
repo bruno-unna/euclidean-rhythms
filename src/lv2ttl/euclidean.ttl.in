@@ -27,6 +27,7 @@
 @prefix state: <http://lv2plug.in/ns/ext/state#> .
 @prefix time:  <http://lv2plug.in/ns/ext/time#> .
 @prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
+@prefix ui:    <http://lv2plug.in/ns/extensions/ui#> .
 
 <https://github.com/bruno-unna#me>
   a foaf:Person ;
@@ -132,3 +133,14 @@
     lv2:name "MIDI Out" ;
   ] ;
 .
+
+<https://github.com/bruno-unna/euclidean-rhythms#ui>
+  a ui:GtkUI ;
+  lv2:requiredFeature urid:map ;
+  lv2:optionalFeature ui:requestValue ;
+  lv2:extensionData ui:showInterface ;
+  ui:portNotification [
+    ui:plugin <https://github.com/bruno-unna/euclidean-rhythms> ;
+    lv2:symbol "notify" ;
+    ui:notifyType atom:Blank
+  ] .
