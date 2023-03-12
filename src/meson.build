@@ -22,17 +22,30 @@ endif
 # Dependencies for euclidean rhythms
 lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
+gtk_dep = dependency('gtk+-3.0', version: '>= 3.0')
 
 # Sources to compile
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
+euclidean_ui_sources = ['plugins/plugin-ui-gtk.c']
 
 # Definition of the actual module
-euclideanmodule = shared_module('euclidean',
+shared_module('euclidean',
                         euclidean_sources,
                         include_directories: inc,
                         c_args: lib_c_args,
                         name_prefix: '',
                         dependencies: [lv2_dep, m_dep],
+                        gnu_symbol_visibility: 'hidden',
+                        install: true,
+                        install_dir: install_folder)
+
+# Definition of the UI
+shared_module('euclidean_ui',
+                        euclidean_ui_sources,
+                        include_directories: inc,
+                        c_args: lib_c_args,
+                        name_prefix: '',
+                        dependencies: [lv2_dep, gtk_dep],
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
