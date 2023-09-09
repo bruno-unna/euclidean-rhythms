@@ -163,7 +163,8 @@ would be fantastic! But that's something I would appreciate some expert taking o
 
 #### Description
 
-Source code is under `src/plugins`, in file `plugin.c`. The _turtle_ files are under `src/lv2ttl`.
+Source code for the plugin is under `src/plugins`. The _turtle_ files are under `src/lv2ttl`. The implementation
+of the algorithm is in `src/euclidean.c`. Include files are in a separate directory: `include`.
 
 #### How to build
 
@@ -187,7 +188,7 @@ privileges to do this. If you don't have them, you can change the installation d
 option `--libdir` to the first step. For example, if you home directory is `/home/bruno`, you could use
 `--libdir=/home/bruno/.lv2`. For the moment, there are two caveats:
 
-- The directory needs to end in `.lv2` for this to work.
+- The directory's name needs to end in `.lv2` for this to work.
 - The directory has to be explicitly stated, the special `~` can't be used.
 
 ## Conventions
