@@ -12,12 +12,11 @@ endif
 # Configure extension for shared object
 if current_os == 'darwin' #mac
     extension = '.dylib'
-else #unix like (linux, bsd)   
+elif current_os == 'windows'
+    extension = '.dll'
+else #unix like (linux, bsd)
     extension = '.so'
 endif 
-if current_os == 'windows' #windows
-    extension = '.dll'
-endif
 
 # Dependencies for euclidean rhythms
 lv2_dep = dependency('lv2', required: true)
