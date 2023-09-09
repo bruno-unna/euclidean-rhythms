@@ -24,26 +24,25 @@ typedef struct {
 } repeats;
 
 void er(repeats *g, repeats *r) {
-    if (r->n <= 1)
-        return;
-    if (g->n <= r->n) {
-        // distribute some elements of `r` amongst the elements of `g`
-        r->n -= g->n;
-        g->s += r->s;
-        g->v <<= r->s;
-        g->v |= r->v;
-    } else {
-        // forget `r` and split old `g` unto new `g` and new `r`
-        repeats rt = *r;
-        r->v = g->v;
-        r->n = g->n - r->n;
-        r->s = g->s;
-        g->v <<= rt.s;
-        g->v |= rt.v;
-        g->s += rt.s;
-        g->n = rt.n;
+    while (r->n > 1) {
+        if (g->n <= r->n) {
+            // distribute some elements of `r` amongst the elements of `g`
+            r->n -= g->n;
+            g->s += r->s;
+            g->v <<= r->s;
+            g->v |= r->v;
+        } else {
+            // forget `r` and split old `g` unto new `g` and new `r`
+            repeats rt = *r;
+            r->v = g->v;
+            r->n = g->n - r->n;
+            r->s = g->s;
+            g->v <<= rt.s;
+            g->v |= rt.v;
+            g->s += rt.s;
+            g->n = rt.n;
+        }
     }
-    er(g, r);
 }
 
 unsigned long e(unsigned short onsets, unsigned short beats, short rotation) {
