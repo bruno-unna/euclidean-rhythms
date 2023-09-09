@@ -33,7 +33,7 @@ void er(repeats *g, repeats *r) {
             g->v |= r->v;
         } else {
             // forget `r` and split old `g` unto new `g` and new `r`
-            repeats rt = *r;
+            repeats rt = *r;    // this is black magic: I don't need to memcpy the struct!
             r->v = g->v;
             r->n = g->n - r->n;
             r->s = g->s;
