@@ -19,13 +19,21 @@ else #unix like (linux, bsd)
 endif 
 
 # Dependencies for euclidean rhythms
+ # lsp-tk-lib
+lsp_tk_lib = 'lsp-tk-lib'
+lsp_tk_lib_dir = '/usr/local/lib'
+lsp_tk_header_dir = '/usr/local/include/lsp-plug.in/tk'
+lsp_tk_dep = declare_dependency(
+    link_args: ['-L' + lsp_tk_lib_dir, '-l' + lsp_tk_lib],
+    include_directories: include_directories(lsp_tk_header_dir)
+)
+
 lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
-gtk_dep = dependency('gtk+-3.0', version: '>= 3.0')
 
 # Sources to compile
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
-euclidean_ui_sources = ['plugins/plugin-ui-gtk.c']
+euclidean_ui_sources = ['plugins/plugin-ui-lsp-tk.c']
 
 # Definition of the actual module
 shared_module('euclidean',
@@ -44,7 +52,7 @@ shared_module('euclidean_ui',
                         include_directories: inc,
                         c_args: lib_c_args,
                         name_prefix: '',
-                        dependencies: [lv2_dep, gtk_dep],
+                        dependencies: [lv2_dep, lsp_tk_dep],
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
