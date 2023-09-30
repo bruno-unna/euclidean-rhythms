@@ -135,7 +135,7 @@
 .
 
 <https://github.com/bruno-unna/euclidean-rhythms#ui>
-  a ui:GtkUI ;
+  a ui:X11UI ;
   lv2:requiredFeature urid:map ;
   lv2:optionalFeature ui:requestValue ;
   lv2:extensionData ui:showInterface ;
