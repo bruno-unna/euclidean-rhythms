@@ -57,6 +57,7 @@ manifest_ttl = configure_file(
 
 # Configure euclidean.ttl
 data_conf = configuration_data()
+data_conf.set('LIB_EXT', extension)
 data_conf.set('MAJOR_VERSION', version_array[0])
 data_conf.set('MINOR_VERSION', version_array[1])
 data_conf.set('MICRO_VERSION', version_array[2])
