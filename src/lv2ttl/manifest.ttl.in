@@ -21,8 +21,3 @@
   a lv2:Plugin ;
   lv2:binary <euclidean@LIB_EXT@> ;
   rdfs:seeAlso <euclidean.ttl> .
-
-<https://github.com/bruno-unna/euclidean-rhythms#ui>
-  a ui:GtkUI ;
-  ui:binary <euclidean_ui@LIB_EXT@> ;
-  rdfs:seeAlso <euclidean.ttl> .

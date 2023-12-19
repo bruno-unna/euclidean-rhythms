@@ -13,21 +13,21 @@
 # You should have received a copy of the GNU General Public License along with Euclidean Rhythms.
 # If not, see <https://www.gnu.org/licenses/>.
 
-@prefix atom:  <http://lv2plug.in/ns/ext/atom#> .
-@prefix doap:  <http://usefulinc.com/ns/doap#> .
-@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
-@prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
-@prefix midi:  <http://lv2plug.in/ns/ext/midi#> .
-@prefix param: <http://lv2plug.in/ns/ext/parameters#> .
-@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix pg:    <http://lv2plug.in/ns/ext/port-groups#> .
-@prefix pprop: <http://lv2plug.in/ns/ext/port-props#> .
-@prefix units: <http://lv2plug.in/ns/extensions/units#> .
-@prefix state: <http://lv2plug.in/ns/ext/state#> .
-@prefix time:  <http://lv2plug.in/ns/ext/time#> .
-@prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
-@prefix ui:    <http://lv2plug.in/ns/extensions/ui#> .
+@prefix atom:   <http://lv2plug.in/ns/ext/atom#> .
+@prefix doap:   <http://usefulinc.com/ns/doap#> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
+@prefix midi:   <http://lv2plug.in/ns/ext/midi#> .
+@prefix param:  <http://lv2plug.in/ns/ext/parameters#> .
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix pg:     <http://lv2plug.in/ns/ext/port-groups#> .
+@prefix pprop:  <http://lv2plug.in/ns/ext/port-props#> .
+@prefix units:  <http://lv2plug.in/ns/extensions/units#> .
+@prefix state:  <http://lv2plug.in/ns/ext/state#> .
+@prefix time:   <http://lv2plug.in/ns/ext/time#> .
+@prefix urid:   <http://lv2plug.in/ns/ext/urid#> .
+@prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 
 <https://github.com/bruno-unna#me>
   a foaf:Person ;
@@ -53,6 +53,8 @@
 
   lv2:minorVersion @MINOR_VERSION@ ;
   lv2:microVersion @MICRO_VERSION@ ;
+
+  guiext:ui <https://github.com/bruno-unna/euclidean-rhythms#ui> ;
 
   lv2:port [
     a lv2:InputPort, atom:AtomPort ;
@@ -135,12 +137,8 @@
 .
 
 <https://github.com/bruno-unna/euclidean-rhythms#ui>
-  a ui:X11UI ;
-  lv2:requiredFeature urid:map ;
-  lv2:optionalFeature ui:requestValue ;
-  lv2:extensionData ui:showInterface ;
-  ui:portNotification [
-    ui:plugin <https://github.com/bruno-unna/euclidean-rhythms> ;
-    lv2:symbol "notify" ;
-    ui:notifyType atom:Blank
-  ] .
+  a guiext:X11UI ;
+  guiext:binary <euclidean_ui@LIB_EXT@> ;
+  lv2:extensionData guiext::idle ;
+  lv2:requiredFeature guiext:makeResident ;
+.
