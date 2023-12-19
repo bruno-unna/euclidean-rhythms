@@ -51,4 +51,8 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# IDE files
+.idea
+**/*.iml
+
 /using meson in clion.txt
