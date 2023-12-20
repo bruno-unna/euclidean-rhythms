@@ -15,4 +15,9 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef EUCLIDEAN_H
+#define EUCLIDEAN_H
+
 unsigned long e(unsigned short onsets, unsigned short beats, short rotation);
+
+#endif //EUCLIDEAN_H
