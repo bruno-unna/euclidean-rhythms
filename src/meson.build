@@ -35,7 +35,7 @@ shared_module('euclidean',
                         include_directories: inc,
                         c_args: lib_c_args,
                         name_prefix: '',
-                        dependencies: [lv2_dep, m_dep, xputty_dep],
+                        dependencies: [lv2_dep, m_dep],
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
