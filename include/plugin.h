@@ -21,7 +21,7 @@
 #define EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
 #define EUCLIDEAN_UI_URI "https://github.com/bruno-unna/euclidean-rhythms#ui"
 
-typedef enum {
+enum {
     EUCLIDEAN_CONTROL = 0,
     EUCLIDEAN_BEATS = 1,
     EUCLIDEAN_ONSETS = 2,
@@ -30,7 +30,8 @@ typedef enum {
     EUCLIDEAN_CHANNEL = 5,
     EUCLIDEAN_NOTE = 6,
     EUCLIDEAN_VELOCITY = 7,
-    EUCLIDEAN_MIDI_OUT = 8
-} Port_index;
+    EUCLIDEAN_NOTIFY = 8,
+    EUCLIDEAN_MIDI_OUT = 9
+};
 
 #endif //EUCLIDEAN_PLUGIN_H
