@@ -94,7 +94,7 @@
     a lv2:InputPort, lv2:ControlPort ;
     lv2:index 4 ;
     lv2:symbol "size_in_bars" ;
-  lv2:name "Pattern size (in bars)" ;
+    lv2:name "Pattern size (in bars)" ;
     lv2:minimum 1 ;
     lv2:maximum 8 ;
     lv2:default 1 ;
@@ -129,8 +129,16 @@
   ], [
     a lv2:OutputPort, atom:AtomPort ;
     atom:bufferType atom:Sequence ;
-    atom:supports midi:MidiEvent ;
+    atom:supports patch:Message ;
+    lv2:designation lv2:control ;
     lv2:index 8 ;
+    lv2:symbol "notify" ;
+    lv2:name "Notify" ;
+  ], [
+    a lv2:OutputPort, atom:AtomPort ;
+    atom:bufferType atom:Sequence ;
+    atom:supports midi:MidiEvent ;
+    lv2:index 9 ;
     lv2:symbol "midiout" ;
     lv2:name "MIDI Out" ;
   ] ;
@@ -141,4 +149,11 @@
   guiext:binary <euclidean_ui@LIB_EXT@> ;
   lv2:extensionData guiext::idle ;
   lv2:requiredFeature guiext:makeResident ;
+  lv2:requiredFeature urid:map ;
+  lv2:optionalFeature ui:requestValue ;
+  ui:portNotification [
+    ui:plugin <https://github.com/bruno-unna/euclidean-rhythms> ;
+    lv2:symbol "notify" ;
+    ui:notifyType atom:Blank ;
+  ]
 .
