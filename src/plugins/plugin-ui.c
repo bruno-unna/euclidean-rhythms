@@ -7,28 +7,19 @@
 
 #include "plugin.h"
 
-typedef enum {
-    EFFECTS_OUTPUT,
-    EFFECTS_INPUT,
-    BYPASS,
-    GAIN,
-    METER,
-} PortIndex;
-
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------
                 define controller numbers
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 3
+#define CONTROLS 1
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------
                 the main LV2 handle->XWindow
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-
 
 // main window struct
 typedef struct {
@@ -77,8 +68,7 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     LV2UI_Resize *resize = NULL;
     ui->block_event = -1;
 
-    int i = 0;
-    for (; features[i]; ++i) {
+    for (int i = 0; features[i]; ++i) {
         if (!strcmp(features[i]->URI, LV2_UI__parent)) {
             ui->parentXwindow = features[i]->data;
         } else if (!strcmp(features[i]->URI, LV2_UI__resize)) {
@@ -94,33 +84,19 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     // init Xputty
     main_init(&ui->main);
     // create the toplevel Window on the parentXwindow provided by the host
-    ui->win = create_window(&ui->main, (Window) ui->parentXwindow, 0, 0, 100, 500);
+    ui->win = create_window(&ui->main, (Window) ui->parentXwindow, 0, 0, 500, 100);
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
-    // create a toggle button
-    ui->widget[0] = add_on_off_button(ui->win, "Power", 20, 20, 60, 60);
-    // set resize mode for the toggle button to Aspect ratio
-    ui->widget[0]->scale.gravity = ASPECT;
-    // store the Port Index in the Widget_t data field
-    ui->widget[0]->data = BYPASS;
+    // create a slider for the number of beats
+    ui->widget[0] = add_hslider(ui->win, "Beats", 5, 10, 400, 40);
+    // store the port index in the Widget_t data field
+    ui->widget[0]->data = EUCLIDEAN_BEATS;
     // store a pointer to the X11_UI struct in the parent_struct Widget_t field
     ui->widget[0]->parent_struct = ui;
+    // set the knob adjustment to the needed range
+    set_adjustment(ui->widget[0]->adj, 8.0f, 8.0f, 2.0f, 64.0f, 1.0f, CL_CONTINUOS);
     // connect the value changed callback with the write_function
     ui->widget[0]->func.value_changed_callback = value_changed;
-    // create a knob widget
-    ui->widget[1] = add_vslider(ui->win, "Gain", 5, 90, 40, 400);
-    // store the port index in the Widget_t data field
-    ui->widget[1]->data = GAIN;
-    // store a pointer to the X11_UI struct in the parent_struct Widget_t field
-    ui->widget[1]->parent_struct = ui;
-    // set the knob adjustment to the needed range
-    set_adjustment(ui->widget[1]->adj, 0.0, 0.0, -40.0, 40.0, 0.1, CL_CONTINUOS);
-    // connect the value changed callback with the write_function
-    ui->widget[1]->func.value_changed_callback = value_changed;
-    // create a meter widget
-    ui->widget[2] = add_vmeter(ui->win, "Meter", true, 50, 90, 20, 400);
-    // store the port index in the Widget_t data field
-    ui->widget[2]->data = METER;
     // finally map all Widgets on screen
     widget_show_all(ui->win);
     // set the widget pointer to the X11 Window from the toplevel Widget_t
@@ -128,7 +104,7 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     // request to resize the parentXwindow to the size of the toplevel Widget_t
     if (resize) {
         ui->resize = resize;
-        resize->ui_resize(resize->handle, 100, 500);
+        resize->ui_resize(resize->handle, 500, 100);
     }
     // store pointer to the host controller
     ui->controller = controller;
@@ -158,13 +134,12 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
                        const void *buffer) {
     X11_UI *ui = (X11_UI *) handle;
     float value = *(float *) buffer;
-    int i = 0;
-    for (; i < CONTROLS; i++) {
+    for (int i = 0; i < CONTROLS; i++) {
         if (port_index == (uint32_t) ui->widget[i]->data) {
             // prevent event loop between host and plugin
             ui->block_event = (int) port_index;
             // case port is METER, convert value to meter deflection
-            if (port_index == METER) value = power2db(ui->widget[i], value);
+//            if (port_index == METER) value = power2db(ui->widget[i], value);
             // Xputty check if the new value differs from the old one
             // and set new one, when needed
             check_value_changed(ui->widget[i]->adj, &value);
@@ -212,10 +187,6 @@ static const LV2UI_Descriptor descriptor = {
 
 LV2_SYMBOL_EXPORT
 const LV2UI_Descriptor *lv2ui_descriptor(uint32_t index) {
-    switch (index) {
-        case 0:
-            return &descriptor;
-        default:
-            return NULL;
-    }
+    if (index == 0) return &descriptor;
+    return NULL;
 }
