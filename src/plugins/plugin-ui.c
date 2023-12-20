@@ -5,9 +5,7 @@
 // xwidgets.h includes xputty.h and all defined widgets from Xputty
 #include "xwidgets.h"
 
-#include "./euclidean.h"
-
-#define PLUGIN_UI_URI "https://github.com/bruno-unna/euclidean-rhythms#ui"
+#include "plugin.h"
 
 typedef enum {
     EFFECTS_OUTPUT,
@@ -204,7 +202,7 @@ static const void *extension_data(const char *uri) {
 }
 
 static const LV2UI_Descriptor descriptor = {
-        PLUGIN_UI_URI,
+        EUCLIDEAN_UI_URI,
         instantiate,
         cleanup,
         port_event,
