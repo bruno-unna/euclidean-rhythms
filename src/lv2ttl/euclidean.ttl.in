@@ -19,7 +19,6 @@
 @prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
 @prefix midi:   <http://lv2plug.in/ns/ext/midi#> .
 @prefix param:  <http://lv2plug.in/ns/ext/parameters#> .
-@prefix patch:  <http://lv2plug.in/ns/ext/patch#> .
 @prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix pg:     <http://lv2plug.in/ns/ext/port-groups#> .
@@ -131,16 +130,8 @@
   ], [
     a lv2:OutputPort, atom:AtomPort ;
     atom:bufferType atom:Sequence ;
-    atom:supports patch:Message ;
-    lv2:designation lv2:control ;
-    lv2:index 8 ;
-    lv2:symbol "notify" ;
-    lv2:name "Notify" ;
-  ], [
-    a lv2:OutputPort, atom:AtomPort ;
-    atom:bufferType atom:Sequence ;
     atom:supports midi:MidiEvent ;
-    lv2:index 9 ;
+    lv2:index 8 ;
     lv2:symbol "midiout" ;
     lv2:name "MIDI Out" ;
   ] ;
@@ -153,9 +144,4 @@
   lv2:requiredFeature guiext:makeResident ;
   lv2:requiredFeature urid:map ;
   lv2:optionalFeature ui:requestValue ;
-  ui:portNotification [
-    ui:plugin <https://github.com/bruno-unna/euclidean-rhythms> ;
-    lv2:symbol "notify" ;
-    ui:notifyType atom:Blank ;
-  ]
 .
