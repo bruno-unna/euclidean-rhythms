@@ -13,7 +13,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 1
+#define CONTROLS 2
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------
@@ -45,9 +45,23 @@ static void draw_window(void *w_, void *user_data) {
 static void value_changed(void *w_, void *user_data) {
     Widget_t *w = (Widget_t *) w_;
     X11_UI *ui = (X11_UI *) w->parent_struct;
-    if (ui->block_event != w->data)
-        ui->write_function(ui->controller, w->data, sizeof(float), 0, &w->adj->value);
+    ui->write_function(ui->controller, w->data, sizeof(float), 0, &w->adj->value);
     ui->block_event = -1;
+}
+
+static void
+create_knob(X11_UI *ui, short widget_index, short port_index,
+            char *label, int pos_x, int pos_y,
+            float std_value, float value, float min_value, float max_value) {
+    ui->widget[widget_index] = add_knob(ui->win, label, pos_x, pos_y, 40, 60);
+    // store the port index in the Widget_t data field
+    ui->widget[widget_index]->data = port_index;
+    // store a pointer to the X11_UI struct in the parent_struct Widget_t field
+    ui->widget[widget_index]->parent_struct = ui;
+    // set the knob adjustment to the needed range
+    set_adjustment(ui->widget[widget_index]->adj, std_value, value, min_value, max_value, 1.0f, CL_CONTINUOS);
+    // connect the value changed callback with the write_function
+    ui->widget[widget_index]->func.value_changed_callback = value_changed;
 }
 
 // init the xwindow and return the LV2UI handle
@@ -87,16 +101,11 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     ui->win = create_window(&ui->main, (Window) ui->parentXwindow, 0, 0, 500, 100);
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
-    // create a knob for the number of beats
-    ui->widget[0] = add_knob(ui->win, "Beats", 5, 10, 40, 60);
-    // store the port index in the Widget_t data field
-    ui->widget[0]->data = EUCLIDEAN_BEATS;
-    // store a pointer to the X11_UI struct in the parent_struct Widget_t field
-    ui->widget[0]->parent_struct = ui;
-    // set the knob adjustment to the needed range
-    set_adjustment(ui->widget[0]->adj, 8.0f, 8.0f, 2.0f, 64.0f, 1.0f, CL_CONTINUOS);
-    // connect the value changed callback with the write_function
-    ui->widget[0]->func.value_changed_callback = value_changed;
+
+    // add the widgets
+    create_knob(ui, 0, EUCLIDEAN_BEATS, "Beats", 5, 10, 8.0f, 8.0f, 2.0f, 64.0f);
+    create_knob(ui, 1, EUCLIDEAN_ONSETS, "Onsets", 50, 10, 5.0f, 5.0f, 0.0f, 64.0f);
+
     // finally map all Widgets on screen
     widget_show_all(ui->win);
     // set the widget pointer to the X11 Window from the toplevel Widget_t
