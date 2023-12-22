@@ -17,33 +17,21 @@
 
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 #include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
+#include <lv2/lv2plug.in/ns/ext/log/logger.h>
 
-// xwidgets.h includes xputty.h and all defined widgets from Xputty
+/*
+ * xwidgets.h includes xputty.h and all defined widgets from Xputty
+ */
 #include "xwidgets.h"
 
 #include "plugin.h"
 
-/*---------------------------------------------------------------------
------------------------------------------------------------------------
-                define controller numbers
------------------------------------------------------------------------
-----------------------------------------------------------------------*/
+#define CONTROLS 7
 
-#define CONTROLS 2
-
-/*
- * Various definitions
- */
 #define KNOB_H_OFFSET 50
 #define KNOB_H_SPACE 50
 #define KNOB_WIDTH 40
 #define KNOB_HEIGHT 60
-
-/*---------------------------------------------------------------------
------------------------------------------------------------------------
-                the main LV2 handle->XWindow
------------------------------------------------------------------------
-----------------------------------------------------------------------*/
 
 // main window struct
 typedef struct {
@@ -177,8 +165,6 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
         if (port_index == (uint32_t) ui->widget[i]->data) {
             // prevent event loop between host and plugin
             ui->block_event = (int) port_index;
-            // case port is METER, convert value to meter deflection
-//            if (port_index == METER) value = power2db(ui->widget[i], value);
             // Xputty check if the new value differs from the old one
             // and set new one, when needed
             check_value_changed(ui->widget[i]->adj, &value);
