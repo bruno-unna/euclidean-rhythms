@@ -29,10 +29,19 @@
 
 #define CONTROLS 7
 
-#define KNOB_H_OFFSET 50
-#define KNOB_H_SPACE 50
+#define N_GEN 8
+
 #define KNOB_WIDTH 40
 #define KNOB_HEIGHT 60
+
+#define KNOB_H_OFFSET 50
+#define KNOB_H_SPACE 50
+
+#define KNOB_V_OFFSET 10
+#define KNOB_V_SPACE 70
+
+#define PLUGIN_WIDTH (KNOB_H_OFFSET + CONTROLS * KNOB_H_SPACE)
+#define PLUGIN_HEIGHT (KNOB_V_OFFSET + N_GEN * KNOB_V_SPACE)
 
 // main window struct
 typedef struct {
@@ -104,7 +113,7 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
                                              LV2_UI__resize, &resize, false,
                                              NULL);
 
-    if(missing) {
+    if (missing) {
         lv2_log_error(&ui->logger, "Missing feature <%s>\n", missing);
         free(ui);
         return NULL;
@@ -113,19 +122,30 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     // init Xputty
     main_init(&ui->main);
     // create the toplevel Window on the parentXwindow provided by the host
-    ui->win = create_window(&ui->main, (Window) ui->parentXwindow, 0, 0, 500, 100);
+    ui->win = create_window(&ui->main, (Window) ui->parentXwindow, 0, 0, PLUGIN_WIDTH, PLUGIN_HEIGHT);
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
 
     // add the widgets
-    add_label(ui->win, "0", 5, 10, 40, 40);
-    create_knob(ui, 0, EUCLIDEAN_BEATS, "Beats", KNOB_H_OFFSET + 0 * KNOB_H_SPACE, 10, 8.0f, 8.0f, 2.0f, 64.0f);
-    create_knob(ui, 1, EUCLIDEAN_ONSETS, "Onsets", KNOB_H_OFFSET + 1 * KNOB_H_SPACE, 10, 5.0f, 5.0f, 0.0f, 64.0f);
-    create_knob(ui, 2, EUCLIDEAN_ROTATION, "Rot", KNOB_H_OFFSET + 2 * KNOB_H_SPACE, 10, 0.0f, 0.0f, -32.0f, 31.0f);
-    create_knob(ui, 3, EUCLIDEAN_BARS, "Bars", KNOB_H_OFFSET + 3 * KNOB_H_SPACE, 10, 1.0f, 1.0f, 1.0f, 8.0f);
-    create_knob(ui, 4, EUCLIDEAN_CHANNEL, "Chan", KNOB_H_OFFSET + 4 * KNOB_H_SPACE, 10, 10.0f, 10.0f, 1.0f, 16.0f);
-    create_knob(ui, 5, EUCLIDEAN_NOTE, "Note", KNOB_H_OFFSET + 5 * KNOB_H_SPACE, 10, 48.0f, 48.0f, 0.0f, 127.0f);
-    create_knob(ui, 6, EUCLIDEAN_VELOCITY, "Vel", KNOB_H_OFFSET + 6 * KNOB_H_SPACE, 10, 64.0f, 64.0f, 0.0f, 127.0f);
+    for (int gen = 0; gen < N_GEN; ++gen) {
+        char *gen_label = "7";
+//        snprintf(gen_label, strlen(gen_label), "%s", gen_label);
+        add_label(ui->win, gen_label, 5, KNOB_V_OFFSET + gen * KNOB_V_SPACE, 40, 40);
+        create_knob(ui, 0, EUCLIDEAN_BEATS, "Beats", KNOB_H_OFFSET + 0 * KNOB_H_SPACE,
+                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 8.0f, 8.0f, 2.0f, 64.0f);
+        create_knob(ui, 1, EUCLIDEAN_ONSETS, "Onsets", KNOB_H_OFFSET + 1 * KNOB_H_SPACE,
+                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 5.0f, 5.0f, 0.0f, 64.0f);
+        create_knob(ui, 2, EUCLIDEAN_ROTATION, "Rot", KNOB_H_OFFSET + 2 * KNOB_H_SPACE,
+                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 0.0f, 0.0f, -32.0f, 31.0f);
+        create_knob(ui, 3, EUCLIDEAN_BARS, "Bars", KNOB_H_OFFSET + 3 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
+                    1.0f, 1.0f, 1.0f, 8.0f);
+        create_knob(ui, 4, EUCLIDEAN_CHANNEL, "Chan", KNOB_H_OFFSET + 4 * KNOB_H_SPACE,
+                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 10.0f, 10.0f, 1.0f, 16.0f);
+        create_knob(ui, 5, EUCLIDEAN_NOTE, "Note", KNOB_H_OFFSET + 5 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
+                    48.0f, 48.0f, 0.0f, 127.0f);
+        create_knob(ui, 6, EUCLIDEAN_VELOCITY, "Vel", KNOB_H_OFFSET + 6 * KNOB_H_SPACE,
+                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 64.0f, 64.0f, 0.0f, 127.0f);
+    }
 
     // finally map all Widgets on screen
     widget_show_all(ui->win);
@@ -134,7 +154,7 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     // request to resize the parentXwindow to the size of the toplevel Widget_t
     if (resize) {
         ui->resize = resize;
-        resize->ui_resize(resize->handle, 500, 100);
+        resize->ui_resize(resize->handle, PLUGIN_WIDTH, PLUGIN_HEIGHT);
     }
     // store pointer to the host controller
     ui->controller = controller;
