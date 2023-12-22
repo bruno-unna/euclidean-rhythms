@@ -87,8 +87,8 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     ui->win = create_window(&ui->main, (Window) ui->parentXwindow, 0, 0, 500, 100);
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
-    // create a slider for the number of beats
-    ui->widget[0] = add_hslider(ui->win, "Beats", 5, 10, 400, 40);
+    // create a knob for the number of beats
+    ui->widget[0] = add_knob(ui->win, "Beats", 5, 10, 40, 60);
     // store the port index in the Widget_t data field
     ui->widget[0]->data = EUCLIDEAN_BEATS;
     // store a pointer to the X11_UI struct in the parent_struct Widget_t field
