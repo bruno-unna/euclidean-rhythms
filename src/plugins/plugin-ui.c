@@ -15,6 +15,14 @@
 
 #define CONTROLS 2
 
+/*
+ * Various definitions
+ */
+#define KNOB_H_OFFSET 50
+#define KNOB_H_SPACE 50
+#define KNOB_WIDTH 40
+#define KNOB_HEIGHT 60
+
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------
                 the main LV2 handle->XWindow
@@ -53,7 +61,7 @@ static void
 create_knob(X11_UI *ui, short widget_index, short port_index,
             char *label, int pos_x, int pos_y,
             float std_value, float value, float min_value, float max_value) {
-    ui->widget[widget_index] = add_knob(ui->win, label, pos_x, pos_y, 40, 60);
+    ui->widget[widget_index] = add_knob(ui->win, label, pos_x, pos_y, KNOB_WIDTH, KNOB_HEIGHT);
     // store the port index in the Widget_t data field
     ui->widget[widget_index]->data = port_index;
     // store a pointer to the X11_UI struct in the parent_struct Widget_t field
@@ -103,8 +111,14 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     ui->win->func.expose_callback = draw_window;
 
     // add the widgets
-    create_knob(ui, 0, EUCLIDEAN_BEATS, "Beats", 5, 10, 8.0f, 8.0f, 2.0f, 64.0f);
-    create_knob(ui, 1, EUCLIDEAN_ONSETS, "Onsets", 50, 10, 5.0f, 5.0f, 0.0f, 64.0f);
+    add_label(ui->win, "0", 5, 10, 40, 40);
+    create_knob(ui, 0, EUCLIDEAN_BEATS, "Beats", KNOB_H_OFFSET + 0 * KNOB_H_SPACE, 10, 8.0f, 8.0f, 2.0f, 64.0f);
+    create_knob(ui, 1, EUCLIDEAN_ONSETS, "Onsets", KNOB_H_OFFSET + 1 * KNOB_H_SPACE, 10, 5.0f, 5.0f, 0.0f, 64.0f);
+    create_knob(ui, 2, EUCLIDEAN_ROTATION, "Rot", KNOB_H_OFFSET + 2 * KNOB_H_SPACE, 10, 0.0f, 0.0f, -32.0f, 31.0f);
+    create_knob(ui, 3, EUCLIDEAN_BARS, "Bars", KNOB_H_OFFSET + 3 * KNOB_H_SPACE, 10, 1.0f, 1.0f, 1.0f, 8.0f);
+    create_knob(ui, 4, EUCLIDEAN_CHANNEL, "Chan", KNOB_H_OFFSET + 4 * KNOB_H_SPACE, 10, 10.0f, 10.0f, 1.0f, 16.0f);
+    create_knob(ui, 5, EUCLIDEAN_NOTE, "Note", KNOB_H_OFFSET + 5 * KNOB_H_SPACE, 10, 48.0f, 48.0f, 0.0f, 127.0f);
+    create_knob(ui, 6, EUCLIDEAN_VELOCITY, "Vel", KNOB_H_OFFSET + 6 * KNOB_H_SPACE, 10, 64.0f, 64.0f, 0.0f, 127.0f);
 
     // finally map all Widgets on screen
     widget_show_all(ui->win);
