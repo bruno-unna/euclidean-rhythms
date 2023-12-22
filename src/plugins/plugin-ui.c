@@ -18,6 +18,7 @@
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 #include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
 #include <lv2/lv2plug.in/ns/ext/log/logger.h>
+#include <lv2/lv2plug.in/ns/lv2core/lv2_util.h>
 
 /*
  * xwidgets.h includes xputty.h and all defined widgets from Xputty
@@ -44,6 +45,8 @@ typedef struct {
     void *controller;
     LV2UI_Write_Function write_function;
     LV2UI_Resize *resize;
+
+    LV2_Log_Logger logger; // Logger API
 } X11_UI;
 
 // draw the window
@@ -93,20 +96,20 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     ui->parentXwindow = 0;
     LV2UI_Resize *resize = NULL;
     ui->block_event = -1;
+    ui->logger.log = NULL;
 
-    for (int i = 0; features[i]; ++i) {
-        if (!strcmp(features[i]->URI, LV2_UI__parent)) {
-            ui->parentXwindow = features[i]->data;
-        } else if (!strcmp(features[i]->URI, LV2_UI__resize)) {
-            resize = (LV2UI_Resize *) features[i]->data;
-        }
-    }
+    const char *missing = lv2_features_query(features,
+                                             LV2_LOG__log, &ui->logger.log, false,
+                                             LV2_UI__parent, &ui->parentXwindow, true,
+                                             LV2_UI__resize, &resize, false,
+                                             NULL);
 
-    if (ui->parentXwindow == NULL) {
-        fprintf(stderr, "ERROR: Failed to open parentXwindow for %s\n", plugin_uri);
+    if(missing) {
+        lv2_log_error(&ui->logger, "Missing feature <%s>\n", missing);
         free(ui);
         return NULL;
     }
+
     // init Xputty
     main_init(&ui->main);
     // create the toplevel Window on the parentXwindow provided by the host
