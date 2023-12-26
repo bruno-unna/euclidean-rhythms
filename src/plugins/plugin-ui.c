@@ -44,7 +44,7 @@ typedef struct {
     void *parentXwindow;
     Xputty main;
     Widget_t *win;
-    Widget_t *knobs[N_KNOBS];
+    Widget_t *knobs[N_GENERATORS][N_KNOBS];
     int block_event;
 
     void *controller;
@@ -70,18 +70,20 @@ static void value_changed(void *w_, void *user_data) {
 }
 
 static void
-create_knob(X11_UI *ui, short widget_index, short port_index,
-            char *label, int pos_x, int pos_y,
+create_knob(X11_UI *ui, unsigned short widget_index, char *label, int pos_x, int pos_y,
             float std_value, float value, float min_value, float max_value) {
-    ui->knobs[widget_index] = add_knob(ui->win, label, pos_x, pos_y, KNOB_WIDTH, KNOB_HEIGHT);
+    unsigned short widget_port_offset = 1;
+    unsigned short port_index = widget_index + widget_port_offset;
+    unsigned short generator = widget_index / N_KNOBS;
+    ui->knobs[generator][widget_index] = add_knob(ui->win, label, pos_x, pos_y, KNOB_WIDTH, KNOB_HEIGHT);
     // store the port index in the Widget_t data field
-    ui->knobs[widget_index]->data = port_index;
+    ui->knobs[generator][widget_index]->data = port_index;
     // store a pointer to the X11_UI struct in the parent_struct Widget_t field
-    ui->knobs[widget_index]->parent_struct = ui;
+    ui->knobs[generator][widget_index]->parent_struct = ui;
     // set the knob adjustment to the needed range
-    set_adjustment(ui->knobs[widget_index]->adj, std_value, value, min_value, max_value, 1.0f, CL_CONTINUOS);
+    set_adjustment(ui->knobs[generator][widget_index]->adj, std_value, value, min_value, max_value, 1.0f, CL_CONTINUOS);
     // connect the value changed callback with the write_function
-    ui->knobs[widget_index]->func.value_changed_callback = value_changed;
+    ui->knobs[generator][widget_index]->func.value_changed_callback = value_changed;
 }
 
 // init the xwindow and return the LV2UI handle
@@ -127,19 +129,21 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
         char *gen_label = "7";
 //        snprintf(gen_label, strlen(gen_label), "%s", gen_label);
         add_label(ui->win, gen_label, 5, KNOB_V_OFFSET + gen * KNOB_V_SPACE, 40, 40);
-        create_knob(ui, 0, 1 + BEATS_IDX, "Beats", KNOB_H_OFFSET + 0 * KNOB_H_SPACE,
+        create_knob(ui, gen * N_KNOBS + BEATS_IDX, "Beats", KNOB_H_OFFSET + 0 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 8.0f, 8.0f, 2.0f, 64.0f);
-        create_knob(ui, 1, 1 + ONSETS_IDX, "Onsets", KNOB_H_OFFSET + 1 * KNOB_H_SPACE,
+        create_knob(ui, gen * N_KNOBS + ONSETS_IDX, "Onsets", KNOB_H_OFFSET + 1 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 5.0f, 5.0f, 0.0f, 64.0f);
-        create_knob(ui, 2, 1 + ROTATION_IDX, "Rot", KNOB_H_OFFSET + 2 * KNOB_H_SPACE,
+        create_knob(ui, gen * N_KNOBS + ROTATION_IDX, "Rot", KNOB_H_OFFSET + 2 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 0.0f, 0.0f, -32.0f, 31.0f);
-        create_knob(ui, 3, 1 + BARS_IDX, "Bars", KNOB_H_OFFSET + 3 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
+        create_knob(ui, gen * N_KNOBS + BARS_IDX, "Bars", KNOB_H_OFFSET + 3 * KNOB_H_SPACE,
+                    KNOB_V_OFFSET + gen * KNOB_V_SPACE,
                     1.0f, 1.0f, 1.0f, 8.0f);
-        create_knob(ui, 4, 1 + CHANNEL_IDX, "Chan", KNOB_H_OFFSET + 4 * KNOB_H_SPACE,
+        create_knob(ui, gen * N_KNOBS + CHANNEL_IDX, "Chan", KNOB_H_OFFSET + 4 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 10.0f, 10.0f, 1.0f, 16.0f);
-        create_knob(ui, 5, 1 + NOTE_IDX, "Note", KNOB_H_OFFSET + 5 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
+        create_knob(ui, gen * N_KNOBS + NOTE_IDX, "Note", KNOB_H_OFFSET + 5 * KNOB_H_SPACE,
+                    KNOB_V_OFFSET + gen * KNOB_V_SPACE,
                     48.0f, 48.0f, 0.0f, 127.0f);
-        create_knob(ui, 6, 1 + VELOCITY_IDX, "Vel", KNOB_H_OFFSET + 6 * KNOB_H_SPACE,
+        create_knob(ui, gen * N_KNOBS + VELOCITY_IDX, "Vel", KNOB_H_OFFSET + 6 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 64.0f, 64.0f, 0.0f, 127.0f);
     }
 
@@ -180,13 +184,16 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
                        const void *buffer) {
     X11_UI *ui = (X11_UI *) handle;
     float value = *(float *) buffer;
-    for (int i = 0; i < N_KNOBS; i++) {
-        if (port_index == (uint32_t) ui->knobs[i]->data) {
-            // prevent event loop between host and plugin
-            ui->block_event = (int) port_index;
-            // Xputty check if the new value differs from the old one
-            // and set new one, when needed
-            check_value_changed(ui->knobs[i]->adj, &value);
+    // TODO optimise this shit
+    for (int gen = 0; gen < N_GENERATORS; ++gen) {
+        for (int i = 0; i < N_KNOBS; i++) {
+            if (port_index == (uint32_t) ui->knobs[gen][i]->data) {
+                // prevent event loop between host and plugin
+                ui->block_event = (int) port_index;
+                // Xputty check if the new value differs from the old one
+                // and set new one, when needed
+                check_value_changed(ui->knobs[gen][i]->adj, &value);
+            }
         }
     }
 }
