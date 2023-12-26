@@ -27,10 +27,6 @@
 
 #include "plugin.h"
 
-#define CONTROLS 7
-
-#define N_GEN 8
-
 #define KNOB_WIDTH 40
 #define KNOB_HEIGHT 60
 
@@ -40,15 +36,15 @@
 #define KNOB_V_OFFSET 10
 #define KNOB_V_SPACE 70
 
-#define PLUGIN_WIDTH (KNOB_H_OFFSET + CONTROLS * KNOB_H_SPACE)
-#define PLUGIN_HEIGHT (KNOB_V_OFFSET + N_GEN * KNOB_V_SPACE)
+#define PLUGIN_WIDTH (KNOB_H_OFFSET + N_KNOBS * KNOB_H_SPACE)
+#define PLUGIN_HEIGHT (KNOB_V_OFFSET + N_GENERATORS * KNOB_V_SPACE)
 
 // main window struct
 typedef struct {
     void *parentXwindow;
     Xputty main;
     Widget_t *win;
-    Widget_t *widget[CONTROLS];
+    Widget_t *widget[N_KNOBS];
     int block_event;
 
     void *controller;
@@ -127,23 +123,23 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     ui->win->func.expose_callback = draw_window;
 
     // add the widgets
-    for (int gen = 0; gen < N_GEN; ++gen) {
+    for (int gen = 0; gen < N_GENERATORS; ++gen) {
         char *gen_label = "7";
 //        snprintf(gen_label, strlen(gen_label), "%s", gen_label);
         add_label(ui->win, gen_label, 5, KNOB_V_OFFSET + gen * KNOB_V_SPACE, 40, 40);
-        create_knob(ui, 0, EUCLIDEAN_BEATS, "Beats", KNOB_H_OFFSET + 0 * KNOB_H_SPACE,
+        create_knob(ui, 0, 1 + BEATS_IDX, "Beats", KNOB_H_OFFSET + 0 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 8.0f, 8.0f, 2.0f, 64.0f);
-        create_knob(ui, 1, EUCLIDEAN_ONSETS, "Onsets", KNOB_H_OFFSET + 1 * KNOB_H_SPACE,
+        create_knob(ui, 1, 1 + ONSETS_IDX, "Onsets", KNOB_H_OFFSET + 1 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 5.0f, 5.0f, 0.0f, 64.0f);
-        create_knob(ui, 2, EUCLIDEAN_ROTATION, "Rot", KNOB_H_OFFSET + 2 * KNOB_H_SPACE,
+        create_knob(ui, 2, 1 + ROTATION_IDX, "Rot", KNOB_H_OFFSET + 2 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 0.0f, 0.0f, -32.0f, 31.0f);
-        create_knob(ui, 3, EUCLIDEAN_BARS, "Bars", KNOB_H_OFFSET + 3 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
+        create_knob(ui, 3, 1 + BARS_IDX, "Bars", KNOB_H_OFFSET + 3 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
                     1.0f, 1.0f, 1.0f, 8.0f);
-        create_knob(ui, 4, EUCLIDEAN_CHANNEL, "Chan", KNOB_H_OFFSET + 4 * KNOB_H_SPACE,
+        create_knob(ui, 4, 1 + CHANNEL_IDX, "Chan", KNOB_H_OFFSET + 4 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 10.0f, 10.0f, 1.0f, 16.0f);
-        create_knob(ui, 5, EUCLIDEAN_NOTE, "Note", KNOB_H_OFFSET + 5 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
+        create_knob(ui, 5, 1 + NOTE_IDX, "Note", KNOB_H_OFFSET + 5 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
                     48.0f, 48.0f, 0.0f, 127.0f);
-        create_knob(ui, 6, EUCLIDEAN_VELOCITY, "Vel", KNOB_H_OFFSET + 6 * KNOB_H_SPACE,
+        create_knob(ui, 6, 1 + VELOCITY_IDX, "Vel", KNOB_H_OFFSET + 6 * KNOB_H_SPACE,
                     KNOB_V_OFFSET + gen * KNOB_V_SPACE, 64.0f, 64.0f, 0.0f, 127.0f);
     }
 
@@ -184,7 +180,7 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
                        const void *buffer) {
     X11_UI *ui = (X11_UI *) handle;
     float value = *(float *) buffer;
-    for (int i = 0; i < CONTROLS; i++) {
+    for (int i = 0; i < N_KNOBS; i++) {
         if (port_index == (uint32_t) ui->widget[i]->data) {
             // prevent event loop between host and plugin
             ui->block_event = (int) port_index;

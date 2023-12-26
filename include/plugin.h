@@ -21,16 +21,20 @@
 #define EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
 #define EUCLIDEAN_UI_URI "https://github.com/bruno-unna/euclidean-rhythms#ui"
 
+#define N_GENERATORS 1
+#define N_KNOBS 7
+
+#define CONTROL_PORT 0
+#define MIDI_OUT_PORT (1 + N_GENERATORS * N_KNOBS)
+
 enum {
-    EUCLIDEAN_CONTROL = 0,
-    EUCLIDEAN_BEATS = 1,
-    EUCLIDEAN_ONSETS = 2,
-    EUCLIDEAN_ROTATION = 3,
-    EUCLIDEAN_BARS = 4,
-    EUCLIDEAN_CHANNEL = 5,
-    EUCLIDEAN_NOTE = 6,
-    EUCLIDEAN_VELOCITY = 7,
-    EUCLIDEAN_MIDI_OUT = 8,
+    BEATS_IDX = 0,
+    ONSETS_IDX = 1,
+    ROTATION_IDX = 2,
+    BARS_IDX = 3,
+    CHANNEL_IDX = 4,
+    NOTE_IDX = 5,
+    VELOCITY_IDX = 6
 };
 
 #endif //EUCLIDEAN_PLUGIN_H
