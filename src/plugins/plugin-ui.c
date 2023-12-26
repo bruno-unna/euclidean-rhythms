@@ -44,7 +44,7 @@ typedef struct {
     void *parentXwindow;
     Xputty main;
     Widget_t *win;
-    Widget_t *widget[N_KNOBS];
+    Widget_t *knobs[N_KNOBS];
     int block_event;
 
     void *controller;
@@ -73,15 +73,15 @@ static void
 create_knob(X11_UI *ui, short widget_index, short port_index,
             char *label, int pos_x, int pos_y,
             float std_value, float value, float min_value, float max_value) {
-    ui->widget[widget_index] = add_knob(ui->win, label, pos_x, pos_y, KNOB_WIDTH, KNOB_HEIGHT);
+    ui->knobs[widget_index] = add_knob(ui->win, label, pos_x, pos_y, KNOB_WIDTH, KNOB_HEIGHT);
     // store the port index in the Widget_t data field
-    ui->widget[widget_index]->data = port_index;
+    ui->knobs[widget_index]->data = port_index;
     // store a pointer to the X11_UI struct in the parent_struct Widget_t field
-    ui->widget[widget_index]->parent_struct = ui;
+    ui->knobs[widget_index]->parent_struct = ui;
     // set the knob adjustment to the needed range
-    set_adjustment(ui->widget[widget_index]->adj, std_value, value, min_value, max_value, 1.0f, CL_CONTINUOS);
+    set_adjustment(ui->knobs[widget_index]->adj, std_value, value, min_value, max_value, 1.0f, CL_CONTINUOS);
     // connect the value changed callback with the write_function
-    ui->widget[widget_index]->func.value_changed_callback = value_changed;
+    ui->knobs[widget_index]->func.value_changed_callback = value_changed;
 }
 
 // init the xwindow and return the LV2UI handle
@@ -181,12 +181,12 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
     X11_UI *ui = (X11_UI *) handle;
     float value = *(float *) buffer;
     for (int i = 0; i < N_KNOBS; i++) {
-        if (port_index == (uint32_t) ui->widget[i]->data) {
+        if (port_index == (uint32_t) ui->knobs[i]->data) {
             // prevent event loop between host and plugin
             ui->block_event = (int) port_index;
             // Xputty check if the new value differs from the old one
             // and set new one, when needed
-            check_value_changed(ui->widget[i]->adj, &value);
+            check_value_changed(ui->knobs[i]->adj, &value);
         }
     }
 }
