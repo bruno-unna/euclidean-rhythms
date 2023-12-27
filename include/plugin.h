@@ -21,7 +21,7 @@
 #define EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
 #define EUCLIDEAN_UI_URI "https://github.com/bruno-unna/euclidean-rhythms#ui"
 
-#define N_GENERATORS 2
+#define N_GENERATORS 8
 #define N_KNOBS 7
 
 #define CONTROL_PORT 0
