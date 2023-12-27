@@ -15,9 +15,26 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EUCLIDEAN_H
-#define EUCLIDEAN_H
+#ifndef EUCLIDEAN_PLUGIN_H
+#define EUCLIDEAN_PLUGIN_H
 
-unsigned long e(unsigned short onsets, unsigned short beats, short rotation);
+#define EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
+#define EUCLIDEAN_UI_URI "https://github.com/bruno-unna/euclidean-rhythms#ui"
 
-#endif //EUCLIDEAN_H
+#define N_GENERATORS 8
+#define N_KNOBS 7
+
+#define CONTROL_PORT 0
+#define MIDI_OUT_PORT (1 + N_GENERATORS * N_KNOBS)
+
+enum {
+    BEATS_IDX = 0,
+    ONSETS_IDX = 1,
+    ROTATION_IDX = 2,
+    BARS_IDX = 3,
+    CHANNEL_IDX = 4,
+    NOTE_IDX = 5,
+    VELOCITY_IDX = 6
+};
+
+#endif //EUCLIDEAN_PLUGIN_H

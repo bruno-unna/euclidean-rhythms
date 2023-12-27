@@ -12,27 +12,41 @@ endif
 # Configure extension for shared object
 if current_os == 'darwin' #mac
     extension = '.dylib'
-else #unix like (linux, bsd)   
+elif current_os == 'windows'
+    extension = '.dll'
+else #unix like (linux, bsd)
     extension = '.so'
 endif 
-if current_os == 'windows' #windows
-    extension = '.dll'
-endif
 
-# Dependencies for euclidean rhythms
+# Declaration of dependencies
 lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
+# x11_dep = dependency('X11', required: true)
+cairo_dep = dependency('cairo', required: true)
+xputty_dep = dependency('xputty', required: true)
 
 # Sources to compile
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
+euclidean_ui_sources = ['plugins/plugin-ui.c']
 
 # Definition of the actual module
-euclideanmodule = shared_module('euclidean',
+shared_module('euclidean',
                         euclidean_sources,
                         include_directories: inc,
                         c_args: lib_c_args,
                         name_prefix: '',
                         dependencies: [lv2_dep, m_dep],
+                        gnu_symbol_visibility: 'hidden',
+                        install: true,
+                        install_dir: install_folder)
+
+# Definition of the UI
+shared_module('euclidean_ui',
+                        euclidean_ui_sources,
+                        include_directories: inc,
+                        c_args: lib_c_args,
+                        name_prefix: '',
+                        dependencies: [lv2_dep, cairo_dep, xputty_dep],
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
@@ -58,6 +72,7 @@ manifest_ttl = configure_file(
 
 # Configure euclidean.ttl
 data_conf = configuration_data()
+data_conf.set('LIB_EXT', extension)
 data_conf.set('MAJOR_VERSION', version_array[0])
 data_conf.set('MINOR_VERSION', version_array[1])
 data_conf.set('MICRO_VERSION', version_array[2])
