@@ -48,6 +48,7 @@ typedef struct {
         float beats_per_minute;
         float beats_per_bar;
         long current_bar;
+        float frames_per_second;
     } common_state;
 
     // this state is particular to each generator
@@ -58,8 +59,6 @@ typedef struct {
         unsigned short size_in_bars;
 
         unsigned long euclidean;
-
-        float frames_per_second;
 
         long reference_frame;
         unsigned short note_on_index;
@@ -86,10 +85,17 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
 }
 
 static void recalculate_onsets(Euclidean *self) {
+    const float fps = self->common_state.frames_per_second;
+    const float bpm = self->common_state.beats_per_minute;
+    const float beats_per_bar = self->common_state.beats_per_bar;
+
+    // How many frames per bar?
+    const long frames_per_bar = (long) (60 * fps / bpm * beats_per_bar);
+
+    // How many frames per MIDI tick (minimum sensible length of a note)?
+    const long frames_per_tick = (long) ((60 * fps) / (bpm * 24));
+
     for (unsigned short gen = 0; gen < N_GENERATORS; ++gen) {
-        const float fps = self->state[gen].frames_per_second;
-        const float bpm = self->common_state.beats_per_minute;
-        const float beats_per_bar = self->common_state.beats_per_bar;
         const unsigned short size_in_bars = self->state[gen].size_in_bars;
         const unsigned short beats = self->state[gen].beats;
         const long reference_frame = self->state[gen].reference_frame;
@@ -97,14 +103,8 @@ static void recalculate_onsets(Euclidean *self) {
         long *note_on = self->state[gen].note_on_vector;
         long *note_off = self->state[gen].note_off_vector;
 
-        // How many frames per bar?
-        const long frames_per_bar = (long) (60 * fps / bpm * beats_per_bar);
-
         // How many frames per pattern?
         const long frames_per_pattern = frames_per_bar * size_in_bars;
-
-        // How many frames per MIDI tick?
-        const long frames_per_tick = (long) ((60 * fps) / (bpm * 24));
 
         const long delta = frames_per_pattern / beats;
 
@@ -152,6 +152,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
 
     // Initialise instance fields
     self->common_state.current_bar = -1;
+    self->common_state.frames_per_second = (float) rate;
     for (unsigned short gen = 0; gen < N_GENERATORS; ++gen) {
         self->state[gen].note_on_vector = NULL;
         self->state[gen].note_off_vector = NULL;
@@ -160,7 +161,6 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
         self->state[gen].size_in_bars = 1;
         self->state[gen].reference_frame = 0;
         self->state[gen].euclidean = 0;
-        self->state[gen].frames_per_second = (float) rate;
         self->state[gen].playing = 0;
     }
     return (LV2_Handle) self;
@@ -196,28 +196,28 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
 
         unsigned short port_beats = (unsigned short) *self->ports.knobs[gen][BEATS_IDX];
         if (port_beats != self->state[gen].beats) {
-            lv2_log_trace(&self->logger, "plugin beats per bar set to %d\n", port_beats);
+            lv2_log_note(&self->logger, "[gen %d] plugin beats per bar set to %d\n", gen, port_beats);
             self->state[gen].beats = port_beats;
             calculate_euclidean = true;
         }
 
         unsigned short port_onsets = (unsigned short) *self->ports.knobs[gen][ONSETS_IDX];
         if (port_onsets != self->state[gen].onsets) {
-            lv2_log_trace(&self->logger, "plugin onsets set to %d\n", port_onsets);
+            lv2_log_note(&self->logger, "[gen %d] plugin onsets set to %d\n", gen, port_onsets);
             self->state[gen].onsets = port_onsets;
             calculate_euclidean = true;
         }
 
         short port_rotation = (short) *self->ports.knobs[gen][ROTATION_IDX];
         if (port_rotation != self->state[gen].rotation) {
-            lv2_log_trace(&self->logger, "plugin rotation set to %d\n", port_rotation);
+            lv2_log_note(&self->logger, "[gen %d] plugin rotation set to %d\n", gen, port_rotation);
             self->state[gen].rotation = port_rotation;
             calculate_euclidean = true;
         }
 
         unsigned short size_in_bars = (unsigned short) *self->ports.knobs[gen][BARS_IDX];
         if (size_in_bars != self->state[gen].size_in_bars) {
-            lv2_log_trace(&self->logger, "size of the pattern (in bars) set to %d\n", size_in_bars);
+            lv2_log_note(&self->logger, "[gen %d] size of the pattern (in bars) set to %d\n", gen, size_in_bars);
             self->state[gen].size_in_bars = size_in_bars;
             calculate_euclidean = true;
         }
@@ -229,6 +229,8 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
             self->state[gen].note_off_vector = calloc(self->state[gen].onsets + 1, sizeof(long));
             self->state[gen].note_on_vector[self->state[gen].onsets] = INT64_MAX;
             self->state[gen].note_off_vector[self->state[gen].onsets] = INT64_MAX;
+
+            lv2_log_note(&self->logger, "[gen %d] recalculating euclidean\n", gen);
 
             self->state[gen].euclidean = e((unsigned short) *self->ports.knobs[gen][ONSETS_IDX],
                                            (unsigned short) *self->ports.knobs[gen][BEATS_IDX],
@@ -276,8 +278,8 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     if (self->common_state.beats_per_minute != beats_per_minute) {
                         self->common_state.beats_per_minute = beats_per_minute;
 
-                        lv2_log_trace(&self->logger, "dirtying the onsets vector because bpm changed to %f\n",
-                                      beats_per_minute);
+                        lv2_log_note(&self->logger, "dirtying the onsets vector because bpm changed to %f\n",
+                                     beats_per_minute);
                         dirty_vector = true;
                     }
                 }
@@ -287,8 +289,8 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     if (self->common_state.beats_per_bar != beats_per_bar) {
                         self->common_state.beats_per_bar = beats_per_bar;
 
-                        lv2_log_trace(&self->logger, "dirtying the onsets vector because beats per bar changed to %f\n",
-                                      beats_per_bar);
+                        lv2_log_note(&self->logger, "dirtying the onsets vector because beats per bar changed to %f\n",
+                                     beats_per_bar);
                         dirty_vector = true;
                     }
                 }
@@ -304,12 +306,11 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
 
                                 self->state[gen].note_on_index = 0;
                                 self->state[gen].note_off_index = 0;
-
                             }
                         }
-                        lv2_log_trace(&self->logger,
-                                      "dirtying the onsets vector because the bar has changed to %ld\n",
-                                      current_bar);
+                        lv2_log_note(&self->logger,
+                                     "dirtying the onsets vector because the bar has changed to %ld\n",
+                                     current_bar);
                         dirty_vector = true;
                     }
                 }
@@ -321,6 +322,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     // Perhaps produce a MIDI event?
                     if (self->common_state.speed > 0 &&
                         frame >= self->state[gen].note_on_vector[self->state[gen].note_on_index]) {
+
                         if (self->state[gen].playing == 0) {
                             MIDI_note_event note;
                             note.event.time.frames = ev->time.frames;
