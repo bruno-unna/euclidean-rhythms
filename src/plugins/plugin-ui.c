@@ -70,16 +70,18 @@ static void value_changed(void *w_, void *user_data) {
 }
 
 static void
-create_knob(X11_UI *ui, short widget_index, short port_index,
-            char *label, int pos_x, int pos_y,
-            float std_value, float value, float min_value, float max_value) {
+create_knob(X11_UI *ui, char *label, int gen, int knob, float std_value, float min_value, float max_value) {
+    unsigned short widget_index = gen * N_KNOBS + knob;
+    int pos_x = KNOB_H_OFFSET + knob * KNOB_H_SPACE;
+    int pos_y = KNOB_V_OFFSET + gen * KNOB_V_SPACE;
+
     ui->knobs[widget_index] = add_knob(ui->win, label, pos_x, pos_y, KNOB_WIDTH, KNOB_HEIGHT);
     // store the port index in the Widget_t data field
-    ui->knobs[widget_index]->data = port_index;
+    ui->knobs[widget_index]->data = widget_index + 1;
     // store a pointer to the X11_UI struct in the parent_struct Widget_t field
     ui->knobs[widget_index]->parent_struct = ui;
     // set the knob adjustment to the needed range
-    set_adjustment(ui->knobs[widget_index]->adj, std_value, value, min_value, max_value, 1.0f, CL_CONTINUOS);
+    set_adjustment(ui->knobs[widget_index]->adj, std_value, std_value, min_value, max_value, 1.0f, CL_CONTINUOS);
     // connect the value changed callback with the write_function
     ui->knobs[widget_index]->func.value_changed_callback = value_changed;
 }
@@ -124,23 +126,17 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
 
     // add the widgets
     for (int gen = 0; gen < N_GENERATORS; ++gen) {
-        char *gen_label = "7";
-//        snprintf(gen_label, strlen(gen_label), "%s", gen_label);
+        char gen_label[4];
+        snprintf(gen_label, strlen(gen_label), "%d", gen);
+        lv2_log_note(&ui->logger, "adding controls for generator %s", gen_label);
         add_label(ui->win, gen_label, 5, KNOB_V_OFFSET + gen * KNOB_V_SPACE, 40, 40);
-        create_knob(ui, 0, 1 + BEATS_IDX, "Beats", KNOB_H_OFFSET + 0 * KNOB_H_SPACE,
-                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 8.0f, 8.0f, 2.0f, 64.0f);
-        create_knob(ui, 1, 1 + ONSETS_IDX, "Onsets", KNOB_H_OFFSET + 1 * KNOB_H_SPACE,
-                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 5.0f, 5.0f, 0.0f, 64.0f);
-        create_knob(ui, 2, 1 + ROTATION_IDX, "Rot", KNOB_H_OFFSET + 2 * KNOB_H_SPACE,
-                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 0.0f, 0.0f, -32.0f, 31.0f);
-        create_knob(ui, 3, 1 + BARS_IDX, "Bars", KNOB_H_OFFSET + 3 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
-                    1.0f, 1.0f, 1.0f, 8.0f);
-        create_knob(ui, 4, 1 + CHANNEL_IDX, "Chan", KNOB_H_OFFSET + 4 * KNOB_H_SPACE,
-                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 10.0f, 10.0f, 1.0f, 16.0f);
-        create_knob(ui, 5, 1 + NOTE_IDX, "Note", KNOB_H_OFFSET + 5 * KNOB_H_SPACE, KNOB_V_OFFSET + gen * KNOB_V_SPACE,
-                    48.0f, 48.0f, 0.0f, 127.0f);
-        create_knob(ui, 6, 1 + VELOCITY_IDX, "Vel", KNOB_H_OFFSET + 6 * KNOB_H_SPACE,
-                    KNOB_V_OFFSET + gen * KNOB_V_SPACE, 64.0f, 64.0f, 0.0f, 127.0f);
+        create_knob(ui, "Beats", gen, 0, 8.0f, 2.0f, 64.0f);
+        create_knob(ui, "Onsets", gen, 1, 5.0f, 0.0f, 64.0f);
+        create_knob(ui, "Rot", gen, 2, 0.0f, -32.0f, 31.0f);
+        create_knob(ui, "Bars", gen, 3, 1.0f, 1.0f, 8.0f);
+        create_knob(ui, "Chan", gen, 4, 10.0f, 1.0f, 16.0f);
+        create_knob(ui, "Note", gen, 5, 48.0f, 0.0f, 127.0f);
+        create_knob(ui, "Vel", gen, 6, 64.0f, 0.0f, 127.0f);
     }
 
     // finally map all Widgets on screen
