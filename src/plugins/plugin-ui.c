@@ -124,12 +124,11 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor *descriptor,
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
 
+    char *labels[] = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"};
+
     // add the widgets
     for (int gen = 0; gen < N_GENERATORS; ++gen) {
-        char gen_label[4];
-        snprintf(gen_label, strlen(gen_label), "%d", gen);
-        lv2_log_note(&ui->logger, "adding controls for generator %s", gen_label);
-        add_label(ui->win, gen_label, 5, KNOB_V_OFFSET + gen * KNOB_V_SPACE, 40, 40);
+        add_label(ui->win, labels[gen], 5, KNOB_V_OFFSET + gen * KNOB_V_SPACE, 40, 40);
         create_knob(ui, "Beats", gen, 0, 8.0f, 2.0f, 64.0f);
         create_knob(ui, "Onsets", gen, 1, 5.0f, 0.0f, 64.0f);
         create_knob(ui, "Rot", gen, 2, 0.0f, -32.0f, 31.0f);
