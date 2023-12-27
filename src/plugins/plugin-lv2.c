@@ -156,6 +156,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     for (unsigned short gen = 0; gen < N_GENERATORS; ++gen) {
         self->state[gen].note_on_vector = NULL;
         self->state[gen].note_off_vector = NULL;
+        self->state[gen].beats = 8;
         self->state[gen].onsets = 0;
         self->state[gen].rotation = 0;
         self->state[gen].size_in_bars = 1;
