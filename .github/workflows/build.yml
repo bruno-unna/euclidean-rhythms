@@ -15,6 +15,7 @@ jobs:
         run: sudo apt-get install -y lv2-dev
       - name: Install libxputty
         uses: brummer10/libxputty@master
+        run: make install
       - name: Build
         uses: BSFishy/meson-build@v1.0.3
         with:
