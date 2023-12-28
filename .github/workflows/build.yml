@@ -17,8 +17,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'brummer10/libxputty@master'
+          path: 'libxputty'
       - name: Install libxputty
-        run: make install
+        run: |
+          cd libxputty
+          make install
+          cd ..
       - name: Build
         uses: BSFishy/meson-build@v1.0.3
         with:
