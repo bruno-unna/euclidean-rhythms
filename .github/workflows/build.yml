@@ -16,7 +16,7 @@ jobs:
       - name: Checkout libxputty
         uses: actions/checkout@v4
         with:
-          repository: 'brummer10/libxputty@master'
+          repository: 'brummer10/libxputty'
           path: 'libxputty'
       - name: Install libxputty
         run: |
