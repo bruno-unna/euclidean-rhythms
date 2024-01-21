@@ -197,28 +197,28 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
 
         unsigned short port_beats = (unsigned short) *self->ports.knobs[gen][BEATS_IDX];
         if (port_beats != self->state[gen].beats) {
-            lv2_log_note(&self->logger, "[gen %d] plugin beats per bar set to %d\n", gen, port_beats);
+            lv2_log_trace(&self->logger, "[gen %d] plugin beats per bar set to %d\n", gen, port_beats);
             self->state[gen].beats = port_beats;
             calculate_euclidean = true;
         }
 
         unsigned short port_onsets = (unsigned short) *self->ports.knobs[gen][ONSETS_IDX];
         if (port_onsets != self->state[gen].onsets) {
-            lv2_log_note(&self->logger, "[gen %d] plugin onsets set to %d\n", gen, port_onsets);
+            lv2_log_trace(&self->logger, "[gen %d] plugin onsets set to %d\n", gen, port_onsets);
             self->state[gen].onsets = port_onsets;
             calculate_euclidean = true;
         }
 
         short port_rotation = (short) *self->ports.knobs[gen][ROTATION_IDX];
         if (port_rotation != self->state[gen].rotation) {
-            lv2_log_note(&self->logger, "[gen %d] plugin rotation set to %d\n", gen, port_rotation);
+            lv2_log_trace(&self->logger, "[gen %d] plugin rotation set to %d\n", gen, port_rotation);
             self->state[gen].rotation = port_rotation;
             calculate_euclidean = true;
         }
 
         unsigned short size_in_bars = (unsigned short) *self->ports.knobs[gen][BARS_IDX];
         if (size_in_bars != self->state[gen].size_in_bars) {
-            lv2_log_note(&self->logger, "[gen %d] size of the pattern (in bars) set to %d\n", gen, size_in_bars);
+            lv2_log_trace(&self->logger, "[gen %d] size of the pattern (in bars) set to %d\n", gen, size_in_bars);
             self->state[gen].size_in_bars = size_in_bars;
             calculate_euclidean = true;
         }
@@ -231,7 +231,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
             self->state[gen].note_on_vector[self->state[gen].onsets] = INT64_MAX;
             self->state[gen].note_off_vector[self->state[gen].onsets] = INT64_MAX;
 
-            lv2_log_note(&self->logger, "[gen %d] recalculating euclidean\n", gen);
+            lv2_log_trace(&self->logger, "[gen %d] recalculating euclidean\n", gen);
 
             self->state[gen].euclidean = e((unsigned short) *self->ports.knobs[gen][ONSETS_IDX],
                                            (unsigned short) *self->ports.knobs[gen][BEATS_IDX],
@@ -279,7 +279,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     if (self->common_state.beats_per_minute != beats_per_minute) {
                         self->common_state.beats_per_minute = beats_per_minute;
 
-                        lv2_log_note(&self->logger, "dirtying the onsets vector because bpm changed to %f\n",
+                        lv2_log_trace(&self->logger, "dirtying the onsets vector because bpm changed to %f\n",
                                      beats_per_minute);
                         dirty_vector = true;
                     }
@@ -290,7 +290,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     if (self->common_state.beats_per_bar != beats_per_bar) {
                         self->common_state.beats_per_bar = beats_per_bar;
 
-                        lv2_log_note(&self->logger, "dirtying the onsets vector because beats per bar changed to %f\n",
+                        lv2_log_trace(&self->logger, "dirtying the onsets vector because beats per bar changed to %f\n",
                                      beats_per_bar);
                         dirty_vector = true;
                     }
@@ -309,7 +309,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                                 self->state[gen].note_off_index = 0;
                             }
                         }
-                        lv2_log_note(&self->logger,
+                        lv2_log_trace(&self->logger,
                                      "dirtying the onsets vector because the bar has changed to %ld\n",
                                      current_bar);
                         dirty_vector = true;

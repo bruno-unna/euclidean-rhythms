@@ -23,11 +23,20 @@ lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
 # x11_dep = dependency('X11', required: true)
 cairo_dep = dependency('cairo', required: true)
-xputty_dep = dependency('xputty', required: true)
 
 # Sources to compile
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
 euclidean_ui_sources = ['plugins/plugin-ui.c']
+
+add_project_link_arguments('-L'+'../src/libxputty/libxputty', language: 'c')
+
+# Compile libxputty as an external project
+subdir('libxputty')
+xputty_dep = dependency('xputty', required: true, static: true).as_link_whole()
+xputty_lib = static_library('xputty',
+                        dependencies: xputty_dep,
+                        install: false
+)
 
 # Definition of the actual module
 shared_module('euclidean',
@@ -41,12 +50,14 @@ shared_module('euclidean',
                         install_dir: install_folder)
 
 # Definition of the UI
+ui_inc = include_directories('../include', 'libxputty/libxputty/include')
 shared_module('euclidean_ui',
                         euclidean_ui_sources,
-                        include_directories: inc,
+                        include_directories: ui_inc,
                         c_args: lib_c_args,
                         name_prefix: '',
-                        dependencies: [lv2_dep, cairo_dep, xputty_dep],
+                        dependencies: [lv2_dep, cairo_dep],
+                        link_with: xputty_lib,
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
