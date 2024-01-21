@@ -28,12 +28,13 @@ cairo_dep = dependency('cairo', required: true)
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
 euclidean_ui_sources = ['plugins/plugin-ui.c']
 
+add_project_link_arguments('-L'+'src', language: 'c')
+
 # Compile libxputty as an external project
 subdir('libxputty')
 xputty_dep = dependency('xputty', required: true, static: true)
 xputty_lib = static_library('xputty',
                         dependencies: xputty_dep,
-                        install_dir: get_option('libdir'),
                         install: true
 )
 
@@ -56,7 +57,7 @@ shared_module('euclidean_ui',
                         c_args: lib_c_args,
                         name_prefix: '',
                         dependencies: [lv2_dep, cairo_dep],
-#                        link_with: xputty_lib,
+                        link_with: xputty_lib,
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
