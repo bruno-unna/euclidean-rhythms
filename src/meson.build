@@ -35,7 +35,7 @@ subdir('libxputty')
 xputty_dep = dependency('xputty', required: true, static: true)
 xputty_lib = static_library('xputty',
                         dependencies: xputty_dep,
-                        install: true
+                        install: false
 )
 
 # Definition of the actual module
