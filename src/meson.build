@@ -32,7 +32,7 @@ add_project_link_arguments('-L'+'src', language: 'c')
 
 # Compile libxputty as an external project
 subdir('libxputty')
-xputty_dep = dependency('xputty', required: true, static: true)
+xputty_dep = dependency('xputty', required: true, static: true).as_link_whole()
 xputty_lib = static_library('xputty',
                         dependencies: xputty_dep,
                         install: false
