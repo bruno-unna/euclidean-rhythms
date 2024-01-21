@@ -28,7 +28,7 @@ cairo_dep = dependency('cairo', required: true)
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
 euclidean_ui_sources = ['plugins/plugin-ui.c']
 
-add_project_link_arguments('-L'+'src', language: 'c')
+add_project_link_arguments('-L'+'../src/libxputty/libxputty', language: 'c')
 
 # Compile libxputty as an external project
 subdir('libxputty')
