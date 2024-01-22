@@ -19,7 +19,7 @@ jobs:
           repository: 'brummer10/libxputty'
           path: 'libxputty'
       - name: Install libxputty
-        run: cd libxputty && make && make install
+        run: cd libxputty && make && make install && ldconfig
       - name: Build
         uses: BSFishy/meson-build@v1.0.3
         with:
