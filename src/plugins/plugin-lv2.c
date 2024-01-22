@@ -170,8 +170,14 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
 static void cleanup(LV2_Handle instance) {
     Euclidean *self = (Euclidean *) instance;
     for (unsigned short gen = 0; gen < N_GENERATORS; ++gen) {
-        if (self->state[gen].note_on_vector != NULL) free(self->state[gen].note_on_vector);
-        if (self->state[gen].note_off_vector != NULL) free(self->state[gen].note_off_vector);
+        if (self->state[gen].note_on_vector != NULL) {
+            free(self->state[gen].note_on_vector);
+            self->state[gen].note_on_vector = NULL;
+        }
+        if (self->state[gen].note_off_vector != NULL) {
+            free(self->state[gen].note_off_vector);
+            self->state[gen].note_off_vector = NULL;
+        }
     }
     free(instance);
 }
@@ -225,9 +231,11 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
 
         if (calculate_euclidean) {
             if (self->state[gen].note_on_vector != NULL) free(self->state[gen].note_on_vector);
-            if (self->state[gen].note_off_vector != NULL) free(self->state[gen].note_off_vector);
             self->state[gen].note_on_vector = calloc(self->state[gen].onsets + 1, sizeof(long));
+
+            if (self->state[gen].note_off_vector != NULL) free(self->state[gen].note_off_vector);
             self->state[gen].note_off_vector = calloc(self->state[gen].onsets + 1, sizeof(long));
+
             self->state[gen].note_on_vector[self->state[gen].onsets] = INT64_MAX;
             self->state[gen].note_off_vector[self->state[gen].onsets] = INT64_MAX;
 
@@ -280,7 +288,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         self->common_state.beats_per_minute = beats_per_minute;
 
                         lv2_log_trace(&self->logger, "dirtying the onsets vector because bpm changed to %f\n",
-                                     beats_per_minute);
+                                      beats_per_minute);
                         dirty_vector = true;
                     }
                 }
@@ -291,7 +299,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                         self->common_state.beats_per_bar = beats_per_bar;
 
                         lv2_log_trace(&self->logger, "dirtying the onsets vector because beats per bar changed to %f\n",
-                                     beats_per_bar);
+                                      beats_per_bar);
                         dirty_vector = true;
                     }
                 }
@@ -310,8 +318,8 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                             }
                         }
                         lv2_log_trace(&self->logger,
-                                     "dirtying the onsets vector because the bar has changed to %ld\n",
-                                     current_bar);
+                                      "dirtying the onsets vector because the bar has changed to %ld\n",
+                                      current_bar);
                         dirty_vector = true;
                     }
                 }
