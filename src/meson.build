@@ -22,11 +22,11 @@ endif
 lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
 cairo_dep = dependency('cairo', required: true)
-xputty_dep = dependency('xputty', required: true)
+lsp_tk_dep = dependency('lsp-tk', required: true)
 
 # Sources to compile
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
-euclidean_ui_sources = ['plugins/plugin-ui.c']
+euclidean_ui_sources = ['plugins/plugin-ui.cpp']
 
 # Definition of the actual module
 shared_module('euclidean',
@@ -40,13 +40,13 @@ shared_module('euclidean',
                         install_dir: install_folder)
 
 # Definition of the UI
-ui_inc = include_directories('../include', '/usr/include/xputty')
+ui_inc = include_directories('../include')
 shared_module('euclidean_ui',
                         euclidean_ui_sources,
                         include_directories: ui_inc,
                         c_args: lib_c_args,
                         name_prefix: '',
-                        dependencies: [lv2_dep, cairo_dep, xputty_dep],
+                        dependencies: [lv2_dep, cairo_dep, lsp_tk_dep],
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
