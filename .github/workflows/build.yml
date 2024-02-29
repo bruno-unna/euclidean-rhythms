@@ -13,13 +13,13 @@ jobs:
         uses: actions/checkout@v3
       - name: Install lv2
         run: sudo apt-get install -y lv2-dev
-      - name: Checkout libxputty
+      - name: Checkout lsp-tk
         uses: actions/checkout@v4
         with:
-          repository: 'brummer10/libxputty'
-          path: 'libxputty'
-      - name: Install libxputty
-        run: cd libxputty && make && make install && ldconfig
+          repository: 'lsp-plugins/lsp-tk-lib'
+          path: 'lsp-tk-lib'
+      - name: Install lsp-tk-lib
+        run: cd lsp-tk-lib && make config && make fetch && make compile && make install && ldconfig
       - name: Build
         uses: BSFishy/meson-build@v1.0.3
         with:
