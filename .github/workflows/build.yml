@@ -13,15 +13,22 @@ jobs:
         uses: actions/checkout@v3
       - name: Install lv2
         run: sudo apt-get install -y lv2-dev
+      - name: Checkout libsndfile
+        uses: actions/checkout@v4
+        with:
+          repository: 'libsndfile/libsndfile'
+          ref: '1.2.2'
+          path: 'libsndfile'
+      - name: Build and install libsndfile
+        run: cd libsndfile && mkdir CMakeBuild && cd CMakeBuild && cmake .. && make && make install && cmake --build . && ldconfig
+          && make config && make fetch && make compile && make install && ldconfig
       - name: Checkout lsp-tk
         uses: actions/checkout@v4
         with:
           repository: 'lsp-plugins/lsp-tk-lib'
           ref: '1.0.19'
           path: 'lsp-tk-lib'
-      - name: Install libsndfile
-        run: sudo apt-get install -y libsndfile
-      - name: Install lsp-tk-lib
+      - name: Build and install lsp-tk-lib
         run: cd lsp-tk-lib && make config && make fetch && make compile && make install && ldconfig
       - name: Build
         uses: BSFishy/meson-build@v1.0.3
