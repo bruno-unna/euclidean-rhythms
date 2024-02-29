@@ -19,6 +19,8 @@ jobs:
           repository: 'lsp-plugins/lsp-tk-lib'
           ref: '1.0.19'
           path: 'lsp-tk-lib'
+      - name: Install libsndfile
+        run: sudo apt-get install -y libsndfile
       - name: Install lsp-tk-lib
         run: cd lsp-tk-lib && make config && make fetch && make compile && make install && ldconfig
       - name: Build
