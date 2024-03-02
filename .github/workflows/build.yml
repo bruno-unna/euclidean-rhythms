@@ -12,27 +12,15 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Install binary dependencies
-        run: sudo apt-get install -y lv2-dev libxrandr-dev
-      - name: Checkout libsndfile
-        uses: actions/checkout@v4
-        with:
-          repository: 'libsndfile/libsndfile'
-          ref: '1.2.2'
-          path: 'libsndfile'
-      - name: Build libsndfile
-        run: cd libsndfile && mkdir CMakeBuild && cd CMakeBuild && cmake .. && make && cd
-      - name: Install libsndfile
-        run: cd libsndfile/CMakeBuild && sudo make install && cmake --build . && sudo ldconfig && cd
+        run: sudo apt-get install -y lv2-dev libsndfile-dev
       - name: Checkout lsp-tk
         uses: actions/checkout@v4
         with:
           repository: 'lsp-plugins/lsp-tk-lib'
           ref: '1.0.19'
           path: 'lsp-tk-lib'
-      - name: Build lsp-tk-lib
-        run: cd lsp-tk-lib && make config && make fetch && make compile && cd
-      - name: Install lsp-tk-lib
-        run: cd lsp-tk-lib && sudo make install && sudo ldconfig && cd
+      - name: Build and install lsp-tk-lib
+        run: cd lsp-tk-lib && make config && make fetch && make compile && sudo make install && sudo ldconfig && cd
       - name: Build
         uses: BSFishy/meson-build@v1.0.3
         with:
