@@ -19,17 +19,20 @@ jobs:
           repository: 'libsndfile/libsndfile'
           ref: '1.2.2'
           path: 'libsndfile'
-      - name: Build and install libsndfile
-        run: cd libsndfile && mkdir CMakeBuild && cd CMakeBuild && cmake .. && make && make install && cmake --build . && ldconfig
-          && make config && make fetch && make compile && make install && ldconfig
+      - name: Build libsndfile
+        run: cd libsndfile && mkdir CMakeBuild && cd CMakeBuild && cmake .. && make && cd
+      - name: Install libsndfile
+        run: cd libsndfile && sudo make install && cmake --build . && sudo ldconfig && cd
       - name: Checkout lsp-tk
         uses: actions/checkout@v4
         with:
           repository: 'lsp-plugins/lsp-tk-lib'
           ref: '1.0.19'
           path: 'lsp-tk-lib'
-      - name: Build and install lsp-tk-lib
-        run: cd lsp-tk-lib && make config && make fetch && make compile && make install && ldconfig
+      - name: Build lsp-tk-lib
+        run: cd lsp-tk-lib && make config && make fetch && make compile && cd
+      - name: Install lsp-tk-lib
+        run: cd lsp-tk-lib && sudo make install && sudo ldconfig && cd
       - name: Build
         uses: BSFishy/meson-build@v1.0.3
         with:
