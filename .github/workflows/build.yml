@@ -22,7 +22,7 @@ jobs:
       - name: Build libsndfile
         run: cd libsndfile && mkdir CMakeBuild && cd CMakeBuild && cmake .. && make && cd
       - name: Install libsndfile
-        run: cd libsndfile && sudo make install && cmake --build . && sudo ldconfig && cd
+        run: cd libsndfile/CMakeBuild && sudo make install && cmake --build . && sudo ldconfig && cd
       - name: Checkout lsp-tk
         uses: actions/checkout@v4
         with:
