@@ -22,7 +22,7 @@ endif
 lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
 cairo_dep = dependency('cairo', required: true)
-lsp_tk_dep = dependency('lsp-tk', required: true)
+lsp_tk_dep = dependency('lsp-tk-lib', required: true)
 
 # Sources to compile
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
