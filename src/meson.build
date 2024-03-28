@@ -21,8 +21,6 @@ endif
 # Declaration of dependencies
 lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
-cairo_dep = dependency('cairo', required: true)
-lsp_tk_dep = dependency('lsp-tk-lib', required: true)
 
 # Sources to compile
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
@@ -46,7 +44,7 @@ shared_module('euclidean_ui',
                         include_directories: ui_inc,
                         c_args: lib_c_args,
                         name_prefix: '',
-                        dependencies: [lv2_dep, cairo_dep, lsp_tk_dep],
+                        dependencies: [lv2_dep],
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
