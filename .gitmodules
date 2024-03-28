@@ -1,0 +1,3 @@
+[submodule "subprojects/pugl"]
+	path = subprojects/pugl
+	url = git@github.com:lv2/pugl.git

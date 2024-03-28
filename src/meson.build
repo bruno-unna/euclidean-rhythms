@@ -22,6 +22,9 @@ endif
 lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
 
+# Pugl subproject
+pugl_proj = subproject('pugl')
+
 # Sources to compile
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
 
