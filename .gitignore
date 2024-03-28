@@ -54,5 +54,3 @@ dkms.conf
 # IDE files
 .idea
 **/*.iml
-
-/using meson in clion.txt
