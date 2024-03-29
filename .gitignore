@@ -54,3 +54,7 @@ dkms.conf
 # IDE files
 .idea
 **/*.iml
+
+# Sphinxygen (from pugl)
+subprojects/sphinxygen*
+subprojects/packagecache/sphinxygen*
