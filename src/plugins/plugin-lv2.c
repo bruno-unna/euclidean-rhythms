@@ -15,6 +15,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
+#define EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,7 +31,18 @@
 
 #include "euclidean.h"
 #include "lv2_uris.h"
-#include "plugin.h"
+
+typedef enum {
+    EUCLIDEAN_CONTROL = 0,
+    EUCLIDEAN_BEATS = 1,
+    EUCLIDEAN_ONSETS = 2,
+    EUCLIDEAN_ROTATION = 3,
+    EUCLIDEAN_BARS = 4,
+    EUCLIDEAN_CHANNEL = 5,
+    EUCLIDEAN_NOTE = 6,
+    EUCLIDEAN_VELOCITY = 7,
+    EUCLIDEAN_MIDI_OUT = 8
+} Port_index;
 
 typedef struct {
     LV2_URID_Map *map;     // URID map feature
