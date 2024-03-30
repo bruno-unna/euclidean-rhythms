@@ -130,7 +130,7 @@
     atom:bufferType atom:Sequence ;
     atom:supports midi:MidiEvent ;
     lv2:index 8 ;
-    lv2:symbol "midiout" ;
+    lv2:symbol "midi_out" ;
     lv2:name "MIDI Out" ;
   ] ;
 .
