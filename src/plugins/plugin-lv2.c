@@ -32,6 +32,22 @@
 #include "euclidean.h"
 #include "lv2_uris.h"
 
+#define N_GENERATORS 1
+#define N_PARAMETERS 7
+
+#define CONTROL_PORT 0
+#define MIDI_OUT_PORT (1 + N_GENERATORS * N_PARAMETERS)
+
+enum {
+    BEATS_IDX = 0,
+    ONSETS_IDX = 1,
+    ROTATION_IDX = 2,
+    BARS_IDX = 3,
+    CHANNEL_IDX = 4,
+    NOTE_IDX = 5,
+    VELOCITY_IDX = 6,
+};
+
 typedef enum {
     EUCLIDEAN_CONTROL = 0,
     EUCLIDEAN_BEATS = 1,
@@ -51,7 +67,6 @@ typedef struct {
 
     struct {
         const LV2_Atom_Sequence *control;
-        const float *enabled[N_GENERATORS];
         const float *beats[N_GENERATORS];
         const float *onsets[N_GENERATORS];
         const float *rotation[N_GENERATORS];
@@ -73,8 +88,6 @@ typedef struct {
 
     // this state is particular to each generator
     struct {
-        bool enabled;
-
         unsigned short beats;
         unsigned short onsets;
         short rotation;
@@ -106,9 +119,6 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
         unsigned short generator = (port - 1) / N_PARAMETERS;
         unsigned short widget_offset = (port - 1) % N_PARAMETERS;
         switch (widget_offset) {
-            case ENABLE_IDX:
-                self->ports.enabled[generator] = (float *) data;
-                break;
             case BEATS_IDX:
                 self->ports.beats[generator] = (float *) data;
                 break;
@@ -207,7 +217,6 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     self->common_state.current_bar = -1;
     self->common_state.frames_per_second = (float) rate;
     for (unsigned short gen = 0; gen < N_GENERATORS; ++gen) {
-        self->state[gen].enabled = gen == 0;
         self->state[gen].note_on_vector = NULL;
         self->state[gen].note_off_vector = NULL;
         self->state[gen].beats = 8;
@@ -254,13 +263,6 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
     for (unsigned short gen = 0; gen < N_GENERATORS; ++gen) {
         // Analyse the parameters
         bool calculate_euclidean = false;
-
-        bool port_enabled = *self->ports.enabled[gen] > 0;
-        if (port_enabled != self->state[gen].enabled) {
-            lv2_log_trace(&self->logger, "[gen %d] %s\n", gen, port_enabled ? "enabled" : "disabled");
-            self->state[gen].beats = port_enabled;
-            calculate_euclidean = port_enabled;
-        }
 
         unsigned short port_beats = (unsigned short) *self->ports.beats[gen];
         if (port_beats != self->state[gen].beats) {
