@@ -268,6 +268,14 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
         // Analyse the parameters
         bool calculate_euclidean = false;
 
+        bool port_enabled = (bool) *self->ports.enabled[gen];
+        if (port_enabled != self->state[gen].enabled) {
+            lv2_log_trace(&self->logger, "[gen %d] plugin status set to %s\n", gen,
+                          port_enabled ? "enabled" : "disabled");
+            self->state[gen].enabled = port_enabled;
+            calculate_euclidean = port_enabled;
+        }
+
         unsigned short port_beats = (unsigned short) *self->ports.beats[gen];
         if (port_beats != self->state[gen].beats) {
             lv2_log_trace(&self->logger, "[gen %d] plugin beats per bar set to %d\n", gen, port_beats);
@@ -296,7 +304,7 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
             calculate_euclidean = true;
         }
 
-        if (calculate_euclidean) {
+        if (calculate_euclidean && self->state[gen].enabled) {
             if (self->state[gen].note_on_vector != NULL) free(self->state[gen].note_on_vector);
             self->state[gen].note_on_vector = calloc(self->state[gen].onsets + 1, sizeof(long));
 
@@ -395,37 +403,39 @@ static void run(LV2_Handle instance, uint32_t sample_count) {
                     recalculate_onsets(self);
 
                 for (unsigned short gen = 0; gen < N_GENERATORS; ++gen) {
-                    // Perhaps produce a MIDI event?
-                    if (self->common_state.speed > 0 &&
-                        frame >= self->state[gen].note_on_vector[self->state[gen].note_on_index]) {
+                    if (self->state[gen].enabled) {
+                        // Perhaps produce a MIDI event?
+                        if (self->common_state.speed > 0) {
+                            if (frame >= self->state[gen].note_on_vector[self->state[gen].note_on_index]) {
 
-                        if (self->state[gen].playing == 0) {
-                            MIDI_note_event note;
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_Event;
-                            note.event.body.size = 3;
-                            note.msg[0] = LV2_MIDI_MSG_NOTE_ON + (int) *self->ports.channel[gen] - 1;
-                            note.msg[1] = (int) *self->ports.note[gen];
-                            note.msg[2] = (int) *self->ports.velocity[gen];
-                            self->state[gen].playing = (int) *self->ports.note[gen];
-                            lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
+                                if (self->state[gen].playing == 0) {
+                                    MIDI_note_event note;
+                                    note.event.time.frames = ev->time.frames;
+                                    note.event.body.type = uris->midi_Event;
+                                    note.event.body.size = 3;
+                                    note.msg[0] = LV2_MIDI_MSG_NOTE_ON + (int) *self->ports.channel[gen] - 1;
+                                    note.msg[1] = (int) *self->ports.note[gen];
+                                    note.msg[2] = (int) *self->ports.velocity[gen];
+                                    self->state[gen].playing = (int) *self->ports.note[gen];
+                                    lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
+                                }
+                                self->state[gen].note_on_index++;
+                            }
+                            if (frame >= self->state[gen].note_off_vector[self->state[gen].note_off_index]) {
+                                if (self->state[gen].playing > 0) {
+                                    MIDI_note_event note;
+                                    note.event.time.frames = ev->time.frames;
+                                    note.event.body.type = uris->midi_Event;
+                                    note.event.body.size = 3;
+                                    note.msg[0] = LV2_MIDI_MSG_NOTE_OFF + (int) *self->ports.channel[gen] - 1;
+                                    note.msg[1] = self->state[gen].playing;
+                                    note.msg[2] = 0x00;
+                                    self->state[gen].playing = 0;
+                                    lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
+                                }
+                                self->state[gen].note_off_index++;
+                            }
                         }
-                        self->state[gen].note_on_index++;
-                    }
-                    if (self->common_state.speed > 0 &&
-                        frame >= self->state[gen].note_off_vector[self->state[gen].note_off_index]) {
-                        if (self->state[gen].playing > 0) {
-                            MIDI_note_event note;
-                            note.event.time.frames = ev->time.frames;
-                            note.event.body.type = uris->midi_Event;
-                            note.event.body.size = 3;
-                            note.msg[0] = LV2_MIDI_MSG_NOTE_OFF + (int) *self->ports.channel[gen] - 1;
-                            note.msg[1] = self->state[gen].playing;
-                            note.msg[2] = 0x00;
-                            self->state[gen].playing = 0;
-                            lv2_atom_sequence_append_event(self->ports.midi_out, out_capacity, &note.event);
-                        }
-                        self->state[gen].note_off_index++;
                     }
                 }
             }
