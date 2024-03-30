@@ -361,5 +361,297 @@
     lv2:maximum 127 ;
     lv2:default 64 ;
     lv2:portProperty lv2:integer ;
+  ],
+
+  # generator 4
+  [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 34 ;
+    lv2:symbol "switch_4" ;
+    lv2:name "Enabled" ;
+    lv2:default 0 ;
+    lv2:portProperty lv2:toggled ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 35 ;
+    lv2:symbol "beats_4" ;
+    lv2:name "Number of beats" ;
+    lv2:minimum 2 ;
+    lv2:maximum 64 ;
+    lv2:default 8 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 36 ;
+    lv2:symbol "onsets_4" ;
+    lv2:name "Number of onsets" ;
+    lv2:minimum 0 ;
+    lv2:maximum 64 ;
+    lv2:default 5 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 37 ;
+    lv2:symbol "rotation_4" ;
+    lv2:name "Number of places the pattern is rotated" ;
+    lv2:minimum -32 ;
+    lv2:maximum 31 ;
+    lv2:default 0 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 38 ;
+    lv2:symbol "bars_4" ;
+    lv2:name "Pattern size (in bars)" ;
+    lv2:minimum 1 ;
+    lv2:maximum 8 ;
+    lv2:default 1 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 39 ;
+    lv2:symbol "channel_4" ;
+    lv2:name "MIDI channel to use" ;
+    lv2:minimum 1 ;
+    lv2:maximum 16 ;
+    lv2:default 10 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 40 ;
+    lv2:symbol "note_4" ;
+    lv2:name "Note to play" ;
+    lv2:minimum 0 ;
+    lv2:maximum 127 ;
+    lv2:default 48 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 41 ;
+    lv2:symbol "velocity_4" ;
+    lv2:name "Note velocity" ;
+    lv2:minimum 0 ;
+    lv2:maximum 127 ;
+    lv2:default 64 ;
+    lv2:portProperty lv2:integer ;
+  ],
+
+  # generator 5
+  [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 42 ;
+    lv2:symbol "switch_5" ;
+    lv2:name "Enabled" ;
+    lv2:default 0 ;
+    lv2:portProperty lv2:toggled ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 43 ;
+    lv2:symbol "beats_5" ;
+    lv2:name "Number of beats" ;
+    lv2:minimum 2 ;
+    lv2:maximum 64 ;
+    lv2:default 8 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 44 ;
+    lv2:symbol "onsets_5" ;
+    lv2:name "Number of onsets" ;
+    lv2:minimum 0 ;
+    lv2:maximum 64 ;
+    lv2:default 5 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 45 ;
+    lv2:symbol "rotation_5" ;
+    lv2:name "Number of places the pattern is rotated" ;
+    lv2:minimum -32 ;
+    lv2:maximum 31 ;
+    lv2:default 0 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 46 ;
+    lv2:symbol "bars_5" ;
+    lv2:name "Pattern size (in bars)" ;
+    lv2:minimum 1 ;
+    lv2:maximum 8 ;
+    lv2:default 1 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 47 ;
+    lv2:symbol "channel_5" ;
+    lv2:name "MIDI channel to use" ;
+    lv2:minimum 1 ;
+    lv2:maximum 16 ;
+    lv2:default 10 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 48 ;
+    lv2:symbol "note_5" ;
+    lv2:name "Note to play" ;
+    lv2:minimum 0 ;
+    lv2:maximum 127 ;
+    lv2:default 48 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 49 ;
+    lv2:symbol "velocity_5" ;
+    lv2:name "Note velocity" ;
+    lv2:minimum 0 ;
+    lv2:maximum 127 ;
+    lv2:default 64 ;
+    lv2:portProperty lv2:integer ;
+  ],
+
+  # generator 6
+  [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 50 ;
+    lv2:symbol "switch_6" ;
+    lv2:name "Enabled" ;
+    lv2:default 0 ;
+    lv2:portProperty lv2:toggled ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 51 ;
+    lv2:symbol "beats_6" ;
+    lv2:name "Number of beats" ;
+    lv2:minimum 2 ;
+    lv2:maximum 64 ;
+    lv2:default 8 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 52 ;
+    lv2:symbol "onsets_6" ;
+    lv2:name "Number of onsets" ;
+    lv2:minimum 0 ;
+    lv2:maximum 64 ;
+    lv2:default 5 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 53 ;
+    lv2:symbol "rotation_6" ;
+    lv2:name "Number of places the pattern is rotated" ;
+    lv2:minimum -32 ;
+    lv2:maximum 31 ;
+    lv2:default 0 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 54 ;
+    lv2:symbol "bars_6" ;
+    lv2:name "Pattern size (in bars)" ;
+    lv2:minimum 1 ;
+    lv2:maximum 8 ;
+    lv2:default 1 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 55 ;
+    lv2:symbol "channel_6" ;
+    lv2:name "MIDI channel to use" ;
+    lv2:minimum 1 ;
+    lv2:maximum 16 ;
+    lv2:default 10 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 56 ;
+    lv2:symbol "note_6" ;
+    lv2:name "Note to play" ;
+    lv2:minimum 0 ;
+    lv2:maximum 127 ;
+    lv2:default 48 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 57 ;
+    lv2:symbol "velocity_6" ;
+    lv2:name "Note velocity" ;
+    lv2:minimum 0 ;
+    lv2:maximum 127 ;
+    lv2:default 64 ;
+    lv2:portProperty lv2:integer ;
+  ],
+
+  # generator 7
+  [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 58 ;
+    lv2:symbol "switch_7" ;
+    lv2:name "Enabled" ;
+    lv2:default 0 ;
+    lv2:portProperty lv2:toggled ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 59 ;
+    lv2:symbol "beats_7" ;
+    lv2:name "Number of beats" ;
+    lv2:minimum 2 ;
+    lv2:maximum 64 ;
+    lv2:default 8 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 60 ;
+    lv2:symbol "onsets_7" ;
+    lv2:name "Number of onsets" ;
+    lv2:minimum 0 ;
+    lv2:maximum 64 ;
+    lv2:default 5 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 61 ;
+    lv2:symbol "rotation_7" ;
+    lv2:name "Number of places the pattern is rotated" ;
+    lv2:minimum -32 ;
+    lv2:maximum 31 ;
+    lv2:default 0 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 62 ;
+    lv2:symbol "bars_7" ;
+    lv2:name "Pattern size (in bars)" ;
+    lv2:minimum 1 ;
+    lv2:maximum 8 ;
+    lv2:default 1 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 63 ;
+    lv2:symbol "channel_7" ;
+    lv2:name "MIDI channel to use" ;
+    lv2:minimum 1 ;
+    lv2:maximum 16 ;
+    lv2:default 10 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 64 ;
+    lv2:symbol "note_7" ;
+    lv2:name "Note to play" ;
+    lv2:minimum 0 ;
+    lv2:maximum 127 ;
+    lv2:default 48 ;
+    lv2:portProperty lv2:integer ;
+  ], [
+    a lv2:InputPort, lv2:ControlPort ;
+    lv2:index 65 ;
+    lv2:symbol "velocity_7" ;
+    lv2:name "Note velocity" ;
+    lv2:minimum 0 ;
+    lv2:maximum 127 ;
+    lv2:default 64 ;
+    lv2:portProperty lv2:integer ;
   ];
 .

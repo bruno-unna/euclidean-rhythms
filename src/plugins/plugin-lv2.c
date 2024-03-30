@@ -32,7 +32,7 @@
 #include "euclidean.h"
 #include "lv2_uris.h"
 
-#define N_GENERATORS 4
+#define N_GENERATORS 8
 #define N_PARAMETERS 8
 
 #define CONTROL_PORT 0
