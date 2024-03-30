@@ -32,33 +32,22 @@
 #include "euclidean.h"
 #include "lv2_uris.h"
 
-#define N_GENERATORS 1
-#define N_PARAMETERS 7
+#define N_GENERATORS 4
+#define N_PARAMETERS 8
 
 #define CONTROL_PORT 0
-#define MIDI_OUT_PORT (1 + N_GENERATORS * N_PARAMETERS)
+#define MIDI_OUT_PORT 1
 
 enum {
-    BEATS_IDX = 0,
-    ONSETS_IDX = 1,
-    ROTATION_IDX = 2,
-    BARS_IDX = 3,
-    CHANNEL_IDX = 4,
-    NOTE_IDX = 5,
-    VELOCITY_IDX = 6,
+    ENABLED_IDX = 0,
+    BEATS_IDX = 1,
+    ONSETS_IDX = 2,
+    ROTATION_IDX = 3,
+    BARS_IDX = 4,
+    CHANNEL_IDX = 5,
+    NOTE_IDX = 6,
+    VELOCITY_IDX = 7,
 };
-
-typedef enum {
-    EUCLIDEAN_CONTROL = 0,
-    EUCLIDEAN_BEATS = 1,
-    EUCLIDEAN_ONSETS = 2,
-    EUCLIDEAN_ROTATION = 3,
-    EUCLIDEAN_BARS = 4,
-    EUCLIDEAN_CHANNEL = 5,
-    EUCLIDEAN_NOTE = 6,
-    EUCLIDEAN_VELOCITY = 7,
-    EUCLIDEAN_MIDI_OUT = 8
-} Port_index;
 
 typedef struct {
     LV2_URID_Map *map;     // URID map feature
@@ -66,14 +55,15 @@ typedef struct {
     Euclidean_URIs uris;    // Cache of mapped URIDs
 
     struct {
-        const LV2_Atom_Sequence *control;
-        const float *beats[N_GENERATORS];
-        const float *onsets[N_GENERATORS];
-        const float *rotation[N_GENERATORS];
-        const float *bars[N_GENERATORS];
-        const float *channel[N_GENERATORS];
-        const float *note[N_GENERATORS];
-        const float *velocity[N_GENERATORS];
+        LV2_Atom_Sequence *control;
+        float *enabled[N_GENERATORS];
+        float *beats[N_GENERATORS];
+        float *onsets[N_GENERATORS];
+        float *rotation[N_GENERATORS];
+        float *bars[N_GENERATORS];
+        float *channel[N_GENERATORS];
+        float *note[N_GENERATORS];
+        float *velocity[N_GENERATORS];
         LV2_Atom_Sequence *midi_out;
     } ports;
 
@@ -88,6 +78,8 @@ typedef struct {
 
     // this state is particular to each generator
     struct {
+        bool enabled;
+
         unsigned short beats;
         unsigned short onsets;
         short rotation;
@@ -110,34 +102,45 @@ static void connect_port(LV2_Handle instance, uint32_t port, void *data) {
     Euclidean *self = (Euclidean *) instance;
 
     if (port == CONTROL_PORT) {
-        lv2_log_note(&self->logger, "Setting control port %d\n", port);
-        self->ports.control = (const LV2_Atom_Sequence *) data;
+        lv2_log_trace(&self->logger, "Setting control port %d\n", port);
+        self->ports.control = (LV2_Atom_Sequence *) data;
     } else if (port == MIDI_OUT_PORT) {
-        lv2_log_note(&self->logger, "Setting midi port %d\n", port);
+        lv2_log_trace(&self->logger, "Setting midi port %d\n", port);
         self->ports.midi_out = (LV2_Atom_Sequence *) data;
     } else {
-        unsigned short generator = (port - 1) / N_PARAMETERS;
-        unsigned short widget_offset = (port - 1) % N_PARAMETERS;
+        unsigned short generator = (port - 2) / N_PARAMETERS;
+        unsigned short widget_offset = (port - 2) % N_PARAMETERS;
         switch (widget_offset) {
+            case ENABLED_IDX:
+                lv2_log_trace(&self->logger, "Setting port *enabled* of gen %d\n", generator);
+                self->ports.enabled[generator] = (float *) data;
+                break;
             case BEATS_IDX:
+                lv2_log_trace(&self->logger, "Setting port *beats* of gen %d\n", generator);
                 self->ports.beats[generator] = (float *) data;
                 break;
             case ONSETS_IDX:
+                lv2_log_trace(&self->logger, "Setting port *onsets* of gen %d\n", generator);
                 self->ports.onsets[generator] = (float *) data;
                 break;
             case ROTATION_IDX:
+                lv2_log_trace(&self->logger, "Setting port *rotation* of gen %d\n", generator);
                 self->ports.rotation[generator] = (float *) data;
                 break;
             case BARS_IDX:
+                lv2_log_trace(&self->logger, "Setting port *bars* of gen %d\n", generator);
                 self->ports.bars[generator] = (float *) data;
                 break;
             case CHANNEL_IDX:
+                lv2_log_trace(&self->logger, "Setting port *channel* of gen %d\n", generator);
                 self->ports.channel[generator] = (float *) data;
                 break;
             case NOTE_IDX:
+                lv2_log_trace(&self->logger, "Setting port *note* of gen %d\n", generator);
                 self->ports.note[generator] = (float *) data;
                 break;
             case VELOCITY_IDX:
+                lv2_log_trace(&self->logger, "Setting port *velocity* of gen %d\n", generator);
                 self->ports.velocity[generator] = (float *) data;
                 break;
             default:
@@ -217,6 +220,7 @@ static LV2_Handle instantiate(const LV2_Descriptor *descriptor,
     self->common_state.current_bar = -1;
     self->common_state.frames_per_second = (float) rate;
     for (unsigned short gen = 0; gen < N_GENERATORS; ++gen) {
+        self->state[gen].enabled = gen == 0;
         self->state[gen].note_on_vector = NULL;
         self->state[gen].note_off_vector = NULL;
         self->state[gen].beats = 8;
