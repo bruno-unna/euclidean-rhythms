@@ -12,7 +12,7 @@ object ControlPortGenerator extends App {
        |    lv2:index ${offset + 0} ;
        |    lv2:symbol "switch_$gen" ;
        |    lv2:name "Enabled" ;
-       |    lv2:default 0 ;
+       |    lv2:default ${if (gen == 0) 1 else 0} ;
        |    lv2:portProperty lv2:toggled ;
        |  ], [
        |    a lv2:InputPort, lv2:ControlPort ;
@@ -78,7 +78,6 @@ object ControlPortGenerator extends App {
        |    lv2:default 64 ;
        |    lv2:portProperty lv2:integer ;
        |  ],
-       |
        |""".stripMargin
 
   println(elements.mkString)
