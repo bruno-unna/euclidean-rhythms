@@ -2,8 +2,8 @@
 
 object ControlPortGenerator extends App {
   val elements = for {
-    gen <- 0 to 15
-    offset = 1 + gen * 8
+    gen <- 0 to 7
+    offset = 2 + gen * 8
   } yield
     s"""
        |  # generator $gen
