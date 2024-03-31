@@ -15,8 +15,6 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-#define EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
