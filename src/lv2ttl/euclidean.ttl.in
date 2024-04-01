@@ -52,7 +52,7 @@
   lv2:optionalFeature lv2:hardRTCapable ;
   lv2:requiredFeature urid:map ;
 
-  ui:ui <ui:ui <https://github.com/bruno-unna/euclidean-rhythms#ui> ;
+  ui:ui <https://github.com/bruno-unna/euclidean-rhythms#ui> ;
 
   lv2:minorVersion @MINOR_VERSION@ ;
   lv2:microVersion @MICRO_VERSION@ ;
@@ -655,7 +655,7 @@
     lv2:maximum 127 ;
     lv2:default 64 ;
     lv2:portProperty lv2:integer ;
-  ]
+  ];
 .
 
 <https://github.com/bruno-unna/euclidean-rhythms#ui>
