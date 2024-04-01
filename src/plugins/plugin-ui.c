@@ -110,7 +110,7 @@ instantiate(const LV2UI_Descriptor *descriptor,
     lv2_atom_forge_init(&ui->forge, ui->map);
 
     // Construct a basic UI
-    ui->world = puglNewWorld(PUGL_PROGRAM, 0);
+    ui->world = puglNewWorld(PUGL_MODULE, 0);
     puglSetWorldString(ui->world, PUGL_CLASS_NAME, "Euclidean Rhythms");
 
     ui->view = puglNewView(ui->world);
