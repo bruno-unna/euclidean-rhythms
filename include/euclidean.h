@@ -19,6 +19,7 @@
 #define EUCLIDEAN_H
 
 #define EUCLIDEAN_URI "https://github.com/bruno-unna/euclidean-rhythms"
+#define EUCLIDEAN_UI_URI "https://github.com/bruno-unna/euclidean-rhythms#ui"
 
 unsigned long e(unsigned short onsets, unsigned short beats, short rotation);
 

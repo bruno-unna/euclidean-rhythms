@@ -22,14 +22,11 @@ endif
 lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
 
-# Pugl subproject
-pugl_proj = subproject('pugl')
-
-# Sources to compile
+# Sources
 euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
 
 # Definition of the actual module
-euclideanmodule = shared_module('euclidean',
+euclidean_module = shared_module('euclidean',
                         euclidean_sources,
                         include_directories: inc,
                         c_args: lib_c_args,
@@ -38,6 +35,26 @@ euclideanmodule = shared_module('euclidean',
                         gnu_symbol_visibility: 'hidden',
                         install: true,
                         install_dir: install_folder)
+
+# UI dependencies
+pugl_proj = subproject('pugl')
+# pugl_dep = pugl_proj.get_variable('pugl_dep')
+pugl_dep = dependency('pugl', fallback: ['pugl', 'pugl_dep'])
+pugl_inc = pugl_proj.get_variable('includes')
+
+# UI sources
+ui_sources = ['plugins/plugin-ui.c']
+
+# Definition of the UI module
+ui_module = shared_module('euclidean_ui',
+                                ui_sources,
+                                include_directories: [inc, pugl_inc],
+                                c_args: lib_c_args,
+                                name_prefix: '',
+                                dependencies: [pugl_dep],
+                                gnu_symbol_visibility: 'hidden',
+                                install: true,
+                                install_dir: install_folder)
 
 # Getting version from project configuration or from git tags
 version_array = meson.project_version().split('-').get(0).split('.')
