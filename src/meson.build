@@ -41,6 +41,7 @@ pugl_proj = subproject('pugl')
 pugl_dep = pugl_proj.get_variable('pugl_dep')
 #pugl_dep = dependency('pugl', fallback: ['pugl', 'pugl_dep'])
 pugl_inc = pugl_proj.get_variable('includes')
+cairo_dep = dependency('cairo', required: true)
 
 # UI sources
 ui_sources = ['plugins/plugin-ui.c']
@@ -51,7 +52,7 @@ ui_module = shared_module('euclidean_ui',
                                 include_directories: [inc, pugl_inc],
                                 c_args: lib_c_args,
                                 name_prefix: '',
-                                dependencies: [pugl_dep],
+                                dependencies: [pugl_dep, cairo_dep],
                                 gnu_symbol_visibility: 'hidden',
                                 install: true,
                                 install_dir: install_folder)
