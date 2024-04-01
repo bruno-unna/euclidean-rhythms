@@ -667,5 +667,5 @@
     ui:plugin <https://github.com/bruno-unna/euclidean-rhythms> ;
     lv2:symbol "notify" ;
     ui:notifyType atom:Blank
-  ]
+  ];
 .
