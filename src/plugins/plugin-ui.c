@@ -30,6 +30,7 @@
 #include "lv2/urid/urid.h"
 
 #include <pugl/pugl.h>
+#include <pugl/cairo.h>
 
 #include <assert.h>
 #include <stdbool.h>
@@ -45,9 +46,13 @@ typedef struct {
     LV2_URID_Map*        map;
     LV2UI_Request_Value* request_value;
     LV2_Log_Logger       logger;
+    Euclidean_URIs uris;    // Cache of mapped URIDs
 
     LV2UI_Write_Function write;
     LV2UI_Controller     controller;
+
+    PuglWorld*      world;
+    PuglView* view;
 
     uint32_t width;
     uint32_t requested_n_peaks;
@@ -58,6 +63,11 @@ typedef struct {
     // Optional show/hide interface
     bool       did_init;
 } EuclideanUI;
+
+static PuglStatus
+onEvent(PuglView* view, const PuglEvent* event) {
+    return PUGL_SUCCESS;
+}
 
 static LV2UI_Handle
 instantiate(const LV2UI_Descriptor*   descriptor,
@@ -73,6 +83,7 @@ instantiate(const LV2UI_Descriptor*   descriptor,
         return NULL;
     }
 
+    ui->logger.log = NULL;
     ui->write      = write_function;
     ui->controller = controller;
     ui->width      = MIN_CANVAS_W;
@@ -81,21 +92,49 @@ instantiate(const LV2UI_Descriptor*   descriptor,
 
     // Get host features
     // clang-format off
-    const char* missing = lv2_features_query(
-            features,
-            LV2_LOG__log,         &ui->logger.log,    false,
-            LV2_URID__map,        &ui->map,           true,
-            LV2_UI__requestValue, &ui->request_value, false,
-            NULL);
+    const char* missing = lv2_features_query(features,
+                                             LV2_LOG__log,         &ui->logger.log,    false,
+                                             LV2_URID__map,        &ui->map,           true,
+                                             LV2_UI__requestValue, &ui->request_value, false,
+                                             NULL);
     // clang-format on
 
     lv2_log_logger_set_map(&ui->logger, ui->map);
+
     if (missing) {
         lv2_log_error(&ui->logger, "Missing feature <%s>\n", missing);
         free(ui);
         return NULL;
     }
 
+    map_uris(ui->map, &ui->uris);
+    lv2_atom_forge_init(&ui->forge, ui->map);
+
+    // Construct a basic UI
+    ui->world = puglNewWorld(PUGL_PROGRAM, 0);
+    puglSetWorldString(ui->world, PUGL_CLASS_NAME, "Euclidean Rhythms");
+
+    ui->view = puglNewView(ui->world);
+
+
+    puglSetViewString(ui->view, PUGL_WINDOW_TITLE, "Pugl Cairo Demo");
+    puglSetSizeHint(ui->view, PUGL_DEFAULT_SIZE, 512, 512);
+    puglSetSizeHint(ui->view, PUGL_MIN_SIZE, 256, 256);
+    puglSetSizeHint(ui->view, PUGL_MAX_SIZE, 2048, 2048);
+    puglSetViewHint(ui->view, PUGL_RESIZABLE, true);
+    puglSetHandle(ui->view, &ui);
+    puglSetBackend(ui->view, puglCairoBackend());
+    puglSetEventFunc(ui->view, onEvent);
+
+    PuglStatus st = puglRealize(ui->view);
+
+    if (st) {
+        lv2_log_error(&ui->logger, "Failed to create window (%s)\n", puglStrerror(st));
+        free(ui);
+        return NULL;
+    }
+
+    puglShow(ui->view, PUGL_SHOW_RAISE);
 
     return ui;
 }
@@ -105,6 +144,8 @@ cleanup(LV2UI_Handle handle)
 {
     EuclideanUI* ui = (EuclideanUI*)handle;
 
+    puglFreeView(ui->view);
+    puglFreeWorld(ui->world);
 
 
     free(ui);
@@ -176,8 +217,6 @@ static const LV2UI_Descriptor descriptor = {EUCLIDEAN_UI_URI,
                                             extension_data};
 
 LV2_SYMBOL_EXPORT
-const LV2UI_Descriptor*
-lv2ui_descriptor(uint32_t index)
-{
+const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index) {
     return index == 0 ? &descriptor : NULL;
 }
