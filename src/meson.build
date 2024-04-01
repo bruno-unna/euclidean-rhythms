@@ -38,8 +38,8 @@ euclidean_module = shared_module('euclidean',
 
 # UI dependencies
 pugl_proj = subproject('pugl')
-# pugl_dep = pugl_proj.get_variable('pugl_dep')
-pugl_dep = dependency('pugl', fallback: ['pugl', 'pugl_dep'])
+pugl_dep = pugl_proj.get_variable('pugl_dep')
+#pugl_dep = dependency('pugl', fallback: ['pugl', 'pugl_dep'])
 pugl_inc = pugl_proj.get_variable('includes')
 
 # UI sources
