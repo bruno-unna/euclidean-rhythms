@@ -42,59 +42,58 @@
 #define MIN_CANVAS_H 80
 
 typedef struct {
-    LV2_Atom_Forge       forge;
-    LV2_URID_Map*        map;
-    LV2UI_Request_Value* request_value;
-    LV2_Log_Logger       logger;
+    LV2_Atom_Forge forge;
+    LV2_URID_Map *map;
+    LV2UI_Request_Value *request_value;
+    LV2_Log_Logger logger;
     Euclidean_URIs uris;    // Cache of mapped URIDs
 
     LV2UI_Write_Function write;
-    LV2UI_Controller     controller;
+    LV2UI_Controller controller;
 
-    PuglWorld*      world;
-    PuglView* view;
+    PuglWorld *world;
+    PuglView *view;
 
     uint32_t width;
     uint32_t requested_n_peaks;
-    char*    filename;
+    char *filename;
 
     uint8_t forge_buf[1024];
 
     // Optional show/hide interface
-    bool       did_init;
+    bool did_init;
 } EuclideanUI;
 
 static PuglStatus
-onEvent(PuglView* view, const PuglEvent* event) {
+onEvent(PuglView *view, const PuglEvent *event) {
     return PUGL_SUCCESS;
 }
 
 static LV2UI_Handle
-instantiate(const LV2UI_Descriptor*   descriptor,
-            const char*               plugin_uri,
-            const char*               bundle_path,
-            LV2UI_Write_Function      write_function,
-            LV2UI_Controller          controller,
-            LV2UI_Widget*             widget,
-            const LV2_Feature* const* features)
-{
-    EuclideanUI* ui = (EuclideanUI*)calloc(1, sizeof(EuclideanUI));
+instantiate(const LV2UI_Descriptor *descriptor,
+            const char *plugin_uri,
+            const char *bundle_path,
+            LV2UI_Write_Function write_function,
+            LV2UI_Controller controller,
+            LV2UI_Widget *widget,
+            const LV2_Feature *const *features) {
+    EuclideanUI *ui = (EuclideanUI *) calloc(1, sizeof(EuclideanUI));
     if (!ui) {
         return NULL;
     }
 
     ui->logger.log = NULL;
-    ui->write      = write_function;
+    ui->write = write_function;
     ui->controller = controller;
-    ui->width      = MIN_CANVAS_W;
-    *widget        = NULL;
-    ui->did_init   = false;
+    ui->width = MIN_CANVAS_W;
+    *widget = NULL;
+    ui->did_init = false;
 
     // Get host features
     // clang-format off
-    const char* missing = lv2_features_query(features,
-                                             LV2_LOG__log,         &ui->logger.log,    false,
-                                             LV2_URID__map,        &ui->map,           true,
+    const char *missing = lv2_features_query(features,
+                                             LV2_LOG__log, &ui->logger.log, false,
+                                             LV2_URID__map, &ui->map, true,
                                              LV2_UI__requestValue, &ui->request_value, false,
                                              NULL);
     // clang-format on
@@ -140,9 +139,8 @@ instantiate(const LV2UI_Descriptor*   descriptor,
 }
 
 static void
-cleanup(LV2UI_Handle handle)
-{
-    EuclideanUI* ui = (EuclideanUI*)handle;
+cleanup(LV2UI_Handle handle) {
+    EuclideanUI *ui = (EuclideanUI *) handle;
 
     puglFreeView(ui->view);
     puglFreeWorld(ui->world);
@@ -153,19 +151,17 @@ cleanup(LV2UI_Handle handle)
 
 static void
 port_event(LV2UI_Handle handle,
-           uint32_t     port_index,
-           uint32_t     buffer_size,
-           uint32_t     format,
-           const void*  buffer)
-{
-    EuclideanUI* ui = (EuclideanUI*)handle;
+           uint32_t port_index,
+           uint32_t buffer_size,
+           uint32_t format,
+           const void *buffer) {
+    EuclideanUI *ui = (EuclideanUI *) handle;
 }
 
 /* Optional non-embedded UI show interface. */
 static int
-ui_show(LV2UI_Handle handle)
-{
-    EuclideanUI* ui = (EuclideanUI*)handle;
+ui_show(LV2UI_Handle handle) {
+    EuclideanUI *ui = (EuclideanUI *) handle;
 
 
     return 0;
@@ -173,10 +169,8 @@ ui_show(LV2UI_Handle handle)
 
 /* Optional non-embedded UI hide interface. */
 static int
-ui_hide(LV2UI_Handle handle)
-{
-    EuclideanUI* ui = (EuclideanUI*)handle;
-
+ui_hide(LV2UI_Handle handle) {
+    EuclideanUI *ui = (EuclideanUI *) handle;
 
 
     return 0;
@@ -184,18 +178,15 @@ ui_hide(LV2UI_Handle handle)
 
 /* Idle interface for optional non-embedded UI. */
 static int
-ui_idle(LV2UI_Handle handle)
-{
-    EuclideanUI* ui = (EuclideanUI*)handle;
-
+ui_idle(LV2UI_Handle handle) {
+    EuclideanUI *ui = (EuclideanUI *) handle;
 
 
     return 0;
 }
 
-static const void*
-extension_data(const char* uri)
-{
+static const void *
+extension_data(const char *uri) {
     static const LV2UI_Show_Interface show = {ui_show, ui_hide};
     static const LV2UI_Idle_Interface idle = {ui_idle};
 
@@ -217,6 +208,6 @@ static const LV2UI_Descriptor descriptor = {EUCLIDEAN_UI_URI,
                                             extension_data};
 
 LV2_SYMBOL_EXPORT
-const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index) {
+const LV2UI_Descriptor *lv2ui_descriptor(uint32_t index) {
     return index == 0 ? &descriptor : NULL;
 }
