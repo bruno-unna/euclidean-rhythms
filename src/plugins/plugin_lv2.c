@@ -30,23 +30,6 @@
 #include "euclidean.h"
 #include "lv2_uris.h"
 
-#define N_GENERATORS 8
-#define N_PARAMETERS 8
-
-#define CONTROL_PORT 0
-#define MIDI_OUT_PORT 1
-
-enum {
-    ENABLED_IDX = 0,
-    BEATS_IDX = 1,
-    ONSETS_IDX = 2,
-    ROTATION_IDX = 3,
-    BARS_IDX = 4,
-    CHANNEL_IDX = 5,
-    NOTE_IDX = 6,
-    VELOCITY_IDX = 7,
-};
-
 typedef struct {
     LV2_URID_Map *map;     // URID map feature
     LV2_Log_Logger logger; // Logger API
