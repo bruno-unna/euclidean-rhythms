@@ -23,7 +23,7 @@ lv2_dep = dependency('lv2', required: true)
 m_dep = meson.get_compiler('c').find_library('m', required: true)
 
 # Sources
-euclidean_sources = ['euclidean.c', 'plugins/plugin-lv2.c']
+euclidean_sources = ['euclidean.c', 'plugins/plugin_lv2.c']
 
 # Definition of the actual module
 euclidean_module = shared_module('euclidean',
@@ -37,25 +37,25 @@ euclidean_module = shared_module('euclidean',
                         install_dir: install_folder)
 
 # UI dependencies
-pugl_proj = subproject('pugl')
-pugl_dep = pugl_proj.get_variable('pugl_dep')
-#pugl_dep = dependency('pugl', fallback: ['pugl', 'pugl_dep'])
-pugl_inc = pugl_proj.get_variable('includes')
-cairo_dep = dependency('cairo', required: true)
+cc = meson.get_compiler('cpp')
+lib_bwidgets = cc.find_library('bwidgetscore', dirs: [ meson.current_source_dir() / 'BWidgets' / 'build'])
+lib_cairoplus = cc.find_library('cairoplus', dirs: [ meson.current_source_dir() / 'BWidgets' / 'build'])
+lib_pugl = cc.find_library('pugl', dirs: [ meson.current_source_dir() / 'BWidgets' / 'build'])
+inc_bwidgets = include_directories('./BWidgets/include')
 
 # UI sources
-ui_sources = ['plugins/plugin-ui.c']
+ui_sources = ['plugins/plugin_ui.cpp']
 
 # Definition of the UI module
 ui_module = shared_module('euclidean_ui',
-                                ui_sources,
-                                include_directories: [inc, pugl_inc],
-                                c_args: lib_c_args,
-                                name_prefix: '',
-                                dependencies: [pugl_dep, cairo_dep],
-                                gnu_symbol_visibility: 'hidden',
-                                install: true,
-                                install_dir: install_folder)
+                          ui_sources,
+                          include_directories : [inc, inc_bwidgets],
+                          c_args : lib_c_args,
+                          name_prefix : '',
+                          dependencies : [lib_bwidgets, lib_cairoplus, lib_pugl],
+                          gnu_symbol_visibility : 'hidden',
+                          install : true,
+                          install_dir : install_folder)
 
 # Getting version from project configuration or from git tags
 version_array = meson.project_version().split('-').get(0).split('.')
