@@ -1,4 +1,4 @@
-project('euclidean.lv2','c',
+project('euclidean.lv2','c', 'cpp',
     version: '0.2.0-SNAPSHOT',
     default_options: ['default_library=shared','c_std=c99'])
 
