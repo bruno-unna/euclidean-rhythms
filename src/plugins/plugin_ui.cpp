@@ -47,7 +47,7 @@ public:
 };
 
 Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
-        BWidgets::Window(1000, 1000, parentWindow, BUtilities::Urid::urid(EUCLIDEAN_UI_URI), "Euclidean Rhythms", true,
+        BWidgets::Window(800, 800, parentWindow, BUtilities::Urid::urid(EUCLIDEAN_UI_URI), "Euclidean Rhythms", true,
                          PUGL_MODULE, 0),
         write_function(nullptr), controller(nullptr),
         enabledCheckboxes{
@@ -132,14 +132,14 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         } {
     for (int i = 0; i < N_GENERATORS; ++i) {
         enabledCheckboxes[i].setValue(i == 0);
-        enabledCheckboxes[i].moveTo(32, 100 + 30 + 90 * i);
+        enabledCheckboxes[i].moveTo(72, 70 + 20 + 90 * i);
         enabledCheckboxes[i].setWidth(16);
         enabledCheckboxes[i].setHeight(16);
         add(&enabledCheckboxes[i]);
         enabledCheckboxes[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
                                                  Euclidean_GUI::valueChangedCallback);
 
-        beatsDials[i].moveTo(100 + 90 * 1, 100 + 90 * i);
+        beatsDials[i].moveTo(30 + 90 * 1, 70 + 90 * i);
         beatsDials[i].setWidth(80);
         beatsDials[i].setHeight(80);
         beatsDials[i].setClickable(false);
@@ -147,7 +147,7 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         beatsDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
                                           Euclidean_GUI::valueChangedCallback);
 
-        onsetsDials[i].moveTo(100 + 90 * 2, 100 + 90 * i);
+        onsetsDials[i].moveTo(30 + 90 * 2, 70 + 90 * i);
         onsetsDials[i].setWidth(80);
         onsetsDials[i].setHeight(80);
         onsetsDials[i].setClickable(false);
@@ -155,7 +155,7 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         onsetsDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
                                            Euclidean_GUI::valueChangedCallback);
 
-        rotationDials[i].moveTo(100 + 90 * 3, 100 + 90 * i);
+        rotationDials[i].moveTo(30 + 90 * 3, 70 + 90 * i);
         rotationDials[i].setWidth(80);
         rotationDials[i].setHeight(80);
         rotationDials[i].setClickable(false);
@@ -163,7 +163,7 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         rotationDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
                                              Euclidean_GUI::valueChangedCallback);
 
-        barsDials[i].moveTo(100 + 90 * 4, 100 + 90 * i);
+        barsDials[i].moveTo(30 + 90 * 4, 70 + 90 * i);
         barsDials[i].setWidth(80);
         barsDials[i].setHeight(80);
         barsDials[i].setClickable(false);
@@ -171,7 +171,7 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         barsDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
                                          Euclidean_GUI::valueChangedCallback);
 
-        channelDials[i].moveTo(100 + 90 * 5, 100 + 90 * i);
+        channelDials[i].moveTo(30 + 90 * 5, 70 + 90 * i);
         channelDials[i].setWidth(80);
         channelDials[i].setHeight(80);
         channelDials[i].setClickable(false);
@@ -179,7 +179,7 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         channelDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
                                             Euclidean_GUI::valueChangedCallback);
 
-        noteDials[i].moveTo(100 + 90 * 6, 100 + 90 * i);
+        noteDials[i].moveTo(30 + 90 * 6, 70 + 90 * i);
         noteDials[i].setWidth(80);
         noteDials[i].setHeight(80);
         noteDials[i].setClickable(false);
@@ -187,7 +187,7 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         noteDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
                                          Euclidean_GUI::valueChangedCallback);
 
-        velocityDials[i].moveTo(100 + 90 * 7, 100 + 90 * i);
+        velocityDials[i].moveTo(30 + 90 * 7, 70 + 90 * i);
         velocityDials[i].setWidth(80);
         velocityDials[i].setHeight(80);
         velocityDials[i].setClickable(false);
