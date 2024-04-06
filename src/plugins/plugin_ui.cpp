@@ -56,12 +56,12 @@ void Euclidean_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_
 }
 
 void Euclidean_GUI::onConfigureRequest(BEvents::Event *event) {
-    Window::onConfigureRequest(event);
-
-    double sz = (getWidth() > getHeight() ? getHeight() : getWidth()) / 100;
-    dial[0].label.setFont(BStyles::Font("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0 * sz));
-    dial[0].moveTo(10 * sz, 10 * sz);
-    dial[0].resize(80 * sz, 80 * sz);
+//    Window::onConfigureRequest(event);
+//
+//    double sz = (getWidth() > getHeight() ? getHeight() : getWidth()) / 100;
+//    beatsDials[0].label.setFont(BStyles::Font("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0 * sz));
+//    beatsDials[0].moveTo(10 * sz, 10 * sz);
+//    beatsDials[0].resize(80 * sz, 80 * sz);
 }
 
 void Euclidean_GUI::valueChangedCallback(BEvents::Event *event) {
