@@ -35,23 +35,23 @@ public:
 
     LV2UI_Write_Function write_function;
     LV2UI_Controller controller;
-    BWidgets::ValueDial dial;
+    BWidgets::ValueDial dial[1];
 };
 
 Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         BWidgets::Window(100, 100, parentWindow, BUtilities::Urid::urid(EUCLIDEAN_UI_URI), "Euclidean Rhythms", true,
                          PUGL_MODULE, 0),
         write_function(nullptr), controller(nullptr),
-        dial(10, 10, 80, 80, 8, 2, 64.0, 1.0) {
-    dial.setClickable(false);
-    add(&dial);
-    dial.setCallbackFunction(BEvents::Event::EventType::valueChangedEvent, Euclidean_GUI::valueChangedCallback);
+        dial{{BWidgets::ValueDial(10, 10, 80, 80, 8, 2, 64.0, 1.0)}} {
+    dial[0].setClickable(false);
+    add(&dial[0]);
+    dial[0].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent, Euclidean_GUI::valueChangedCallback);
 }
 
 void Euclidean_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer) {
     if ((format == 0) && (port_index == 3)) {
         auto *pval = (float *) buffer;
-        dial.setValue(*pval);
+        dial[0].setValue(*pval);
     }
 }
 
@@ -59,9 +59,9 @@ void Euclidean_GUI::onConfigureRequest(BEvents::Event *event) {
     Window::onConfigureRequest(event);
 
     double sz = (getWidth() > getHeight() ? getHeight() : getWidth()) / 100;
-    dial.label.setFont(BStyles::Font("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0 * sz));
-    dial.moveTo(10 * sz, 10 * sz);
-    dial.resize(80 * sz, 80 * sz);
+    dial[0].label.setFont(BStyles::Font("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0 * sz));
+    dial[0].moveTo(10 * sz, 10 * sz);
+    dial[0].resize(80 * sz, 80 * sz);
 }
 
 void Euclidean_GUI::valueChangedCallback(BEvents::Event *event) {
