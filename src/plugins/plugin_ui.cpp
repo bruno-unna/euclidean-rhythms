@@ -52,6 +52,13 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         write_function(nullptr), controller(nullptr),
         enabledCheckboxes{
                 {BWidgets::CheckBox(true)},
+                {BWidgets::CheckBox(true)},
+                {BWidgets::CheckBox(true)},
+                {BWidgets::CheckBox(true)},
+                {BWidgets::CheckBox(true)},
+                {BWidgets::CheckBox(true)},
+                {BWidgets::CheckBox(true)},
+                {BWidgets::CheckBox(true)},
         },
         beatsDials{
                 {BWidgets::ValueDial(8, 2, 64, 1)},
