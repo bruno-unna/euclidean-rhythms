@@ -19,6 +19,7 @@
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 #include "BWidgets/BEvents/ExposeEvent.hpp"
 #include "BWidgets/BWidgets/ValueDial.hpp"
+#include "BWidgets/BWidgets/CheckBox.hpp"
 #include "euclidean.h"
 #include <iostream>
 #include <cstring>
@@ -35,23 +36,164 @@ public:
 
     LV2UI_Write_Function write_function;
     LV2UI_Controller controller;
-    BWidgets::ValueDial dial[1];
+    BWidgets::CheckBox enabledCheckboxes[N_GENERATORS];
+    BWidgets::ValueDial beatsDials[N_GENERATORS];
+    BWidgets::ValueDial onsetsDials[N_GENERATORS];
+    BWidgets::ValueDial rotationDials[N_GENERATORS];
+    BWidgets::ValueDial barsDials[N_GENERATORS];
+    BWidgets::ValueDial channelDials[N_GENERATORS];
+    BWidgets::ValueDial noteDials[N_GENERATORS];
+    BWidgets::ValueDial velocityDials[N_GENERATORS];
 };
 
 Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
-        BWidgets::Window(100, 100, parentWindow, BUtilities::Urid::urid(EUCLIDEAN_UI_URI), "Euclidean Rhythms", true,
+        BWidgets::Window(1000, 1000, parentWindow, BUtilities::Urid::urid(EUCLIDEAN_UI_URI), "Euclidean Rhythms", true,
                          PUGL_MODULE, 0),
         write_function(nullptr), controller(nullptr),
-        dial{{BWidgets::ValueDial(10, 10, 80, 80, 8, 2, 64.0, 1.0)}} {
-    dial[0].setClickable(false);
-    add(&dial[0]);
-    dial[0].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent, Euclidean_GUI::valueChangedCallback);
+        enabledCheckboxes{
+                {BWidgets::CheckBox(true)},
+        },
+        beatsDials{
+                {BWidgets::ValueDial(8, 2, 64, 1)},
+                {BWidgets::ValueDial(8, 2, 64, 1)},
+                {BWidgets::ValueDial(8, 2, 64, 1)},
+                {BWidgets::ValueDial(8, 2, 64, 1)},
+                {BWidgets::ValueDial(8, 2, 64, 1)},
+                {BWidgets::ValueDial(8, 2, 64, 1)},
+                {BWidgets::ValueDial(8, 2, 64, 1)},
+                {BWidgets::ValueDial(8, 2, 64, 1)},
+        },
+        onsetsDials{
+                {BWidgets::ValueDial(5, 0, 64, 1)},
+                {BWidgets::ValueDial(5, 0, 64, 1)},
+                {BWidgets::ValueDial(5, 0, 64, 1)},
+                {BWidgets::ValueDial(5, 0, 64, 1)},
+                {BWidgets::ValueDial(5, 0, 64, 1)},
+                {BWidgets::ValueDial(5, 0, 64, 1)},
+                {BWidgets::ValueDial(5, 0, 64, 1)},
+                {BWidgets::ValueDial(5, 0, 64, 1)},
+        },
+        rotationDials{
+                {BWidgets::ValueDial(0, -32, 31, 1)},
+                {BWidgets::ValueDial(0, -32, 31, 1)},
+                {BWidgets::ValueDial(0, -32, 31, 1)},
+                {BWidgets::ValueDial(0, -32, 31, 1)},
+                {BWidgets::ValueDial(0, -32, 31, 1)},
+                {BWidgets::ValueDial(0, -32, 31, 1)},
+                {BWidgets::ValueDial(0, -32, 31, 1)},
+                {BWidgets::ValueDial(0, -32, 31, 1)},
+        },
+        barsDials{
+                {BWidgets::ValueDial(1, 1, 8, 1)},
+                {BWidgets::ValueDial(1, 1, 8, 1)},
+                {BWidgets::ValueDial(1, 1, 8, 1)},
+                {BWidgets::ValueDial(1, 1, 8, 1)},
+                {BWidgets::ValueDial(1, 1, 8, 1)},
+                {BWidgets::ValueDial(1, 1, 8, 1)},
+                {BWidgets::ValueDial(1, 1, 8, 1)},
+                {BWidgets::ValueDial(1, 1, 8, 1)},
+        },
+        channelDials{
+                {BWidgets::ValueDial(10, 1, 16, 1)},
+                {BWidgets::ValueDial(10, 1, 16, 1)},
+                {BWidgets::ValueDial(10, 1, 16, 1)},
+                {BWidgets::ValueDial(10, 1, 16, 1)},
+                {BWidgets::ValueDial(10, 1, 16, 1)},
+                {BWidgets::ValueDial(10, 1, 16, 1)},
+                {BWidgets::ValueDial(10, 1, 16, 1)},
+                {BWidgets::ValueDial(10, 1, 16, 1)},
+        },
+        noteDials{
+                {BWidgets::ValueDial(48, 0, 127, 1)},
+                {BWidgets::ValueDial(48, 0, 127, 1)},
+                {BWidgets::ValueDial(48, 0, 127, 1)},
+                {BWidgets::ValueDial(48, 0, 127, 1)},
+                {BWidgets::ValueDial(48, 0, 127, 1)},
+                {BWidgets::ValueDial(48, 0, 127, 1)},
+                {BWidgets::ValueDial(48, 0, 127, 1)},
+                {BWidgets::ValueDial(48, 0, 127, 1)},
+        },
+        velocityDials{
+                {BWidgets::ValueDial(64, 0, 127, 1)},
+                {BWidgets::ValueDial(64, 0, 127, 1)},
+                {BWidgets::ValueDial(64, 0, 127, 1)},
+                {BWidgets::ValueDial(64, 0, 127, 1)},
+                {BWidgets::ValueDial(64, 0, 127, 1)},
+                {BWidgets::ValueDial(64, 0, 127, 1)},
+                {BWidgets::ValueDial(64, 0, 127, 1)},
+                {BWidgets::ValueDial(64, 0, 127, 1)},
+        } {
+    for (int i = 0; i < N_GENERATORS; ++i) {
+        enabledCheckboxes[i].setValue(i == 0);
+        enabledCheckboxes[i].moveTo(32, 100 + 30 + 90 * i);
+        enabledCheckboxes[i].setWidth(16);
+        enabledCheckboxes[i].setHeight(16);
+        add(&enabledCheckboxes[i]);
+        enabledCheckboxes[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
+                                                 Euclidean_GUI::valueChangedCallback);
+
+        beatsDials[i].moveTo(100 + 90 * 1, 100 + 90 * i);
+        beatsDials[i].setWidth(80);
+        beatsDials[i].setHeight(80);
+        beatsDials[i].setClickable(false);
+        add(&beatsDials[i]);
+        beatsDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
+                                          Euclidean_GUI::valueChangedCallback);
+
+        onsetsDials[i].moveTo(100 + 90 * 2, 100 + 90 * i);
+        onsetsDials[i].setWidth(80);
+        onsetsDials[i].setHeight(80);
+        onsetsDials[i].setClickable(false);
+        add(&onsetsDials[i]);
+        onsetsDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
+                                           Euclidean_GUI::valueChangedCallback);
+
+        rotationDials[i].moveTo(100 + 90 * 3, 100 + 90 * i);
+        rotationDials[i].setWidth(80);
+        rotationDials[i].setHeight(80);
+        rotationDials[i].setClickable(false);
+        add(&rotationDials[i]);
+        rotationDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
+                                             Euclidean_GUI::valueChangedCallback);
+
+        barsDials[i].moveTo(100 + 90 * 4, 100 + 90 * i);
+        barsDials[i].setWidth(80);
+        barsDials[i].setHeight(80);
+        barsDials[i].setClickable(false);
+        add(&barsDials[i]);
+        barsDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
+                                         Euclidean_GUI::valueChangedCallback);
+
+        channelDials[i].moveTo(100 + 90 * 5, 100 + 90 * i);
+        channelDials[i].setWidth(80);
+        channelDials[i].setHeight(80);
+        channelDials[i].setClickable(false);
+        add(&channelDials[i]);
+        channelDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
+                                            Euclidean_GUI::valueChangedCallback);
+
+        noteDials[i].moveTo(100 + 90 * 6, 100 + 90 * i);
+        noteDials[i].setWidth(80);
+        noteDials[i].setHeight(80);
+        noteDials[i].setClickable(false);
+        add(&noteDials[i]);
+        noteDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
+                                         Euclidean_GUI::valueChangedCallback);
+
+        velocityDials[i].moveTo(100 + 90 * 7, 100 + 90 * i);
+        velocityDials[i].setWidth(80);
+        velocityDials[i].setHeight(80);
+        velocityDials[i].setClickable(false);
+        add(&velocityDials[i]);
+        velocityDials[i].setCallbackFunction(BEvents::Event::EventType::valueChangedEvent,
+                                             Euclidean_GUI::valueChangedCallback);
+    }
 }
 
 void Euclidean_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer) {
     if ((format == 0) && (port_index == 3)) {
         auto *pval = (float *) buffer;
-        dial[0].setValue(*pval);
+        beatsDials[0].setValue(*pval);
     }
 }
 
@@ -75,7 +217,7 @@ void Euclidean_GUI::valueChangedCallback(BEvents::Event *event) {
         if (widget->getMainWindow()) {
             auto *ui = (Euclidean_GUI *) widget->getMainWindow();
 
-            if (widget == (BWidgets::Widget *) &ui->dial) {
+            if (widget == (BWidgets::Widget *) &ui->beatsDials) {
                 ui->write_function(ui->controller, 3, sizeof(float), 0, &value);
             }
         }
