@@ -20,6 +20,7 @@
 #include "BWidgets/BEvents/ExposeEvent.hpp"
 #include "BWidgets/BWidgets/ValueDial.hpp"
 #include "BWidgets/BWidgets/CheckBox.hpp"
+#include "BWidgets/BWidgets/Text.hpp"
 #include "euclidean.h"
 #include <iostream>
 #include <cstring>
@@ -36,6 +37,14 @@ public:
 
     LV2UI_Write_Function write_function;
     LV2UI_Controller controller;
+    BWidgets::Text beatsLabel;
+    BWidgets::Text onsetsLabel;
+    BWidgets::Text rotationLabel;
+    BWidgets::Text barsLabel;
+    BWidgets::Text channelLabel;
+    BWidgets::Text noteLabel;
+    BWidgets::Text velocityLabel;
+    BWidgets::Text generatorLabels[N_GENERATORS];
     BWidgets::CheckBox enabledCheckboxes[N_GENERATORS];
     BWidgets::ValueDial beatsDials[N_GENERATORS];
     BWidgets::ValueDial onsetsDials[N_GENERATORS];
@@ -50,6 +59,23 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         BWidgets::Window(800, 800, parentWindow, BUtilities::Urid::urid(EUCLIDEAN_UI_URI), "Euclidean Rhythms", true,
                          PUGL_MODULE, 0),
         write_function(nullptr), controller(nullptr),
+        beatsLabel(BWidgets::Text("beats")),
+        onsetsLabel(BWidgets::Text("onsets")),
+        rotationLabel(BWidgets::Text("rotation")),
+        barsLabel(BWidgets::Text("size in bars")),
+        channelLabel(BWidgets::Text("MIDI channel")),
+        noteLabel(BWidgets::Text("MIDI note")),
+        velocityLabel(BWidgets::Text("MIDI velocity")),
+        generatorLabels{
+                {BWidgets::Text("gen 0")},
+                {BWidgets::Text("gen 1")},
+                {BWidgets::Text("gen 2")},
+                {BWidgets::Text("gen 3")},
+                {BWidgets::Text("gen 4")},
+                {BWidgets::Text("gen 5")},
+                {BWidgets::Text("gen 6")},
+                {BWidgets::Text("gen 7")},
+        },
         enabledCheckboxes{
                 {BWidgets::CheckBox(true)},
                 {BWidgets::CheckBox(true)},
@@ -130,7 +156,24 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
                 {BWidgets::ValueDial(64, 0, 127, 1)},
                 {BWidgets::ValueDial(64, 0, 127, 1)},
         } {
+    beatsLabel.moveTo(50 + 90 * 1, 40);
+    add(&beatsLabel);
+    onsetsLabel.moveTo(50 + 90 * 2, 40);
+    add(&onsetsLabel);
+    rotationLabel.moveTo(36 + 90 * 3, 40);
+    add(&rotationLabel);
+    barsLabel.moveTo(30 + 90 * 4, 40);
+    add(&barsLabel);
+    channelLabel.moveTo(30 + 90 * 5, 40);
+    add(&channelLabel);
+    noteLabel.moveTo(30 + 90 * 6, 40);
+    add(&noteLabel);
+    velocityLabel.moveTo(30 + 90 * 7, 40);
+    add(&velocityLabel);
     for (int i = 0; i < N_GENERATORS; ++i) {
+        generatorLabels[i].moveTo(20, 70 + 24 + 90 * i);
+        add(&generatorLabels[i]);
+
         enabledCheckboxes[i].setValue(i == 0);
         enabledCheckboxes[i].moveTo(72, 70 + 20 + 90 * i);
         enabledCheckboxes[i].setWidth(16);
