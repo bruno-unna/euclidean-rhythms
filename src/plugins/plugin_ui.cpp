@@ -42,14 +42,14 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
         BWidgets::Window(100, 100, parentWindow, BUtilities::Urid::urid(EUCLIDEAN_UI_URI), "Euclidean Rhythms", true,
                          PUGL_MODULE, 0),
         write_function(nullptr), controller(nullptr),
-        dial(10, 10, 80, 80, 0.0, -90.0, 24.0, 0.0) {
+        dial(10, 10, 80, 80, 8, 2, 64.0, 1.0) {
     dial.setClickable(false);
     add(&dial);
     dial.setCallbackFunction(BEvents::Event::EventType::valueChangedEvent, Euclidean_GUI::valueChangedCallback);
 }
 
 void Euclidean_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer) {
-    if ((format == 0) && (port_index == CONTROL_PORT)) {
+    if ((format == 0) && (port_index == 3)) {
         auto *pval = (float *) buffer;
         dial.setValue(*pval);
     }
@@ -76,7 +76,7 @@ void Euclidean_GUI::valueChangedCallback(BEvents::Event *event) {
             auto *ui = (Euclidean_GUI *) widget->getMainWindow();
 
             if (widget == (BWidgets::Widget *) &ui->dial) {
-                ui->write_function(ui->controller, CONTROL_PORT, sizeof(float), 0, &value);
+                ui->write_function(ui->controller, 3, sizeof(float), 0, &value);
             }
         }
     }
