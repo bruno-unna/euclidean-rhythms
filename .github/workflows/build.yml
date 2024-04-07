@@ -26,14 +26,16 @@ jobs:
           directory: build
           meson-version: 1.0.0
           ninja-version: 1.11.1
-      - run: mkdir package
       - name: Install (package)
         uses: BSFishy/meson-build@v1.0.3
         with:
           action: install
-          options: --destdir package
           directory: build
           meson-version: 1.0.0
           ninja-version: 1.11.1
-      - run: ls -l package
+      - name: Upload the plugin
+        uses: actions/upload-artifact@v2
+        with:
+          name: assets-for-download
+          path: usr/local/lib/x86_64-linux-gnu/lv2/euclidean.lv2
       - run: echo "The job's status is ${{ job.status }}."
