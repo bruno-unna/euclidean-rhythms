@@ -31,8 +31,6 @@ public:
 
     void portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer);
 
-    void onConfigureRequest(BEvents::Event *event) override;
-
     static void valueChangedCallback(BEvents::Event *event);
 
     LV2UI_Write_Function write_function;
@@ -275,15 +273,6 @@ void Euclidean_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_
                 break;
         }
     }
-}
-
-void Euclidean_GUI::onConfigureRequest(BEvents::Event *event) {
-//    Window::onConfigureRequest(event);
-//
-//    double sz = (getWidth() > getHeight() ? getHeight() : getWidth()) / 100;
-//    beatsDials[0].label.setFont(BStyles::Font("Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL, 12.0 * sz));
-//    beatsDials[0].moveTo(10 * sz, 10 * sz);
-//    beatsDials[0].resize(80 * sz, 80 * sz);
 }
 
 void Euclidean_GUI::valueChangedCallback(BEvents::Event *event) {
