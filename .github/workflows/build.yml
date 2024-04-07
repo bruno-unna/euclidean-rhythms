@@ -31,6 +31,7 @@ jobs:
         with:
           action: install
           directory: build
+          options: --destdir build
           meson-version: 1.0.0
           ninja-version: 1.11.1
       - name: Upload the plugin
