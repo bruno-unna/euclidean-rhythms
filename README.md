@@ -214,7 +214,7 @@ all the good things that I've received.
 
 ## Licence & copyright
 
-Copyright 2023 by Bruno Unna.
+Copyright 2023, 2024 by Bruno Unna.
 
 Euclidean Rhythms is free software: you can redistribute it and/or modify it under the terms of the
 GNU General Public License as published by the Free Software Foundation, either version 3 of the License,
