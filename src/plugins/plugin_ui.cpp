@@ -35,6 +35,7 @@ public:
 
     LV2UI_Write_Function write_function;
     LV2UI_Controller controller;
+
     BWidgets::Text beatsLabel;
     BWidgets::Text onsetsLabel;
     BWidgets::Text rotationLabel;
@@ -43,6 +44,7 @@ public:
     BWidgets::Text noteLabel;
     BWidgets::Text velocityLabel;
     BWidgets::Text generatorLabels[N_GENERATORS];
+
     BWidgets::CheckBox enabledCheckboxes[N_GENERATORS];
     BWidgets::ValueDial beatsDials[N_GENERATORS];
     BWidgets::ValueDial onsetsDials[N_GENERATORS];
@@ -75,84 +77,84 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
                 {BWidgets::Text("gen 7")},
         },
         enabledCheckboxes{
-                {BWidgets::CheckBox(true)},
-                {BWidgets::CheckBox(true)},
-                {BWidgets::CheckBox(true)},
-                {BWidgets::CheckBox(true)},
-                {BWidgets::CheckBox(true)},
-                {BWidgets::CheckBox(true)},
-                {BWidgets::CheckBox(true)},
-                {BWidgets::CheckBox(true)},
+                {BWidgets::CheckBox(true, true,  2 + N_PARAMETERS * 0)},
+                {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 1)},
+                {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 2)},
+                {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 3)},
+                {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 4)},
+                {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 5)},
+                {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 6)},
+                {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 7)},
         },
         beatsDials{
-                {BWidgets::ValueDial(8, 2, 64, 1)},
-                {BWidgets::ValueDial(8, 2, 64, 1)},
-                {BWidgets::ValueDial(8, 2, 64, 1)},
-                {BWidgets::ValueDial(8, 2, 64, 1)},
-                {BWidgets::ValueDial(8, 2, 64, 1)},
-                {BWidgets::ValueDial(8, 2, 64, 1)},
-                {BWidgets::ValueDial(8, 2, 64, 1)},
-                {BWidgets::ValueDial(8, 2, 64, 1)},
+                {BWidgets::ValueDial(8, 2, 64, 1, 3 + N_PARAMETERS * 0)},
+                {BWidgets::ValueDial(8, 2, 64, 1, 3 + N_PARAMETERS * 1)},
+                {BWidgets::ValueDial(8, 2, 64, 1, 3 + N_PARAMETERS * 2)},
+                {BWidgets::ValueDial(8, 2, 64, 1, 3 + N_PARAMETERS * 3)},
+                {BWidgets::ValueDial(8, 2, 64, 1, 3 + N_PARAMETERS * 4)},
+                {BWidgets::ValueDial(8, 2, 64, 1, 3 + N_PARAMETERS * 5)},
+                {BWidgets::ValueDial(8, 2, 64, 1, 3 + N_PARAMETERS * 6)},
+                {BWidgets::ValueDial(8, 2, 64, 1, 3 + N_PARAMETERS * 7)},
         },
         onsetsDials{
-                {BWidgets::ValueDial(5, 0, 64, 1)},
-                {BWidgets::ValueDial(5, 0, 64, 1)},
-                {BWidgets::ValueDial(5, 0, 64, 1)},
-                {BWidgets::ValueDial(5, 0, 64, 1)},
-                {BWidgets::ValueDial(5, 0, 64, 1)},
-                {BWidgets::ValueDial(5, 0, 64, 1)},
-                {BWidgets::ValueDial(5, 0, 64, 1)},
-                {BWidgets::ValueDial(5, 0, 64, 1)},
+                {BWidgets::ValueDial(5, 0, 64, 1, 4 + N_PARAMETERS * 0)},
+                {BWidgets::ValueDial(5, 0, 64, 1, 4 + N_PARAMETERS * 1)},
+                {BWidgets::ValueDial(5, 0, 64, 1, 4 + N_PARAMETERS * 2)},
+                {BWidgets::ValueDial(5, 0, 64, 1, 4 + N_PARAMETERS * 3)},
+                {BWidgets::ValueDial(5, 0, 64, 1, 4 + N_PARAMETERS * 4)},
+                {BWidgets::ValueDial(5, 0, 64, 1, 4 + N_PARAMETERS * 5)},
+                {BWidgets::ValueDial(5, 0, 64, 1, 4 + N_PARAMETERS * 6)},
+                {BWidgets::ValueDial(5, 0, 64, 1, 4 + N_PARAMETERS * 7)},
         },
         rotationDials{
-                {BWidgets::ValueDial(0, -32, 31, 1)},
-                {BWidgets::ValueDial(0, -32, 31, 1)},
-                {BWidgets::ValueDial(0, -32, 31, 1)},
-                {BWidgets::ValueDial(0, -32, 31, 1)},
-                {BWidgets::ValueDial(0, -32, 31, 1)},
-                {BWidgets::ValueDial(0, -32, 31, 1)},
-                {BWidgets::ValueDial(0, -32, 31, 1)},
-                {BWidgets::ValueDial(0, -32, 31, 1)},
+                {BWidgets::ValueDial(0, -32, 31, 1, 5 + N_PARAMETERS * 0)},
+                {BWidgets::ValueDial(0, -32, 31, 1, 5 + N_PARAMETERS * 1)},
+                {BWidgets::ValueDial(0, -32, 31, 1, 5 + N_PARAMETERS * 2)},
+                {BWidgets::ValueDial(0, -32, 31, 1, 5 + N_PARAMETERS * 3)},
+                {BWidgets::ValueDial(0, -32, 31, 1, 5 + N_PARAMETERS * 4)},
+                {BWidgets::ValueDial(0, -32, 31, 1, 5 + N_PARAMETERS * 5)},
+                {BWidgets::ValueDial(0, -32, 31, 1, 5 + N_PARAMETERS * 6)},
+                {BWidgets::ValueDial(0, -32, 31, 1, 5 + N_PARAMETERS * 7)},
         },
         barsDials{
-                {BWidgets::ValueDial(1, 1, 8, 1)},
-                {BWidgets::ValueDial(1, 1, 8, 1)},
-                {BWidgets::ValueDial(1, 1, 8, 1)},
-                {BWidgets::ValueDial(1, 1, 8, 1)},
-                {BWidgets::ValueDial(1, 1, 8, 1)},
-                {BWidgets::ValueDial(1, 1, 8, 1)},
-                {BWidgets::ValueDial(1, 1, 8, 1)},
-                {BWidgets::ValueDial(1, 1, 8, 1)},
+                {BWidgets::ValueDial(1, 1, 8, 1, 6 + N_PARAMETERS * 0)},
+                {BWidgets::ValueDial(1, 1, 8, 1, 6 + N_PARAMETERS * 1)},
+                {BWidgets::ValueDial(1, 1, 8, 1, 6 + N_PARAMETERS * 2)},
+                {BWidgets::ValueDial(1, 1, 8, 1, 6 + N_PARAMETERS * 3)},
+                {BWidgets::ValueDial(1, 1, 8, 1, 6 + N_PARAMETERS * 4)},
+                {BWidgets::ValueDial(1, 1, 8, 1, 6 + N_PARAMETERS * 5)},
+                {BWidgets::ValueDial(1, 1, 8, 1, 6 + N_PARAMETERS * 6)},
+                {BWidgets::ValueDial(1, 1, 8, 1, 6 + N_PARAMETERS * 7)},
         },
         channelDials{
-                {BWidgets::ValueDial(10, 1, 16, 1)},
-                {BWidgets::ValueDial(10, 1, 16, 1)},
-                {BWidgets::ValueDial(10, 1, 16, 1)},
-                {BWidgets::ValueDial(10, 1, 16, 1)},
-                {BWidgets::ValueDial(10, 1, 16, 1)},
-                {BWidgets::ValueDial(10, 1, 16, 1)},
-                {BWidgets::ValueDial(10, 1, 16, 1)},
-                {BWidgets::ValueDial(10, 1, 16, 1)},
+                {BWidgets::ValueDial(10, 1, 16, 1, 7 + N_PARAMETERS * 0)},
+                {BWidgets::ValueDial(10, 1, 16, 1, 7 + N_PARAMETERS * 1)},
+                {BWidgets::ValueDial(10, 1, 16, 1, 7 + N_PARAMETERS * 2)},
+                {BWidgets::ValueDial(10, 1, 16, 1, 7 + N_PARAMETERS * 3)},
+                {BWidgets::ValueDial(10, 1, 16, 1, 7 + N_PARAMETERS * 4)},
+                {BWidgets::ValueDial(10, 1, 16, 1, 7 + N_PARAMETERS * 5)},
+                {BWidgets::ValueDial(10, 1, 16, 1, 7 + N_PARAMETERS * 6)},
+                {BWidgets::ValueDial(10, 1, 16, 1, 7 + N_PARAMETERS * 7)},
         },
         noteDials{
-                {BWidgets::ValueDial(48, 0, 127, 1)},
-                {BWidgets::ValueDial(48, 0, 127, 1)},
-                {BWidgets::ValueDial(48, 0, 127, 1)},
-                {BWidgets::ValueDial(48, 0, 127, 1)},
-                {BWidgets::ValueDial(48, 0, 127, 1)},
-                {BWidgets::ValueDial(48, 0, 127, 1)},
-                {BWidgets::ValueDial(48, 0, 127, 1)},
-                {BWidgets::ValueDial(48, 0, 127, 1)},
+                {BWidgets::ValueDial(48, 0, 127, 1, 8 + N_PARAMETERS * 0)},
+                {BWidgets::ValueDial(48, 0, 127, 1, 8 + N_PARAMETERS * 1)},
+                {BWidgets::ValueDial(48, 0, 127, 1, 8 + N_PARAMETERS * 2)},
+                {BWidgets::ValueDial(48, 0, 127, 1, 8 + N_PARAMETERS * 3)},
+                {BWidgets::ValueDial(48, 0, 127, 1, 8 + N_PARAMETERS * 4)},
+                {BWidgets::ValueDial(48, 0, 127, 1, 8 + N_PARAMETERS * 5)},
+                {BWidgets::ValueDial(48, 0, 127, 1, 8 + N_PARAMETERS * 6)},
+                {BWidgets::ValueDial(48, 0, 127, 1, 8 + N_PARAMETERS * 7)},
         },
         velocityDials{
-                {BWidgets::ValueDial(64, 0, 127, 1)},
-                {BWidgets::ValueDial(64, 0, 127, 1)},
-                {BWidgets::ValueDial(64, 0, 127, 1)},
-                {BWidgets::ValueDial(64, 0, 127, 1)},
-                {BWidgets::ValueDial(64, 0, 127, 1)},
-                {BWidgets::ValueDial(64, 0, 127, 1)},
-                {BWidgets::ValueDial(64, 0, 127, 1)},
-                {BWidgets::ValueDial(64, 0, 127, 1)},
+                {BWidgets::ValueDial(64, 0, 127, 1, 9 + N_PARAMETERS * 0)},
+                {BWidgets::ValueDial(64, 0, 127, 1, 9 + N_PARAMETERS * 1)},
+                {BWidgets::ValueDial(64, 0, 127, 1, 9 + N_PARAMETERS * 2)},
+                {BWidgets::ValueDial(64, 0, 127, 1, 9 + N_PARAMETERS * 3)},
+                {BWidgets::ValueDial(64, 0, 127, 1, 9 + N_PARAMETERS * 4)},
+                {BWidgets::ValueDial(64, 0, 127, 1, 9 + N_PARAMETERS * 5)},
+                {BWidgets::ValueDial(64, 0, 127, 1, 9 + N_PARAMETERS * 6)},
+                {BWidgets::ValueDial(64, 0, 127, 1, 9 + N_PARAMETERS * 7)},
         } {
     beatsLabel.moveTo(50 + 90 * 1, 40);
     add(&beatsLabel);
@@ -286,9 +288,10 @@ void Euclidean_GUI::valueChangedCallback(BEvents::Event *event) {
         if (widget->getMainWindow()) {
             auto *ui = (Euclidean_GUI *) widget->getMainWindow();
 
-            if (widget == (BWidgets::Widget *) &ui->beatsDials) {
-                ui->write_function(ui->controller, 3, sizeof(float), 0, &value);
-            }
+            auto port_index = widget->getUrid();
+
+            std::cout << "writing the value " << value << " to port with index " << port_index << "\n";
+            ui->write_function(ui->controller, port_index, sizeof(float), 0, &value);
         }
     }
 }
