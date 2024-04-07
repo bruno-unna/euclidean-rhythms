@@ -14,11 +14,11 @@ jobs:
         with:
           submodules: 'true'
       - name: Install dependencies
-        run: sudo apt-get install -y lv2-dev libx11-dev libxt-dev libcairo2-dev
+        run: sudo apt-get install -y lv2-dev libx11-dev libcairo2-dev
       - name: Clone submodules (BWidgets and friends)
         run: git submodule update --init --recursive
       - name: Compile dependencies
-        run: make -C src/BWidgets bwidgets
+        run: make -C src/BWidgets -I /usr/include/cairo bwidgets
       - name: Build
         uses: BSFishy/meson-build@v1.0.3
         with:
