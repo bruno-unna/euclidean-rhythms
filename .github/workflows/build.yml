@@ -35,6 +35,8 @@ jobs:
           meson-version: 1.0.0
           ninja-version: 1.11.1
       - name: Upload the plugin
+        env:
+          ACTIONS_STEP_DEBUG: true
         uses: actions/upload-artifact@v2
         with:
           name: assets-for-download
