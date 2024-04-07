@@ -77,7 +77,7 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
                 {BWidgets::Text("gen 7")},
         },
         enabledCheckboxes{
-                {BWidgets::CheckBox(true, true,  2 + N_PARAMETERS * 0)},
+                {BWidgets::CheckBox(true, true, 2 + N_PARAMETERS * 0)},
                 {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 1)},
                 {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 2)},
                 {BWidgets::CheckBox(true, false, 2 + N_PARAMETERS * 3)},
@@ -281,16 +281,20 @@ void Euclidean_GUI::valueChangedCallback(BEvents::Event *event) {
     if ((event) && (event->getWidget())) {
         BWidgets::Widget *widget = event->getWidget();
         if (!widget) return;
-        auto *vd = dynamic_cast<BWidgets::ValueableTyped<double> *>(widget);
-        if (!vd) return;
-        float value = vd->getValue();
+        auto port_index = widget->getUrid();
 
+        float value;
+        if ((port_index - 2) % N_PARAMETERS == 0) {  // an on/off switch
+            auto *vd = dynamic_cast<BWidgets::ValueableTyped<bool> *>(widget);
+            if (!vd) return;
+            value = vd->getValue() ? 1.0 : 0.0;
+        } else {    // a dial
+            auto *vd = dynamic_cast<BWidgets::ValueableTyped<double> *>(widget);
+            if (!vd) return;
+            value = vd->getValue();
+        }
         if (widget->getMainWindow()) {
             auto *ui = (Euclidean_GUI *) widget->getMainWindow();
-
-            auto port_index = widget->getUrid();
-
-            std::cout << "writing the value " << value << " to port with index " << port_index << "\n";
             ui->write_function(ui->controller, port_index, sizeof(float), 0, &value);
         }
     }
