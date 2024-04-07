@@ -245,7 +245,7 @@ void Euclidean_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_
         unsigned short widget_offset = (port_index - 2) % N_PARAMETERS;
         switch (widget_offset) {
             case ENABLED_IDX:
-                enabledCheckboxes[generator].setValue((bool *) buffer);
+                enabledCheckboxes[generator].setValue(*pval > 0);
                 break;
             case BEATS_IDX:
                 beatsDials[generator].setValue(*pval);
