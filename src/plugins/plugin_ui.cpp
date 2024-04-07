@@ -241,9 +241,39 @@ Euclidean_GUI::Euclidean_GUI(PuglNativeView parentWindow) :
 }
 
 void Euclidean_GUI::portEvent(uint32_t port_index, uint32_t buffer_size, uint32_t format, const void *buffer) {
-    if ((format == 0) && (port_index == 3)) {
+    if (format == 0) {
         auto *pval = (float *) buffer;
-        beatsDials[0].setValue(*pval);
+        unsigned short generator = (port_index - 2) / N_PARAMETERS;
+        unsigned short widget_offset = (port_index - 2) % N_PARAMETERS;
+        switch (widget_offset) {
+            case ENABLED_IDX:
+                enabledCheckboxes[generator].setValue((bool *) buffer);
+                break;
+            case BEATS_IDX:
+                beatsDials[generator].setValue(*pval);
+                break;
+            case ONSETS_IDX:
+                onsetsDials[generator].setValue(*pval);
+                break;
+            case ROTATION_IDX:
+                rotationDials[generator].setValue(*pval);
+                break;
+            case BARS_IDX:
+                barsDials[generator].setValue(*pval);
+                break;
+            case CHANNEL_IDX:
+                channelDials[generator].setValue(*pval);
+                break;
+            case NOTE_IDX:
+                noteDials[generator].setValue(*pval);
+                break;
+            case VELOCITY_IDX:
+                velocityDials[generator].setValue(*pval);
+                break;
+            default:
+                std::cout << "received a non-understood port event for port_index " << port_index << "\n";
+                break;
+        }
     }
 }
 
