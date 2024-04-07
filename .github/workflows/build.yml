@@ -31,7 +31,7 @@ jobs:
         uses: BSFishy/meson-build@v1.0.3
         with:
           action: install
-          options: --destdir package --verbose
+          options: --destdir package
           directory: build
           meson-version: 1.0.0
           ninja-version: 1.11.1
