@@ -206,6 +206,9 @@ the code of this plugin finds its embryo in David's examples.
 Thanks to [Robin Gareus](mailto:robin@gareus.org) for sharing generously the source code of his own plugins with the
 community. I've learnt a lot.
 
+Thanks to [sjaehn](https://github.com/sjaehn) for creating, maintaining and sharing
+the [BWidgets library](https://github.com/sjaehn/BWidgets), that I used for the UI of this plugin.
+
 Thanks as well to JetBrains, for demonstrating their [commitment to Open Source](https://jb.gg/OpenSourceSupport) by
 granting me a licence to use their IDEs for free for this project.
 
