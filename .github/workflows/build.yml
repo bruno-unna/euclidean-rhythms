@@ -35,10 +35,8 @@ jobs:
           meson-version: 1.0.0
           ninja-version: 1.11.1
       - name: Upload the plugin
-        id: artefact-upload-step
         uses: actions/upload-artifact@v4
         with:
           name: euclidean-rhythms.lv2
           path: build/package/usr/local/lib/x86_64-linux-gnu/lv2/euclidean.lv2
-      - run: echo "Artefact ID is ${{ steps.artefact-upload-step.outputs.artifact-id }}"
-      - run: echo "The job's status is ${{ job.status }}."
+          overwrite: true
