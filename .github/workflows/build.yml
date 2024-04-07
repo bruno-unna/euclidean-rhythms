@@ -15,6 +15,10 @@ jobs:
           submodules: 'true'
       - name: Install lv2
         run: sudo apt-get install -y lv2-dev
+      - name: Clone submodules (BWidgets and friends)
+        run: git submodule update --init --recursive
+      - name: Compile dependencies
+        run: make -C src/BWidgets bwidgets
       - name: Build
         uses: BSFishy/meson-build@v1.0.3
         with:
