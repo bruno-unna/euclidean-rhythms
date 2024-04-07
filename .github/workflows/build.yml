@@ -26,4 +26,13 @@ jobs:
           directory: build
           meson-version: 1.0.0
           ninja-version: 1.11.1
+      - run: mkdir package
+      - name: Install (package)
+        uses: BSFishy/meson-build@v1.0.3
+        with:
+          action: install --destdir package
+          directory: build
+          meson-version: 1.0.0
+          ninja-version: 1.11.1
+      - run: ls -l package
       - run: echo "The job's status is ${{ job.status }}."
