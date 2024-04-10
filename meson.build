@@ -1,5 +1,5 @@
 project('euclidean.lv2','c', 'cpp',
-    version: '1.0.0',
+    version: '1.0.1-SNAPSHOT',
     default_options: ['default_library=shared','c_std=c99'])
 
 # Where to install?
