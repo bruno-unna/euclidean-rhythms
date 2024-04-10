@@ -6,6 +6,8 @@
 
 An implementation of the Euclidean rhythms idea in the form of plugins.
 
+![Screen shot of the plugin at version 1.0.0](https://github.com/bruno-unna/euclidean-rhythms/blob/develop/screenshot-1.0.0.png?raw=true)
+
 ## Table of contents
 
 1. [Introduction](#introduction)
